@@ -21,7 +21,7 @@ Feature: Flat List
         """
         : {
           ::this= [hello world]
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -32,9 +32,9 @@ Feature: Flat List
         """
       Then the result should be:
         """
-        = {
+        : {
           ::this= [hello world]
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -47,7 +47,7 @@ Feature: Flat List
         """
         : {
           ::this= []
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -60,7 +60,7 @@ Feature: Flat List
         """
         : {
           ::this= []
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -89,7 +89,7 @@ Feature: Flat List
         """
         : {
           ::this= [hello world]
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -102,7 +102,7 @@ Feature: Flat List
         """
         : {
           ::this= []
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -135,7 +135,7 @@ Feature: Flat List
         """
         : {
           ::this= [hello world]
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 
@@ -148,7 +148,7 @@ Feature: Flat List
         """
         : {
           ::this= []
-          ::object.class.simpleName= Object[]
+          ::object.class.simpleName= ArrayList
         }
         """
 

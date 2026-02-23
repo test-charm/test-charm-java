@@ -48,7 +48,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create Default without Input Properties
+    Scenario: Create Root Object without any Sub-Object Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).create();
@@ -62,7 +62,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Specified Default Sub
+    Scenario: Create Default Sub-Object without Specifying its Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object", new HashMap()).create();
@@ -76,7 +76,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property
+    Scenario: Create Sub-Object with Given Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object.value1", "v1").create();
@@ -90,7 +90,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property Query
+    Scenario: Reuse Previously Created Sub-Object by Matching its Properties
       Given register as follows:
         """
         jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -108,7 +108,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Query with Sub Property
+    Scenario: Query Root Object by Sub-Object Properties
       Given register as follows:
         """
         Sub sub = jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -161,7 +161,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create Default without Input Properties Sub and Get (null)
+    Scenario: Create Root Object without any Sub-Object Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).create();
@@ -171,7 +171,7 @@ Feature: Nested object specialization via Spec
         object: null
         """
 
-    Scenario: Create with Specified Default Sub
+    Scenario: Create Default Sub-Object without Specifying its Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object", new HashMap()).create();
@@ -185,7 +185,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property
+    Scenario: Create Sub-Object with Given Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object.value1", "v1").create();
@@ -199,7 +199,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property Query
+    Scenario: Reuse Previously Created Sub-Object by Matching its Properties
       Given register as follows:
         """
         jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -217,7 +217,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Query with Sub Property
+    Scenario: Query Root Object by Sub-Object Properties
       Given register as follows:
         """
         Sub sub = jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -260,7 +260,7 @@ Feature: Nested object specialization via Spec
 
   Rule: By input child property Spec
 
-    Scenario: Create Default with Specified Default Sub
+    Scenario: Create Default Sub-Object without Specifying its Properties
       When evaluating the following code:
         """
         jFactory.type(Bean.class).property("object(SubSpec)", new HashMap()).create();
@@ -274,7 +274,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property
+    Scenario: Create Sub-Object with Given Properties
       When evaluating the following code:
         """
         jFactory.type(Bean.class).property("object(SubSpec).value1", "v1").create();
@@ -288,7 +288,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property Query
+    Scenario: Reuse Previously Created Sub-Object by Matching its Properties
       Given register as follows:
         """
         jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -306,7 +306,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Query with Sub Property
+    Scenario: Query Root Object by Sub-Object Properties
       Given register as follows:
         """
         Sub sub = jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -386,7 +386,7 @@ Feature: Nested object specialization via Spec
         jFactory.register(SubSpec.class);
         """
 
-    Scenario: Create Default with Specified Default Sub
+    Scenario: Create Default Sub-Object without Specifying its Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object(SubSpec)", new HashMap()).create();
@@ -400,7 +400,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create Default with Sub Properties
+    Scenario: Create Sub-Object with Given Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object(SubSpec).value1", "v1").create();
@@ -414,7 +414,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property Query
+    Scenario: Reuse Previously Created Sub-Object by Matching its Properties
       Given register as follows:
         """
         jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -432,7 +432,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Query with Sub Property
+    Scenario: Query Root Object by Sub-Object Properties
       Given register as follows:
         """
         Sub sub = jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -513,7 +513,7 @@ Feature: Nested object specialization via Spec
         jFactory.register(SubSpec.class);
         """
 
-    Scenario: Create Default with Specified Default Sub
+    Scenario: Create Default Sub-Object without Specifying its Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object(SubSpec)", new HashMap()).create();
@@ -527,7 +527,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create Default with Sub Properties
+    Scenario: Create Sub-Object with Given Properties
       When evaluating the following code:
         """
         jFactory.spec(BeanSpec.class).property("object(SubSpec).value1", "v1").create();
@@ -541,7 +541,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Create with Sub Property Query
+    Scenario: Reuse Previously Created Sub-Object by Matching its Properties
       Given register as follows:
         """
         jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();
@@ -559,7 +559,7 @@ Feature: Nested object specialization via Spec
         }
         """
 
-    Scenario: Query with Sub Property
+    Scenario: Query Root Object by Sub-Object Properties
       Given register as follows:
         """
         Sub sub = jFactory.type(Sub.class).property("value1", "v1").property("value2", "v2").create();

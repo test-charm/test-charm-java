@@ -1,5 +1,6 @@
 package com.github.leeonky.jfactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.github.leeonky.util.function.Extension.mapValue;
+import static java.util.Arrays.asList;
 
 public class Collector {
     private final JFactory jFactory;
@@ -39,7 +41,7 @@ public class Collector {
                     case LIST: {
                         Object[] list = new Object[this.list.isEmpty() ? 0 : (Collections.max(this.list.keySet()) + 1)];
                         this.list.forEach((key, value) -> list[key] = value.build());
-                        return list;
+                        return new ArrayList<>(asList(list));
                     }
                 }
                 return mapValue(fields, Collector::build, LinkedHashMap::new);
