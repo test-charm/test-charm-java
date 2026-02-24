@@ -1,4 +1,5 @@
-Feature: Flat List
+Feature: Flat Raw List
+  Create List by Collector
 
   Rule: Default Collector
 
@@ -41,7 +42,7 @@ Feature: Flat List
     Scenario: use : [] to create Default Collection
       When "collector" collect and build with the following properties:
         """
-        = []
+        : []
         """
       Then the result should be:
         """
@@ -64,7 +65,7 @@ Feature: Flat List
         }
         """
 
-  Rule: use = to Force Bean to List
+  Rule: use = to Force Create List from Collect by Type
 
     Background:
       Given the following declarations:
@@ -106,7 +107,7 @@ Feature: Flat List
         }
         """
 
-  Rule: use = Force Spec<Bean> to List
+  Rule: use = to Force Create List from Collector by Spec
 
     Background:
       Given the following declarations:

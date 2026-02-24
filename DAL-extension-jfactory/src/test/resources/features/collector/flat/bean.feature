@@ -1,4 +1,5 @@
 Feature: Flat Object
+  Use `: {}` to Create Object by JFactory
 
   Rule: By Default Type
 
@@ -23,13 +24,20 @@ Feature: Flat Object
           public String value;
         }
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         value= hello
         """
       Then the result should be:
         """
-        value= hello
+        : {
+          ::properties= {
+            value= hello
+          }
+          ::build= {
+            value= hello
+          }
+        }
         """
 
     Scenario: Multiple Properties - Collect and Build Flat Object by Default Type and Multiple Properties
@@ -39,7 +47,7 @@ Feature: Flat Object
           public String value1, value2;
         }
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         : {
           value1= hello
@@ -48,9 +56,15 @@ Feature: Flat Object
         """
       Then the result should be:
         """
-        = {
-          value1= hello
-          value2= world
+        : {
+          ::properties= {
+            value1= hello
+            value2= world
+          }
+          ::build= {
+            value1= hello
+            value2= world
+          }
         }
         """
 
@@ -61,7 +75,7 @@ Feature: Flat Object
           public int value1, value2;
         }
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         : {
           value1= 100
@@ -70,9 +84,15 @@ Feature: Flat Object
         """
       Then the result should be:
         """
-        = {
-          value1= 100
-          value2= 200
+        : {
+          ::properties= {
+            value1= 100
+            value2= 200
+          }
+          ::build= {
+            value1= 100
+            value2= 200
+          }
         }
         """
 
@@ -95,15 +115,20 @@ Feature: Flat Object
         """
         jFactory.register(BeanSpec.class);
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         ::this(BeanSpec).value2= 200
         """
       Then the result should be:
         """
-        = {
-          value1= 100
-          value2= 200
+        : {
+          ::properties= {
+            'value2'= 200
+          }
+          ::build= {
+            value1= 100
+            value2= 200
+          }
         }
         """
 
@@ -136,17 +161,22 @@ Feature: Flat Object
         """
         jFactory.register(BeanSpec.class);
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         ::this(trait1 trait2 BeanSpec).value4= from-input
         """
       Then the result should be:
         """
-        = {
-          value1= from-main
-          value2= from-trait1
-          value3= from-trait2
-          value4= from-input
+        : {
+          ::properties= {
+            value4= from-input
+          }
+          ::build= {
+            value1= from-main
+            value2= from-trait1
+            value3= from-trait2
+            value4= from-input
+          }
         }
         """
 
@@ -179,17 +209,22 @@ Feature: Flat Object
         """
         jFactory.register(BeanSpec.class);
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         ::this(trait1, trait2,BeanSpec).value4= from-input
         """
       Then the result should be:
         """
-        = {
-          value1= from-main
-          value2= from-trait1
-          value3= from-trait2
-          value4= from-input
+        : {
+          ::properties= {
+            value4= from-input
+          }
+          ::build= {
+            value1= from-main
+            value2= from-trait1
+            value3= from-trait2
+            value4= from-input
+          }
         }
         """
 
@@ -216,16 +251,21 @@ Feature: Flat Object
         """
         jFactory.register(AnotherBeanSpec.class);
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         ::this(AnotherBeanSpec).value2= 200
         """
       Then the result should be:
         """
-        = {
-          value1= 100
-          value2= 200
-          class.simpleName= AnotherBean
+        : {
+          ::properties= {
+            value2= 200
+          }
+          ::build= {
+            value1= 100
+            value2= 200
+            class.simpleName= AnotherBean
+          }
         }
         """
 
@@ -236,15 +276,18 @@ Feature: Flat Object
           public String value;
         }
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         : {...}
         """
       Then the result should be:
         """
         : {
-          value= /^value.*/
-          class.simpleName= Bean
+          ::properties= {}
+          ::build: {
+            value= /^value.*/
+            class.simpleName= Bean
+          }
         }
         """
 
@@ -271,15 +314,20 @@ Feature: Flat Object
           register(BeanSpec.class);
         }}.collector("BeanSpec");
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         value2= world
         """
       Then the result should be:
         """
-        = {
-          value1= hello
-          value2= world
+        : {
+          ::properties= {
+            value2= world
+          }
+          ::build= {
+            value1= hello
+            value2= world
+          }
         }
         """
 
@@ -309,16 +357,21 @@ Feature: Flat Object
           register(BeanSpec.class);
         }}.collector("trait", "BeanSpec");
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         value3= from-input
         """
       Then the result should be:
         """
-        = {
-          value1= from-main
-          value2= from-trait
-          value3= from-input
+        : {
+          ::properties= {
+            value3= from-input
+          }
+          ::build= {
+            value1= from-main
+            value2= from-trait
+            value3= from-input
+          }
         }
         """
 
@@ -352,16 +405,21 @@ Feature: Flat Object
           register(AnotherBeanSpec.class);
         }}.collector("BeanSpec");
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         ::this(AnotherBeanSpec).value2= 200
         """
       Then the result should be:
         """
-        = {
-          value1= 100
-          value2= 200
-          class.simpleName= AnotherBean
+        : {
+          ::properties= {
+            value2= 200
+          }
+          ::build= {
+            value1= 100
+            value2= 200
+            class.simpleName= AnotherBean
+          }
         }
         """
 
@@ -386,14 +444,106 @@ Feature: Flat Object
           register(BeanSpec.class);
         }}.collector("BeanSpec");
         """
-      When "collector" collect and build with the following properties:
+      When "collector" collect with the following properties:
         """
         : {...}
         """
       Then the result should be:
         """
-        = {
-          value= hello
-          class.simpleName= Bean
+        : {
+          ::properties= {}
+          ::build= {
+            value= hello
+            class.simpleName= Bean
+          }
+        }
+        """
+
+  Rule: By Default Collector(Type Object) and Given Spec
+
+    Background:
+      Given the following declarations:
+        """
+        JFactory jFactory = new JFactory();
+        """
+      Given the following bean definition:
+        """
+        public class Bean {
+          public String value1, value2, value3;
+        }
+        """
+      Given the following declarations:
+        """
+        Collector collector = jFactory.collector();
+        """
+      Given the following spec definition:
+        """
+        public class BeanSpec extends Spec<Bean> {
+          @Trait
+          public void trait() {
+            property("value2").value("from-trait");
+          }
+        }
+        """
+      And register as follows:
+        """
+        jFactory.register(BeanSpec.class);
+        """
+
+    Scenario: Single Property - Collect and Build Flat Object by Default Type
+      When "collector" collect with the following properties:
+        """
+        ::this(BeanSpec): {
+          value1= hello
+        }
+        """
+      Then the result should be:
+        """
+        : {
+          ::properties= {
+            value1= hello
+          }
+          ::build: {
+            value1= hello
+            class.simpleName= Bean
+          }
+        }
+        """
+
+    Scenario: Specify Traits and Spec
+      When "collector" collect with the following properties:
+        """
+        ::this(trait BeanSpec): {
+          value1= hello
+        }
+        """
+      Then the result should be:
+        """
+        : {
+          ::properties= {
+            value1= hello
+          }
+          ::build: {
+            value1= hello
+            value2= from-trait
+            class.simpleName= Bean
+          }
+        }
+        """
+
+    Scenario: Support use : {...} to create Default Object with Default Spec
+      When "collector" collect with the following properties:
+        """
+        ::this(trait BeanSpec): {...}
+        """
+      Then the result should be:
+        """
+        : {
+          ::properties= {}
+          ::build: {
+            value1= /^value1.*/
+            value2= from-trait
+            class.simpleName= Bean
+          }
         }
         """

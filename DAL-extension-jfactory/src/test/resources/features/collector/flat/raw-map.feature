@@ -1,4 +1,5 @@
-Feature: Flat Map
+Feature: Flat Raw Map
+  Create Map by Collector
 
   Rule: Default Collector
 
@@ -64,7 +65,7 @@ Feature: Flat Map
         }
         """
 
-  Rule: use = to Force Bean to Map
+  Rule: use = to Force Create List from Collect by Type
 
     Background:
       Given the following declarations:
@@ -106,7 +107,7 @@ Feature: Flat Map
         }
         """
 
-  Rule: use = Force Spec<Bean> to Map
+  Rule: use = to Force Create List from Collector by Spec
 
     Background:
       Given the following declarations:
