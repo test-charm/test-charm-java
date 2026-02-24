@@ -93,7 +93,6 @@ public class DALProcedure extends Procedure<DALRuntimeContext, DALNode, DALExpre
         return enableRelaxProperty;
     }
 
-
     public static Mandatory<DALNode, DALProcedure> enableNumberProperty(Mandatory<DALNode, DALProcedure> mandatory) {
         return procedure -> procedure.enableNumberProperty(() -> mandatory.parse(procedure));
     }

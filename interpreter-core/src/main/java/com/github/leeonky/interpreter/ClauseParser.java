@@ -49,6 +49,12 @@ public interface ClauseParser<N extends Node<?, N>, P extends Procedure<?, N, ?,
                 c2.expression(c1.expression(previous))).orElse(c1));
     }
 
+    default ClauseParser<N, P> tryConcat(ClauseParser<N, P> clause) {
+        return procedure -> procedure.getSourceCode().tryFetch(() ->
+                parse(procedure).map(c1 -> clause.parse(procedure).<Clause<N>>map(c2 -> previous ->
+                        c2.expression(c1.expression(previous))).orElse(null)));
+    }
+
     default Optional<N> parseAndMakeExpression(P procedure, N node) {
         return parse(procedure).map(clause -> clause.expression(node));
     }

@@ -212,8 +212,9 @@ public class Compiler {
 
     private NodeParser<DALNode, DALProcedure> pureList(Function<List<Clause<DALNode>>, DALNode> factory) {
         return lazyNode(() -> disableCommaAnd(Notations.OPENING_BRACKET.with(many(ELEMENT_ELLIPSIS_CLAUSE.or(
-                shortVerificationClause(Operators.VERIFICATION_OPERATORS.or(Operators.DEFAULT_VERIFICATION_OPERATOR),
-                        SHORT_VERIFICATION_OPERAND.or(LIST_SCOPE_RELAX_STRING)))).and(optionalSplitBy(Notations.COMMA))
+                ROW_HEADER_CLAUSE.tryConcat(Operators.VERIFICATION_OPERATORS.clause(SHORT_VERIFICATION_OPERAND.or(LIST_SCOPE_RELAX_STRING)))
+                        .or(shortVerificationClause(Operators.VERIFICATION_OPERATORS.or(Operators.DEFAULT_VERIFICATION_OPERATOR), SHORT_VERIFICATION_OPERAND.or(LIST_SCOPE_RELAX_STRING))))
+        ).and(optionalSplitBy(Notations.COMMA))
                 .and(endWith(Notations.CLOSING_BRACKET)).as(factory))));
     }
 

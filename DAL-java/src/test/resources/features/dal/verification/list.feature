@@ -531,6 +531,39 @@ Feature: list
       : [[0] is String: {length: 1}]
       """
 
+    Scenario: support data remark and exclamation in list element
+      Given the following java class:
+      """
+      public class Bean {
+        public String value;
+        public Bean(String v) {
+          this.value = v;
+        }
+      }
+      """
+      Given the following java class:
+      """
+      public class Beans {
+        public Bean hello = new Bean("hello");
+        public List<Bean> beans = Arrays.asList(new Bean("b1"), new Bean("b2"), new Bean("b3"));
+      }
+      """
+      When register DAL:
+      """
+      dal.getRuntimeContextBuilder().registerDataRemark(Bean.class, rd-> rd.data().value().value+rd.remark());
+      dal.getRuntimeContextBuilder().registerExclamation(String.class, rd-> rd.data().value().toUpperCase());
+      dal.getRuntimeContextBuilder().registerExclamation(Bean.class, rd-> rd.data().value().value);
+      """
+      Then the following verification for the instance of java class "Beans" should pass:
+      """
+      beans: [(hello): b1hello, (world)! is String: B2WORLD, !: b3]
+      """
+      And the inspect should:
+      """
+      beans: [[0](hello): 'b1hello', [1](world)! is String: 'B2WORLD', [2]!: 'b3']
+      """
+
+
     Scenario: change first element index
       Given the following java class:
       """
