@@ -81,7 +81,7 @@ public class ListScopeNode extends DALNode {
 
             private DALNode buildIndexExpression(Clause<DALNode> clause, Integer index, DALRuntimeContext context) {
                 DALNode symbolNode = new SymbolNode(index, BRACKET);
-                DALNode expression = clause.expression(expression(new InputNode.StackInput(context), Factory.executable(Notations.EMPTY), symbolNode));
+                DALNode expression = clause.expression(expression(new InputNode.StackInput(context), Factory.executable(Notations.EMPTY), symbolNode).markGenerated());
                 symbolNode.setPositionBegin(expression.getOperandPosition());
                 return expression;
             }

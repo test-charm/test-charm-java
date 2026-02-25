@@ -96,8 +96,8 @@ public class NodeFactory {
         return new GroupExpression(list);
     }
 
-    public static DALNode constRemarkNode(DALNode constNode, DALNode parentheses) {
-        return new ConstRemarkNode(constNode, parentheses).setPositionBegin(constNode.getPositionBegin());
+    public static DALNode constRemarkNode(DALNode node) {
+        return new ConstRemarkNode(node);
     }
 
     public static DALNode dataRemarkNode(List<Character> characters) {

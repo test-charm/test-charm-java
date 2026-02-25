@@ -308,7 +308,6 @@ Feature: Nested Object
         """
 
     Scenario: complex list
-
       When "collector" collect with the following properties:
         """
         sub= [

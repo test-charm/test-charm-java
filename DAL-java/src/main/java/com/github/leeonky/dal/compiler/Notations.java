@@ -59,7 +59,9 @@ public class Notations {
                 IS = Keywords.IS,
                 WHICH = Keywords.WHICH,
                 DATA_REMARK = notation("("),
-                EXCLAMATION = notation("!");
+                EXCLAMATION = notation("!"),
+                CONST_REMARK = notation("");
+
     }
 
     public static final Notation<DALRuntimeContext, DALNode, DALOperator, DALProcedure, DALExpression>

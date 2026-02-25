@@ -119,7 +119,7 @@ public class DALExpression extends DALNode implements Expression<DALRuntimeConte
 
     @Override
     public boolean needPostBlankWarningCheck() {
-        return true;
+        return !isGenerated();
     }
 
     @Override

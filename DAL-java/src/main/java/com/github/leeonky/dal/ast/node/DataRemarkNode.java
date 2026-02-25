@@ -18,4 +18,9 @@ public class DataRemarkNode extends DALNode {
     public Object evaluate(RuntimeContextBuilder.DALRuntimeContext context) {
         return remark;
     }
+
+    @Override
+    public boolean needPrefixBlankWarningCheck() {
+        return true;
+    }
 }

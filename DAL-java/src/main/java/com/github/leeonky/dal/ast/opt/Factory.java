@@ -4,17 +4,17 @@ import com.github.leeonky.dal.ast.node.DALExpression;
 import com.github.leeonky.dal.ast.node.ExecutableNode;
 import com.github.leeonky.dal.ast.node.SchemaComposeNode;
 import com.github.leeonky.dal.compiler.Notations;
-import com.github.leeonky.dal.runtime.Data;
-import com.github.leeonky.dal.runtime.ExclamationData;
-import com.github.leeonky.dal.runtime.Operators;
-import com.github.leeonky.dal.runtime.RemarkData;
+import com.github.leeonky.dal.runtime.*;
 import com.github.leeonky.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
 import com.github.leeonky.interpreter.Notation;
 import com.github.leeonky.util.function.TriFunction;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static com.github.leeonky.dal.runtime.DALException.locateError;
 
 public class Factory {
     public static DALOperator logical(Notation<?, ?, ?, ?, ?> notation, ExpressionContextData.SupplierSupplierData logical) {
@@ -86,6 +86,26 @@ public class Factory {
             @Override
             public String inspect(String node1, String node2) {
                 return node1 + "(" + node2 + ")";
+            }
+        };
+    }
+
+    public static DALOperator constRemark() {
+        return new DALOperator(Precedence.REMARK_EXCLAMATION, "CONST_REMARK", false, Operators.NA) {
+
+            @Override
+            public Data<?> calculateData(DALExpression expression, DALRuntimeContext context) {
+                Data<?> leftValue = expression.left().evaluateData(context);
+                Data<?> rightValue = expression.right().evaluateData(context);
+                if (Objects.equals(leftValue.value(), rightValue.value()))
+                    return leftValue;
+                throw locateError(new DALRuntimeException(String.format("Incorrect const remark, const value was %s\nbut remark %s was %s",
+                        leftValue.dump(), expression.right().inspect(), rightValue.dump())), expression.right().getPositionBegin());
+            }
+
+            @Override
+            public String inspect(String node1, String node2) {
+                return node1 + " " + node2;
             }
         };
     }

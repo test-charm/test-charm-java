@@ -196,3 +196,83 @@ Feature: syntax error expression
       ^
     }
     """
+    When evaluate by:
+    """
+    : {
+      length= 5
+      (5)
+    }
+    """
+    Then failed with the message:
+    """
+    Missing a comma or remove whitespace.
+    """
+    And got the following notation:
+    """
+    : {
+      length= 5
+              ^
+      (5)
+      ^
+    }
+    """
+    When evaluate by:
+    """
+    : {
+      length= .value
+      (a)
+    }
+    """
+    Then failed with the message:
+    """
+    Missing a comma or remove whitespace.
+    """
+    And got the following notation:
+    """
+    : {
+      length= .value
+                   ^
+      (a)
+      ^
+    }
+    """
+    When evaluate by:
+    """
+    : [
+      1
+      (5): a
+    ]
+    """
+    Then failed with the message:
+    """
+    Missing a comma or remove whitespace.
+    """
+    And got the following notation:
+    """
+    : [
+      1
+      ^
+      (5): a
+      ^
+    ]
+    """
+    When evaluate by:
+    """
+    : [
+      .x
+      (any): a
+    ]
+    """
+    Then failed with the message:
+    """
+    Missing a comma or remove whitespace.
+    """
+    And got the following notation:
+    """
+    : [
+      .x
+       ^
+      (any): a
+      ^
+    ]
+    """

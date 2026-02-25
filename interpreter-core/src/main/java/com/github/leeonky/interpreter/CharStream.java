@@ -84,22 +84,18 @@ public class CharStream {
     }
 
     public int newlineBetween(int first, int second) {
-        if (first < 0 || first >= second || second >= code.length())
+        if (first < 0 || first >= second || second >= code.length() || isNewline(code.charAt(first)))
             return -1;
-        int position = rightScan(first, second - 1, CharStream::isBlank);
-        if (position == -1)
-            return -1;
-        if (isNewline(code.charAt(position)))
-            return rightScan(first, position, c -> isNewline(c) || isBlank(c));
-        return -1;
+        int position = scan(first, second - 1, CharStream::isNewline);
+        return position != -1 ? position - 1 : -1;
     }
 
-    private int rightScan(int rightToLeftEnd, int position, Predicate<Character> predicate) {
-        while (predicate.test(code.charAt(position))) {
-            if (--position < rightToLeftEnd)
-                return -1;
+    private int scan(int first, int second, Predicate<Character> tester) {
+        for (; first <= second; first++) {
+            if (tester.test(code.charAt(first)))
+                return first;
         }
-        return position;
+        return -1;
     }
 
     private static boolean isBlank(char c) {

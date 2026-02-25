@@ -40,6 +40,13 @@ class CharStreamTest {
 
                 assertThat(charStream.newlineBetween(0, 4)).isEqualTo(-1);
             }
+
+            @Test
+            void contains_non_blank() {
+                CharStream charStream = new CharStream("xA\n|\rC");
+
+                assertThat(charStream.newlineBetween(0, 5)).isEqualTo(-1);
+            }
         }
 
         @Test

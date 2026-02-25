@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public abstract class DALNode extends NodeBase<DALRuntimeContext, DALNode> {
+    private boolean generated = false;
+
     public Data<?> evaluateData(DALRuntimeContext context) {
         return context.data(evaluate(context));
     }
@@ -76,6 +78,15 @@ public abstract class DALNode extends NodeBase<DALRuntimeContext, DALNode> {
     @Override
     public String toString() {
         return inspect();
+    }
+
+    public DALNode markGenerated() {
+        generated = true;
+        return this;
+    }
+
+    public boolean isGenerated() {
+        return generated;
     }
 
     public Boolean isAssertion() {

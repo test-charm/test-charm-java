@@ -44,7 +44,7 @@ public class Compiler {
     NodeParser<DALNode, DALProcedure>
             PROPERTY, OBJECT, SORTED_LIST, LIST, PARENTHESES, VERIFICATION_SPECIAL_OPERAND, VERIFICATION_VALUE_OPERAND,
             TABLE, SHORT_VERIFICATION_OPERAND, CELL_VERIFICATION_OPERAND, GROUP_PROPERTY, OPTIONAL_PROPERTY_CHAIN,
-            OBJECT_VERIFICATION_PROPERTY,
+            OBJECT_VERIFICATION_PROPERTY, CONST_REMARK,
             ROOT_INPUT = procedure -> when(procedure.isCodeBeginning()).optional(() -> InputNode.Root.INSTANCE),
             NUMBER = Tokens.NUMBER.nodeParser(NodeFactory::constNumber),
             INTEGER = Tokens.INTEGER.nodeParser(NodeFactory::constInteger),
@@ -80,7 +80,7 @@ public class Compiler {
             META_SYMBOL = Tokens.DOT_SYMBOL.nodeParser(NodeFactory::metaSymbolNode),
             PROPERTY_PATTERN = this::propertyPattern,
             OPTIONAL_VERIFICATION_PROPERTY = lazyNode(() -> enableSlashProperty(enableRelaxProperty(OPTIONAL_PROPERTY_CHAIN))),
-            CONST_REMARK;
+            CONST_WITH_REMARK;
 
     private NodeParser.Mandatory<DALNode, DALProcedure> textAttribute(DALNode notationNode) {
         return many(TEXT_ATTRIBUTE).and(endWithLine()).as(attributes ->
@@ -158,6 +158,8 @@ public class Compiler {
     public Compiler() {
         PARENTHESES = lazyNode(() -> enableCommaAnd(Notations.OPENING_PARENTHESES.with(single(EXPRESSION).and(endWith(Notations.CLOSING_PARENTHESES))
                 .as(NodeFactory::parenthesesNode))));
+        CONST_REMARK = lazyNode(() -> enableCommaAnd(Notations.OPENING_PARENTHESES.with(single(EXPRESSION).and(endWith(Notations.CLOSING_PARENTHESES))
+                .as(NodeFactory::constRemarkNode))));
         PROPERTY = DEFAULT_INPUT.with(oneOf(EXPLICIT_PROPERTY_CLAUSE, IMPLICIT_PROPERTY_CLAUSE));
         OPTIONAL_PROPERTY_CHAIN = PROPERTY.concatAll(EXPLICIT_PROPERTY_CLAUSE);
         PROPERTY_CHAIN = OPTIONAL_PROPERTY_CHAIN.mandatory("Expect a object property");
@@ -179,10 +181,11 @@ public class Compiler {
                 positionNode(Notations.COLUMN_SPLITTER.before(tableLine(TABLE_HEADER).as(ColumnHeaderRow::new))).concat(TABLE_BODY_CLAUSE),
                 positionNode(Notations.MATRIX_COLUMN_SPLITTER.before(DEFAULT_INDEX_HEADER).concat(TABLE_BODY_CLAUSE)));
         VERIFICATION_SPECIAL_OPERAND = oneOf(REGEX, OBJECT, LIST, WILDCARD, TABLE);
-        CONST_REMARK = CONST.concat(PARENTHESES.clause(NodeFactory::constRemarkNode));
-        OPERAND = lazyNode(() -> oneOf(CONST_REMARK, Operators.UNARY_OPERATORS.unary(OPERAND), PROPERTY, PARENTHESES, ROOT_INPUT))
+        CONST_WITH_REMARK = CONST.concat(Operators.CONST_REMARK.clause(CONST_REMARK));
+//                PARENTHESES.clause(NodeFactory::constRemarkNode));
+        OPERAND = lazyNode(() -> oneOf(CONST_WITH_REMARK, Operators.UNARY_OPERATORS.unary(OPERAND), PROPERTY, PARENTHESES, ROOT_INPUT))
                 .mandatory("Expect a value or expression");
-        VERIFICATION_VALUE_OPERAND = oneOf(CONST_REMARK, Operators.UNARY_OPERATORS.unary(OPERAND), DEFAULT_INPUT.with(EXPLICIT_PROPERTY_CLAUSE), PARENTHESES);
+        VERIFICATION_VALUE_OPERAND = oneOf(CONST_WITH_REMARK, Operators.UNARY_OPERATORS.unary(OPERAND), DEFAULT_INPUT.with(EXPLICIT_PROPERTY_CLAUSE), PARENTHESES);
         ARITHMETIC_CLAUSE = Operators.BINARY_ARITHMETIC_OPERATORS.clause(OPERAND);
         VERIFICATION_CLAUSE = Operators.VERIFICATION_OPERATORS.clause(oneOf(VERIFICATION_SPECIAL_OPERAND,
                 VERIFICATION_VALUE_OPERAND).or(EXPRESSION_RELAX_STRING));
