@@ -1,0 +1,155 @@
+package org.testcharm.dal.compiler;
+
+import org.testcharm.dal.ast.node.DALExpression;
+import org.testcharm.dal.ast.node.DALNode;
+import org.testcharm.dal.ast.opt.DALOperator;
+import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
+import org.testcharm.interpreter.*;
+import org.testcharm.interpreter.NodeParser.Mandatory;
+
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static java.util.Collections.singleton;
+import static org.testcharm.dal.compiler.Notations.OPENING_GROUP;
+import static org.testcharm.dal.compiler.Notations.Operators.NOT_EQUAL;
+import static org.testcharm.interpreter.InterpreterException.Position.Type.CHAR;
+
+public class DALProcedure extends Procedure<DALRuntimeContext, DALNode, DALExpression, DALOperator> {
+    private final LinkedList<Boolean> enableAndComma = new LinkedList<>(singleton(true));
+    private final DALRuntimeContext runtimeContext;
+
+    private boolean enableSlashProperty = false, enableRelaxProperty = false, enableNumberProperty = false;
+
+    public DALProcedure(SourceCode sourceCode, DALRuntimeContext runtimeContext) {
+        super(sourceCode, runtimeContext);
+        this.runtimeContext = runtimeContext;
+    }
+
+    public static NodeParser<DALNode, DALProcedure> disableCommaAnd(NodeParser<DALNode, DALProcedure> nodeParser) {
+        return procedure -> procedure.commaAnd(false, () -> nodeParser.parse(procedure));
+    }
+
+    public static NodeParser<DALNode, DALProcedure> enableCommaAnd(NodeParser<DALNode, DALProcedure> nodeParser) {
+        return procedure -> procedure.commaAnd(true, () -> nodeParser.parse(procedure));
+    }
+
+    private <T> Optional<T> commaAnd(boolean b, Supplier<Optional<T>> nodeFactory) {
+        enableAndComma.push(b);
+        try {
+            return nodeFactory.get();
+        } finally {
+            enableAndComma.pop();
+        }
+    }
+
+    public boolean isEnableCommaAnd() {
+        return enableAndComma.getFirst();
+    }
+
+    public boolean isCodeBeginning() {
+        return getSourceCode().isBeginning();
+    }
+
+    public boolean mayBeUnEqual() {
+        return getSourceCode().startsWith(NOT_EQUAL);
+    }
+
+    public boolean mayBeOpeningGroup() {
+        return getSourceCode().startsWith(OPENING_GROUP);
+    }
+
+    public boolean mayBeElementEllipsis() {
+        return getSourceCode().startsWith("..");
+    }
+
+    public boolean isEnableSlashProperty() {
+        return enableSlashProperty;
+    }
+
+    public boolean mayBeMetaProperty() {
+        return getSourceCode().startsWith("::");
+    }
+
+    public static NodeParser<DALNode, DALProcedure> enableSlashProperty(NodeParser<DALNode, DALProcedure> nodeParser) {
+        return procedure -> procedure.enableSlashProperty(() -> nodeParser.parse(procedure));
+    }
+
+    public static Mandatory<DALNode, DALProcedure> enableSlashProperty(Mandatory<DALNode, DALProcedure> mandatory) {
+        return procedure -> procedure.enableSlashProperty(() -> mandatory.parse(procedure));
+    }
+
+    private <T> T enableSlashProperty(Supplier<T> supplier) {
+        enableSlashProperty = true;
+        try {
+            return supplier.get();
+        } finally {
+            enableSlashProperty = false;
+        }
+    }
+
+    public boolean isEnableRelaxProperty() {
+        return enableRelaxProperty;
+    }
+
+    public static Mandatory<DALNode, DALProcedure> enableNumberProperty(Mandatory<DALNode, DALProcedure> mandatory) {
+        return procedure -> procedure.enableNumberProperty(() -> mandatory.parse(procedure));
+    }
+
+    private <T> T enableNumberProperty(Supplier<T> supplier) {
+        enableNumberProperty = true;
+        try {
+            return supplier.get();
+        } finally {
+            enableNumberProperty = false;
+        }
+    }
+
+    public boolean isEnableNumberProperty() {
+        return enableNumberProperty;
+    }
+
+    public static NodeParser<DALNode, DALProcedure> enableRelaxProperty(NodeParser<DALNode, DALProcedure> nodeParser) {
+        return procedure -> procedure.enableRelaxProperty(() -> nodeParser.parse(procedure));
+    }
+
+    public static Mandatory<DALNode, DALProcedure> enableRelaxProperty(Mandatory<DALNode, DALProcedure> mandatory) {
+        return procedure -> procedure.enableRelaxProperty(() -> mandatory.parse(procedure));
+    }
+
+    private <T> T enableRelaxProperty(Supplier<T> supplier) {
+        enableRelaxProperty = true;
+        try {
+            return supplier.get();
+        } finally {
+            enableRelaxProperty = false;
+        }
+    }
+
+    @Override
+    public DALNode createExpression(DALNode left, DALOperator operator, DALNode right) {
+        if (right.needPrefixBlankWarningCheck() && left.needPostBlankWarningCheck()) {
+            int rightPosition = operator.getPosition() > 0 ? operator.getPosition() : right.getPositionBegin();
+            int first = getSourceCode().chars().newlineBetween(left.getOperandPosition(), rightPosition);
+            if (first != -1) {
+                switch (runtimeContext.features().ambiguousMissedComma()) {
+                    case WARNING:
+                        StringWithPosition stringWithPosition = new StringWithPosition(getSourceCode().chars().getCode());
+                        stringWithPosition.position(first).position(rightPosition);
+                        runtimeContext.warningOutput().append(stringWithPosition.result())
+                                .append("\n\nWarning: may be ambiguous. Please add a comma or remove whitespace to clear this warning.");
+                        break;
+                    case ERROR:
+                        throw new SyntaxException("Missing a comma or remove whitespace.", first).multiPosition(rightPosition, CHAR);
+                }
+            }
+        }
+        return DALExpression.expression(left, operator, right);
+    }
+
+    @Override
+    public DALRuntimeContext getRuntimeContext() {
+        return runtimeContext;
+    }
+}

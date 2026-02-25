@@ -24,7 +24,7 @@ Feature: single or list
         Unexpected list size
         Expected: <2>
         Actual: <3>
-        Actual list: com.github.leeonky.dal.runtime.StaticAdaptiveList [
+        Actual list: org.testcharm.dal.runtime.StaticAdaptiveList [
             java.lang.Integer <1>,
             java.lang.Integer <2>,
             java.lang.Integer <3>
@@ -110,7 +110,7 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        Expected list can only have one element, but is: com.github.leeonky.dal.runtime.StaticAdaptiveList [
+        Expected list can only have one element, but is: org.testcharm.dal.runtime.StaticAdaptiveList [
             java.lang.String <hello>,
             java.lang.String <world>
         ]
@@ -128,7 +128,7 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        Expected list can only have one element, but is: com.github.leeonky.dal.runtime.StaticAdaptiveList [
+        Expected list can only have one element, but is: org.testcharm.dal.runtime.StaticAdaptiveList [
             java.lang.String <hello>,
             java.lang.String <world>
         ]
@@ -273,7 +273,7 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        Expected list can only have one element, but is: com.github.leeonky.dal.runtime.StaticAdaptiveList [
+        Expected list can only have one element, but is: org.testcharm.dal.runtime.StaticAdaptiveList [
             #package#Data {
                 i: java.lang.Integer <1>,
                 j: java.lang.Integer <2>
@@ -342,7 +342,7 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        com.github.leeonky.dal.runtime.InvalidAdaptiveListException: Expected only one element
+        org.testcharm.dal.runtime.InvalidAdaptiveListException: Expected only one element
         """
       And got the following notation:
         """
@@ -355,7 +355,7 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        com.github.leeonky.dal.runtime.InvalidAdaptiveListException: Expected only one element
+        org.testcharm.dal.runtime.InvalidAdaptiveListException: Expected only one element
         """
       And got the following notation:
         """

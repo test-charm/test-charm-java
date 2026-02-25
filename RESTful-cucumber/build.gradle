@@ -46,7 +46,7 @@ task cucumberModuleSafe() {
         javaexec {
             main = "io.cucumber.core.cli.Main"
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-            args = ['--plugin', 'pretty', '--glue', 'com.github.leeonky.cucumber.restful', 'src/test/resources/features/module-safe']
+            args = ['--plugin', 'pretty', '--glue', 'org.testcharm.cucumber.restful', 'src/test/resources/features/module-safe']
             jvmArgs = ['--illegal-access=deny']
         }
     }
@@ -58,7 +58,7 @@ task cucumberRequiresAddOpens() {
         javaexec {
             main = "io.cucumber.core.cli.Main"
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-            args = ['--plugin', 'pretty', '--glue', 'com.github.leeonky.cucumber.restful', 'src/test/resources/features/']
+            args = ['--plugin', 'pretty', '--glue', 'org.testcharm.cucumber.restful', 'src/test/resources/features/']
             jvmArgs = ['--illegal-access=deny', '--add-opens', 'java.base/java.net=ALL-UNNAMED']
         }
     }

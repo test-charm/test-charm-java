@@ -1,1 +1,1 @@
-com.github.leeonky.dal.extensions.jdbc.PicoFactory
+org.testcharm.dal.extensions.jdbc.PicoFactory

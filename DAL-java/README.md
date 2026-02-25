@@ -1,20 +1,10 @@
 # DAL-java
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/leeonky/DAL-java/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/leeonky/DAL-java/tree/master)
-[![coveralls](https://img.shields.io/coveralls/github/leeonky/DAL-java.svg)](https://coveralls.io/github/leeonky/DAL-java)
-[![Lost commit](https://img.shields.io/github/last-commit/leeonky/DAL-java.svg)](https://github.com/leeonky/DAL-java)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.leeonky/DAL-java.svg)](https://search.maven.org/artifact/com.github.leeonky/DAL-java)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ef6f8c72b9684691b5bb9079fa7ed025)](https://app.codacy.com/project/leeonky/DAL-java/dashboard)
-[![Maintainability](https://api.codeclimate.com/v1/badges/d6b15c6a8af428251d79/maintainability)](https://codeclimate.com/github/leeonky/DAL-java/maintainability)
-[![Code Climate issues](https://img.shields.io/codeclimate/issues/leeonky/DAL-java.svg)](https://codeclimate.com/github/leeonky/DAL-java/maintainability)
-[![Code Climate maintainability (percentage)](https://img.shields.io/codeclimate/maintainability-percentage/leeonky/DAL-java.svg)](https://codeclimate.com/github/leeonky/DAL-java/maintainability)
-
 - DAL是一个比较简单的表达式语言，主要用于在自动化测试环境中对数据进行读取和断言。
 - DAL的应用场景比较专注于在测试中操作数据，因此相较于编程语言，它的语言复杂性低，没有逻辑控制或变量系统，但能够集中语言特性以针对数据操作提供更多的便利性。
 - DAL的执行总是针对一个输入数据（根数据）。
-- DAL会以键值对或集合的方式操作数据，数据类型是一个泛化的类型。不但可以是 Java Class，Java Map/List，还可以通过`registerPropertyAccessor`和`registerListAccessor`
+- DAL会以键值对或集合的方式操作数据，数据类型是一个泛化的类型。不但可以是 Java Class，Java Map/List，还可以通过
+  `registerPropertyAccessor`和`registerListAccessor`
   方法的注册而支持其他类型格式。
 
 ## 执行 DAL 语句
@@ -36,8 +26,14 @@ new DAL().evaluateAll(null, "1 2");     // return [1, 2]
 更推荐使用如下静态方法API:
 
 ```java
-Assertions.expect(1).should("= 1");    // test pass
-        Accessors.get("length").from("hello");    // access property and return 6
+Assertions.expect(1).
+
+should("= 1");    // test pass
+        Accessors.
+
+get("length").
+
+from("hello");    // access property and return 6
 ```
 
 ## 数据访问
@@ -184,7 +180,8 @@ dal.getRuntimeContextBuilder().registerStaticMethodExtension(StringMethods.class
 
 #### 字面值常量
 
-目前DAL是基于Java实现的，基本的数值类型都是Java中的常用类型，但DAL添加了一些额外的字符后缀用以描述 byte，short，BigInteger，BigDecimal 字面值：
+目前DAL是基于Java实现的，基本的数值类型都是Java中的常用类型，但DAL添加了一些额外的字符后缀用以描述
+byte，short，BigInteger，BigDecimal 字面值：
 |Java 类型|DAL 代码举例|
 |---------|--------|
 |byte/Byte | 100Y |
@@ -204,23 +201,23 @@ DAL支持通过`''`或`""`包含的字符串常量，也可以通过至少3个`�
 
 #### 运算符
 
-| 符号        | 意义             |
-| ----      | ----           |
-| +         | 加              |
-| -         | 减              |
-| *         | 乘              |
-| /         | 除              |
-| && 或 and  | 逻辑与            |
-| ,     | 逻辑与（不能用在对象/集合断言上下文中|
-| \|\| 或 or | 逻辑或            |
-| >         | 大于             |
-| <         | 小于             |
-| > =        | 大于等于           |
-| <=        | 小于等于           |
-| !=        | 不等             |
-| ( )|括号|
-| 单目 + | 集合升序排序 |
-| 单目 - | 数值取反/集合降序排序 |
+| 符号        | 意义                  |
+|-----------|---------------------|
+| +         | 加                   |
+| -         | 减                   |
+| *         | 乘                   |
+| /         | 除                   |
+| && 或 and  | 逻辑与                 |
+| ,         | 逻辑与（不能用在对象/集合断言上下文中 |
+| \|\| 或 or | 逻辑或                 |
+| >         | 大于                  |
+| <         | 小于                  |
+| > =       | 大于等于                |
+| <=        | 小于等于                |
+| !=        | 不等                  |
+| ( )       | 括号                  |
+| 单目 +      | 集合升序排序              |
+| 单目 -      | 数值取反/集合降序排序         |
 
 数学运算规则和Java语言中的运算规则一致，在不同类型之间的运算会涉及类型提升。
 
@@ -310,7 +307,8 @@ string= 'hel' + 'lo'   // 通过
 
 - #### 不严格断定（语义断定）(`:`)
 
-如果从业务而非代码的视角来看待测试用例，我们可能不太关心属性的类型。比如该用 int 还是 long 类型的数字做比较。DAL 通过`:`提供语义断定。比如有如下Java数据
+如果从业务而非代码的视角来看待测试用例，我们可能不太关心属性的类型。比如该用 int 还是 long 类型的数字做比较。DAL 通过`:`
+提供语义断定。比如有如下Java数据
 
 ``` java
 public class Bean {
@@ -330,7 +328,8 @@ number: 2.0    // 数值相符，通过。
 type: 'B'      // 值相符，通过
 ```
 
-DAL在处理`:`断言时，如果比较对象都是数字，那么先提升某一个操作数的类型，然后再进行数值比较。如果是其他类型，则尝试通过内部`Converter`将输入值转换成比对值的类型，上例中`type`属性的断言就是将`enum Type`转换成
+DAL在处理`:`断言时，如果比较对象都是数字，那么先提升某一个操作数的类型，然后再进行数值比较。如果是其他类型，则尝试通过内部
+`Converter`将输入值转换成比对值的类型，上例中`type`属性的断言就是将`enum Type`转换成
 String 类型后再比较。
 
 ##### 注：DAL目前的版本实现下，`:`不允许在`Number` `String`和`Boolean`之间自动转换
@@ -341,7 +340,10 @@ String 类型后再比较。
 true: 'true'    //不通过
 ```
 
-##### 特别注意：DAL中只有 `=` 和 `:` 有断言效果，断言表达式在断言通过的情况下返回 true，不通过则直接抛出异常。`> < >= <= != && and || or` 这几个逻辑运算符不具有断言效果。执行他们会返回 true 或 false 结果。不会抛出 `AssertionFailure` 异常。
+##### 特别注意：DAL中只有 `=` 和 `:` 有断言效果，断言表达式在断言通过的情况下返回 true，不通过则直接抛出异常。
+
+`> < >= <= != && and || or` 这几个逻辑运算符不具有断言效果。执行他们会返回 true 或 false 结果。不会抛出
+`AssertionFailure` 异常。
 
 ``` javascript
 1 > 2       // 返回 false
@@ -428,7 +430,8 @@ DAL提供了`{}`用类似定义对象的方式来断言对象，并且在`{}`内
 
 - #### 限定属性
 
-DAL对象断言仍以`=`或`:`开始，后边跟随一个`{}`，在`{}`中阐明各子属性的断言。开头的`=`也是严格断言的意思，表示待断言对象中不能有`{}`中没有提及的属性。刚才的实例如果写成如下将会断言失败：
+DAL对象断言仍以`=`或`:`开始，后边跟随一个`{}`，在`{}`中阐明各子属性的断言。开头的`=`也是严格断言的意思，表示待断言对象中不能有
+`{}`中没有提及的属性。刚才的实例如果写成如下将会断言失败：
 
 ```javascript
     message= {
@@ -464,7 +467,8 @@ DAL对象断言仍以`=`或`:`开始，后边跟随一个`{}`，在`{}`中阐明
 
 - #### 非空对象
 
-DAL目前没有提供否定语义的断言支持。`!=` 仅是一般的逻辑运算符，并不具有`not =`的效果。因此 `null != null` 仅返回一个false的boolean值，并不会触发断言不通过的异常。要想达到 not null
+DAL目前没有提供否定语义的断言支持。`!=` 仅是一般的逻辑运算符，并不具有`not =`的效果。因此 `null != null`
+仅返回一个false的boolean值，并不会触发断言不通过的异常。要想达到 not null
 的判定可以通过`: {...}`来实现：
 
 ``` javascript
@@ -628,7 +632,8 @@ order: {
 }
 ```
 
-这个测试用例体现了已支付状态的细节，即 status 为 'PAID'，并且 paymentData.status 为 'DONE'。如果我们不关系这个细节或者在这层细节之上抽象出一个业务层，并将其描述“已支付的订单”：
+这个测试用例体现了已支付状态的细节，即 status 为 'PAID'，并且 paymentData.status 为 '
+DONE'。如果我们不关系这个细节或者在这层细节之上抽象出一个业务层，并将其描述“已支付的订单”：
 
 ``` javascript
 order is 已支付的订单
@@ -664,7 +669,8 @@ dal.getRuntimeContextBuilder().registerSchema(已支付的订单.class);
 order is 已支付的订单 which paymentData.amount: 100
 ```
 
-注：which后只能接一条断言语句，如果需要多条语句，请使用 `and` 或 `,` 连接。当然，如果要断言多个属性，`which`后可以直接跟随`=` `:`引导的断言表达式：
+注：which后只能接一条断言语句，如果需要多条语句，请使用 `and` 或 `,` 连接。当然，如果要断言多个属性，`which`后可以直接跟随`=`
+`:`引导的断言表达式：
 
 ``` javascript
 order is 已支付的订单 which: {
@@ -683,7 +689,8 @@ order is 已支付的订单: {
 - 属性值和类型
 
 在开始定义 `Schema` 的例子中，`public String status = 'PAID'` 表示数据包含属性 status，其值为 String 类型的 PAID。
-属性 amount 使用了 `Formatters.Number`，表示数据会出现一个Number类型的`Formatter`，有关 `Formatter` 将在后边描述。除了 `Formatter` 之外还可以使用 `Type`
+属性 amount 使用了 `Formatters.Number`，表示数据会出现一个Number类型的`Formatter`，有关 `Formatter` 将在后边描述。除了
+`Formatter` 之外还可以使用 `Type`
 和 `Value` 两个接口：
 
 ``` java
@@ -710,7 +717,8 @@ public class 已支付的支付记录{
 
 - 部分验证
 
-前述的 Schema 即验证数据，又验证数据格式，类似 `= {}`，要求Schema 中罗列的属性都应出现在结果中。如果不关心其他属性，可以使用 `@Partial` 注解，只验证 Schema 中出现的属性：
+前述的 Schema 即验证数据，又验证数据格式，类似 `= {}`，要求Schema 中罗列的属性都应出现在结果中。如果不关心其他属性，可以使用
+`@Partial` 注解，只验证 Schema 中出现的属性：
 
 ``` java
 @Partial
@@ -723,7 +731,8 @@ public class 已支付的支付记录{
 
 - 属性别名
 
-刚才的实例中验证金额的部分是通过 paymentData.amount 来判断的，从某种程度上讲，这也体现了实现细节。为了能更直接表述“支付金额”这个业务名词，DAL提供了属性别名来抽象之，具体做法是在 Order 的 Schema
+刚才的实例中验证金额的部分是通过 paymentData.amount 来判断的，从某种程度上讲，这也体现了实现细节。为了能更直接表述“支付金额”这个业务名词，DAL提供了属性别名来抽象之，具体做法是在
+Order 的 Schema
 定义中用 `@FieldAlias` 定义别名：
 
 ``` java
@@ -760,14 +769,16 @@ public class 已支付的订单 implements 订单{
 
 - #### Formatter
 
-`is` 后除了可以使用 Schema 外还可以使用 `Formatter`，`Formatter` 在 JSON 验证中有一定作用。其主要用意是将一种输入数据，转换为另一种类型，然后对转换后的值进行断言。JSON
+`is` 后除了可以使用 Schema 外还可以使用 `Formatter`，`Formatter` 在 JSON
+验证中有一定作用。其主要用意是将一种输入数据，转换为另一种类型，然后对转换后的值进行断言。JSON
 中的数值类型有限，如果用JSON返回一个时间数据，常用做法是用字符串描述时间：
 
 ``` json
 { "time": "2001-10-11T01:00:00" }
 ```
 
-对 time 断言时，如果只匹配时间的部分值。那么只能使用比较晦涩的正则表达式。但如果使用`Formatter`，则可以先将其转换为一个时间类型（比如 LocalDateTime），然后再获取需要的属性进行断言：
+对 time 断言时，如果只匹配时间的部分值。那么只能使用比较晦涩的正则表达式。但如果使用`Formatter`，则可以先将其转换为一个时间类型（比如
+LocalDateTime），然后再获取需要的属性进行断言：
 
 ``` javascript
 time is LocalDateTime which year= 2001

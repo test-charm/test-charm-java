@@ -91,7 +91,7 @@ Feature: Summary
     Scenario: Spec Class - Define a Spec as a Class and Create an Object by Spec
       Given the following class definition:
         """
-        import com.github.leeonky.jfactory.Spec;
+        import org.testcharm.jfactory.Spec;
         public class ABean extends Spec<Bean> {}
         """
       When evaluating the following code:
@@ -219,8 +219,8 @@ Feature: Summary
     Scenario: Trait Value - Give value in a Trait and Create with the Trait
       Given the following class definition:
         """
-        import com.github.leeonky.jfactory.Spec;
-        import com.github.leeonky.jfactory.Trait;
+        import org.testcharm.jfactory.Spec;
+        import org.testcharm.jfactory.Trait;
         public class ABean extends Spec<Bean> {
           public void main() {
             property("stringValue").value("hello");

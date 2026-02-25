@@ -21,9 +21,9 @@ Feature: query data
     Then dumped jfactoy should be:
     """
     = ```
-      com.github.leeonky.dal.extensions.jfactory.Steps$1 {
-          Orders: com.github.leeonky.dal.runtime.StaticAdaptiveList [
-              com.github.leeonky.dal.extensions.jfactory.entity.Order {
+      org.testcharm.dal.extensions.jfactory.Steps$1 {
+          Orders: org.testcharm.dal.runtime.StaticAdaptiveList [
+              org.testcharm.dal.extensions.jfactory.entity.Order {
                   code: java.lang.String <SN1>,
                   id: java.lang.Integer <1>
               }

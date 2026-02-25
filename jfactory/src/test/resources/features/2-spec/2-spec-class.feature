@@ -16,7 +16,7 @@ Feature: Spec Class - Define Type Rules in a Separate Spec Class
   Scenario: Spec Class - Define a Spec as a Class and Create an Object by Spec
     Given the following class definition:
       """
-      import com.github.leeonky.jfactory.Spec;
+      import org.testcharm.jfactory.Spec;
       public class BeanSpec extends Spec<Bean> {
         public void main() {
           property("stringValue").value("hello");

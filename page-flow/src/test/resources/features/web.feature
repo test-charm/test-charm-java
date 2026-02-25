@@ -137,14 +137,14 @@ Feature: web ui
         """
       Then failed with:
         """
-        Expected list can only have one element, but is: com.github.leeonky.pf.Elements [
-            com.github.leeonky.pf.cucumber.<type> {
+        Expected list can only have one element, but is: org.testcharm.pf.Elements [
+            org.testcharm.pf.cucumber.<type> {
                 input: java.lang.Boolean <false>,
                 location: java.lang.String </html[1]/body[1]/div[1]>,
                 locator: css{.target},
                 tag: java.lang.String <div>
             },
-            com.github.leeonky.pf.cucumber.<type> {
+            org.testcharm.pf.cucumber.<type> {
                 input: java.lang.Boolean <false>,
                 location: java.lang.String </html[1]/body[1]/div[2]>,
                 locator: css{.target},
@@ -203,7 +203,7 @@ Feature: web ui
         """
       Then failed with:
         """
-        Expected list can only have one element, but is: com.github.leeonky.pf.Elements []
+        Expected list can only have one element, but is: org.testcharm.pf.Elements []
         """
       And logs should:
         """
@@ -244,7 +244,7 @@ Feature: web ui
         """
       Then failed with:
         """
-        Expected list can only have one element, but is: com.github.leeonky.pf.Elements []
+        Expected list can only have one element, but is: org.testcharm.pf.Elements []
         """
       And logs should:
         """

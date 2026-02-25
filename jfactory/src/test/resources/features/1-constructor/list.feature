@@ -6,7 +6,7 @@ Feature: List Constructor
       JFactory jFactory = new JFactory();
       """
 
-  @import(com.github.leeonky.util.TypeReference) @import(java.util.*)
+  @import(org.testcharm.util.TypeReference) @import(java.util.*)
   Scenario Outline: Default Collection Construct - All supported Array / Base Collection type
     When evaluating the following code:
       """

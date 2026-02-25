@@ -285,7 +285,7 @@ Feature: Default Value
         anyType= null
         """
 
-    @import(com.github.leeonky.util.*)
+    @import(org.testcharm.util.*)
     Scenario: Custom Default Value Factory - Define a Custom Default Value by Type via DefaultValueFactory
       Given the following bean definition:
         """

@@ -1,15 +1,5 @@
 # JFactory JPA DataRepository
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/leeonky/jfactory-repo-jpa/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/leeonky/jfactory-repo-jpa/tree/master)
-[![coveralls](https://img.shields.io/coveralls/github/leeonky/jfactory-repo-jpa/master.svg)](https://coveralls.io/github/leeonky/jfactory-repo-jpa)
-[![Lost commit](https://img.shields.io/github/last-commit/leeonky/jfactory-repo-jpa.svg)](https://github.com/leeonky/jfactory-repo-jpa)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.leeonky/jfactory-repo-jpa.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.leeonky/jfactory-repo-jpa)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6fd6832505594ed09070add129b570a6)](https://www.codacy.com/gh/leeonky/jfactory-repo-jpa/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leeonky/jfactory-repo-jpa&amp;utm_campaign=Badge_Grade)
-[![Maintainability](https://api.codeclimate.com/v1/badges/62a8a3826b05eefd1f3b/maintainability)](https://codeclimate.com/github/leeonky/jfactory-repo-jpa/maintainability)
-[![Code Climate issues](https://img.shields.io/codeclimate/issues/leeonky/jfactory-repo-jpa.svg)](https://codeclimate.com/github/leeonky/jfactory-repo-jpa/maintainability)
-[![Code Climate maintainability (percentage)](https://img.shields.io/codeclimate/maintainability-percentage/leeonky/jfactory-repo-jpa.svg)](https://codeclimate.com/github/leeonky/jfactory-repo-jpa/maintainability)
-
 # 安装
 
 通过Gradle添加依赖
@@ -22,7 +12,7 @@
 
 ```java
 EntityManagerFactory entityManagerFactory
-        JFactory jfactory=new JFactory(new JPADataRepository(entityManagerFactory));
+JFactory jfactory = new JFactory(new JPADataRepository(entityManagerFactory));
 
 // jfactory.create(xxx);
 ```

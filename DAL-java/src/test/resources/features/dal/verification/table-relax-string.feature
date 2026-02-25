@@ -140,7 +140,7 @@ Feature: table-relax-string
     """
     Then failed with the message:
     """
-    Expected to be equal to: com.github.leeonky.dal.compiler.CucumberContextBak$USDollar {
+    Expected to be equal to: org.testcharm.dal.compiler.CucumberContextBak$USDollar {
                              ^
         amount: java.lang.Integer <1>
     }
@@ -154,7 +154,7 @@ Feature: table-relax-string
     """
     Then failed with the message:
     """
-    Expected to be equal to: com.github.leeonky.dal.compiler.CucumberContextBak$USDollar {
+    Expected to be equal to: org.testcharm.dal.compiler.CucumberContextBak$USDollar {
                              ^
         amount: java.lang.Integer <1>
     }

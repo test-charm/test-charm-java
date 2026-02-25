@@ -1,0 +1,108 @@
+package org.testcharm.dal.ast.node.table;
+
+import org.testcharm.dal.ast.node.*;
+import org.testcharm.dal.ast.node.InputNode.Placeholder;
+import org.testcharm.dal.ast.opt.DALOperator;
+import org.testcharm.dal.runtime.DALException;
+import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
+import org.testcharm.interpreter.Clause;
+import org.testcharm.interpreter.SyntaxException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static org.testcharm.dal.ast.node.ListScopeNode.Style.ROW;
+import static org.testcharm.dal.ast.node.SortGroupNode.NOP_COMPARATOR;
+import static org.testcharm.dal.ast.node.TableNode.printLine;
+import static org.testcharm.interpreter.InterpreterException.Position.Type.COLUMN;
+import static org.testcharm.util.function.Extension.notAllowParallelReduce;
+
+public class Row extends DALNode {
+    private final RowHeader rowHeader;
+    private final List<Clause<DALNode>> cells;
+    private final ColumnHeaderRow columnHeaderRow;
+
+    public Row(DALNode rowHeader, DALNode cell, ColumnHeaderRow columnHeaderRow) {
+        this(rowHeader, singletonList(n -> cell), columnHeaderRow);
+    }
+
+    public Row(DALNode rowHeader, List<Clause<DALNode>> clauses, ColumnHeaderRow columnHeaderRow) {
+        this.rowHeader = (RowHeader) rowHeader;
+        cells = new ArrayList<>(clauses);
+        this.columnHeaderRow = columnHeaderRow;
+        setPositionBegin(clauses.get(clauses.size() - 1).getOperandPosition(Placeholder.INSTANCE));
+    }
+
+    @Override
+    public String inspect() {
+        String header = rowHeader.inspect();
+        String data = printLine(cells.stream().map(clause -> clause.expression(Placeholder.INSTANCE)).collect(toList()));
+        return (header.isEmpty() ? data : header + " " + data);
+    }
+
+    public Clause<DALNode> constructVerificationClause(DALOperator operator, RowType rowType, DALRuntimeContext context) {
+        return input -> isEllipsis() ? firstCell() :
+                rowHeader.makeExpressionWithOptionalIndexAndSchema(rowType, input, operator, expectedRow(context), context);
+    }
+
+    private DALNode expectedRow(DALRuntimeContext context) {
+        if (isRowWildcard())
+            return firstCell();
+        if (columnHeaderRow instanceof DefaultIndexColumnHeaderRow)
+            return new ListScopeNode(cells, NOP_COMPARATOR, ROW).setPositionBegin(getPositionBegin());
+        return new ObjectScopeNode(getCells(context)).setPositionBegin(getPositionBegin());
+    }
+
+    private DALNode firstCell() {
+        return cells.get(0).expression(null);
+    }
+
+    private boolean isRowWildcard() {
+        return cells.size() >= 1 && firstCell() instanceof WildcardNode;
+    }
+
+    private boolean isEllipsis() {
+        return cells.size() >= 1 && firstCell() instanceof ListEllipsisNode;
+    }
+
+    private List<DALNode> getCells(DALRuntimeContext context) {
+        return new ArrayList<DALNode>() {{
+            for (int i = 0; i < cells.size(); i++)
+                add(cells.get(i).expression(columnHeaderRow.getHeader(i, context).property()));
+        }};
+    }
+
+    public Row merge(Row rowNode) {
+        return (Row) new Row(rowHeader, new ArrayList<Clause<DALNode>>() {{
+            addAll(cells);
+            addAll(rowNode.cells);
+        }}, columnHeaderRow.merge(rowNode.columnHeaderRow)).setPositionBegin(getPositionBegin());
+    }
+
+    public boolean isData() {
+        return !isEllipsis();
+    }
+
+    public boolean specialRow() {
+        return isEllipsis() || isRowWildcard();
+    }
+
+    public RowType mergeRowTypeBy(RowType rowType) {
+        return rowType.merge(rowHeader.resolveRowType());
+    }
+
+    public void checkSize(int size) {
+        if (!specialRow() && cells.size() != size)
+            throw new SyntaxException("Different cell size", cells.get(cells.size() - 1)
+                    .getOperandPosition(Placeholder.INSTANCE));
+    }
+
+
+    public DALException markPositionOnCells(DALException dalException) {
+        rowHeader.position().ifPresent(position -> dalException.multiPosition(position, COLUMN));
+        return cells.stream().reduce(dalException, (e, cell) ->
+                e.multiPosition(cell.expression(null).getPositionBegin(), COLUMN), notAllowParallelReduce());
+    }
+}

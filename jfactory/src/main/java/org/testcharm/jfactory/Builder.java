@@ -1,0 +1,44 @@
+package org.testcharm.jfactory;
+
+import org.testcharm.util.BeanClass;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public interface Builder<T> {
+
+    T create();
+
+    BeanClass<T> getType();
+
+    default Builder<T> property(String property, Object value) {
+        return properties(new HashMap<String, Object>() {{
+            put(property, value);
+        }});
+    }
+
+    Builder<T> properties(Map<String, ?> properties);
+
+    T query();
+
+    Collection<T> queryAll();
+
+    Builder<T> traits(String... traits);
+
+    Builder<T> arg(String key, Object value);
+
+    Builder<T> args(Arguments arguments);
+
+    Builder<T> args(Map<String, ?> args);
+
+    Builder<T> args(String property, Map<String, Object> args);
+
+    default Builder<T> propertyValue(String property, PropertyValue value) {
+        return value.applyToBuilder(property, this);
+    }
+
+    default Builder<T> properties(PropertyValue value) {
+        return value.applyToBuilder("", this);
+    }
+}

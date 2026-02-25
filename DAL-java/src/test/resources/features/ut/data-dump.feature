@@ -23,7 +23,7 @@ Feature: dump-data
     """
     Then dumped data should be:
     """
-    com.github.leeonky.dal.compiler.IntegrationTestContext$Empty
+    org.testcharm.dal.compiler.IntegrationTestContext$Empty
     """
     Given the following dal inputs:
     """
@@ -33,8 +33,8 @@ Feature: dump-data
     Then dumped data should be:
     """
     [
-        com.github.leeonky.dal.compiler.IntegrationTestContext$Empty,
-        com.github.leeonky.dal.compiler.IntegrationTestContext$Empty
+        org.testcharm.dal.compiler.IntegrationTestContext$Empty,
+        org.testcharm.dal.compiler.IntegrationTestContext$Empty
     ]
     """
 
@@ -413,10 +413,10 @@ Feature: dump-data
     """
     public class Data {
       {
-        com.github.leeonky.dal.DAL.dal("AssertD").getRuntimeContextBuilder().registerDumper(Data.class, data ->
-        new com.github.leeonky.dal.runtime.inspector.Dumper(){
-          public void dump(com.github.leeonky.dal.runtime.Data data,
-            com.github.leeonky.dal.runtime.inspector.DumpingBuffer dumpingBuffer) {
+        org.testcharm.dal.DAL.dal("AssertD").getRuntimeContextBuilder().registerDumper(Data.class, data ->
+        new org.testcharm.dal.runtime.inspector.Dumper(){
+          public void dump(org.testcharm.dal.runtime.Data data,
+            org.testcharm.dal.runtime.inspector.DumpingBuffer dumpingBuffer) {
             throw new java.lang.RuntimeException("Error");
           }
         });
