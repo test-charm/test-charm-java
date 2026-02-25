@@ -30,7 +30,7 @@ tasks.register("currentVersion") {
 }
 
 allprojects {
-    group = 'org.testcharm'
+    group = 'org.test-charm'
     version = libs.versions.project.get()
 
     repositories {
