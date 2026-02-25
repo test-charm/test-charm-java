@@ -35,7 +35,7 @@ subprojects {
                 pom {
                     name = project.name
                     description = project.name
-                    url = 'https://github.com/leeonky/test-charm-java/' + project.name
+                    url = 'https://github.com/test-charm/test-charm-java/' + project.name
 
                     licenses {
                         license {
@@ -53,9 +53,9 @@ subprojects {
                     }
 
                     scm {
-                        connection = 'scm:git:https://github.com/leeonky/test-charm-java.git'
-                        developerConnection = 'scm:git:git@github.com:leeonky/test-charm-java.git'
-                        url = 'https://github.com/leeonky/test-charm-java.git'
+                        connection = 'scm:git:https://github.com/test-charm/test-charm-java.git'
+                        developerConnection = 'scm:git:git@github.com:test-charm/test-charm-java.git'
+                        url = 'https://github.com/test-charm/test-charm-java.git'
                     }
                 }
             }

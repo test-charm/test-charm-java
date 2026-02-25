@@ -70,4 +70,4 @@ And then you can query association data directly
 ```
 
 You can see more examples by test case
-in [here](https://github.com/leeonky/DAL-extension-jdbc/tree/main/src/test/resources/features)
+in [here](https://github.com/test-charm/test-charm-java/DAL-extension-jdbc/tree/main/src/test/resources/features)

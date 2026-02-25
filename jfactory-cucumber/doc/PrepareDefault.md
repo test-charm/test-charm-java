@@ -46,5 +46,5 @@ jData.prepare(1,"红色的 商品");
 | 1  | name#1 | red   |
 ```
 
-值得注意的是，对于其他未显式设置值的属性（如id和name），会被设置默认值。具体默认值的规则，由 [JFactory](https://github.com/leeonky/jfactory/blob/master/README.md)
+值得注意的是，对于其他未显式设置值的属性（如id和name），会被设置默认值。具体默认值的规则，由 [JFactory](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
 决定。

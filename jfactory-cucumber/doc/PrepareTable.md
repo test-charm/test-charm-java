@@ -49,7 +49,7 @@ products
 | 1  | book | color#1 |
 ```
 
-值得注意的是，对于其他未显式设置值的属性（如id和color），会被设置默认值。具体默认值的规则，由 [JFactory](https://github.com/leeonky/jfactory/blob/master/README.md)
+值得注意的是，对于其他未显式设置值的属性（如id和color），会被设置默认值。具体默认值的规则，由 [JFactory](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
 决定。
 
 ### 转置表格
@@ -162,8 +162,10 @@ product_stocks
 | 1  | A4   | 100   | 1          |
 ```
 
-值得注意的是，`products[0](商品).name` 这个列名其实是一个表达式。其含义为，将 `products` 这个列表属性的第一个元素对象用 `商品` 这个工厂来创建，并将其属性 `name` 设置为列值，即 `book`
-。像这样的列名表达式都是通过 [JFactory](https://github.com/leeonky/jfactory/blob/master/README.md) 来实现的。
+值得注意的是，`products[0](商品).name` 这个列名其实是一个表达式。其含义为，将 `products` 这个列表属性的第一个元素对象用
+`商品` 这个工厂来创建，并将其属性 `name` 设置为列值，即 `book`
+。像这样的列名表达式都是通过 [JFactory](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
+来实现的。
 
 ## 为已存在的数据添加一对一的关联数据
 

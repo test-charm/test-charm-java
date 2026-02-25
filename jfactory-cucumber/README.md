@@ -2,7 +2,7 @@
 
 ---
 
-基于[JFactory](https://github.com/leeonky/jfactory)的测试工具库，为验收测试提供相对标准的数据准备和断言支持。
+基于[JFactory](https://github.com/test-charm/test-charm-java/jfactory)的测试工具库，为验收测试提供相对标准的数据准备和断言支持。
 
 ## 准备测试数据
 
@@ -290,8 +290,8 @@ void allShould(String queryExpression, String dalExpression)
 
 更多文档请看下面
 
-* [请先阅读 JFactory 的文档](https://github.com/leeonky/jfactory/blob/master/README.md)
-* [请先阅读 DAL-java 的文档](https://github.com/leeonky/DAL-java/blob/master/README.md)
+* [请先阅读 JFactory 的文档](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
+* [请先阅读 DAL-java 的文档](https://github.com/test-charm/test-charm-java/DAL-java/blob/master/README.md)
 * [请先阅读使用前的必要配置](doc/Setup.md)
 * [准备默认数据](doc/PrepareDefault.md)
 * [准备数据 - 表格方式](doc/PrepareTable.md)

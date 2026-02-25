@@ -1,6 +1,7 @@
 # 使用 Yaml 方式来准备数据
 
-除了用表格的方式之外，还可以用 Yaml 来准备数据。与表格类似，这种方式指的是用一些已通过 `Spec` 注册过的工厂类，利用 Cucumber 提供的富文本机制，创建出一个或者多个对象。
+除了用表格的方式之外，还可以用 Yaml 来准备数据。与表格类似，这种方式指的是用一些已通过 `Spec` 注册过的工厂类，利用 Cucumber
+提供的富文本机制，创建出一个或者多个对象。
 
 ## 用 Yaml 对象准备数据
 
@@ -42,7 +43,7 @@ products
 | 1  | book    | red   |
 ```
 
-值得注意的是，对于其他未显式设置值的属性（如id），会被设置默认值。具体默认值的规则，由 [JFactory](https://github.com/leeonky/jfactory/blob/master/README.md)
+值得注意的是，对于其他未显式设置值的属性（如id），会被设置默认值。具体默认值的规则，由 [JFactory](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
 决定。
 
 ## 用 Yaml 数组对象准备数据
@@ -185,5 +186,6 @@ product_stocks
 ```
 
 值得注意的是，`_: (商品)` 这个 Yaml 属性其实是一个表达式。其含义为，将当前这个 Yaml 对象用 `商品`
-这个工厂来创建。像这样的列名表达式都是通过 [JFactory](https://github.com/leeonky/jfactory/blob/master/README.md) 来实现的。
+这个工厂来创建。像这样的列名表达式都是通过 [JFactory](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
+来实现的。
 

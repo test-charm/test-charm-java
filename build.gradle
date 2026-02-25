@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.nexus.publish)
 }
 
-ext.disabledPublishProjects = ['page-flow', 'page-flow-selenium', 'page-flow-playwright', 'feature-summary']
+ext.disabledPublishProjects = ['feature-summary']
 
 ext.cucumberProjects = [
         [name: 'interpreter-core', glues: ['org.testcharm.interpreter']],

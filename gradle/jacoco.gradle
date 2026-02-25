@@ -32,7 +32,7 @@ tasks.register('jacocoRootReport', JacocoReport) {
     def allClassDirs = files(subprojects.collect { it.sourceSets.main.output })
 
     def excludes = [
-            'com/github/leeonky/dal/extensions/basic/string/jsonsource/**'
+            'org/testcharm/dal/extensions/basic/string/jsonsource/**'
     ]
 
     executionData.from(execFiles)

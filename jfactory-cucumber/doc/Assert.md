@@ -42,9 +42,10 @@ products
 ```
 
 值得注意的是，`商品.name[book]` 其实是一个表达式。其含义为，在 `商品` 这个工厂对应的数据中查询出所有 `name` 属性为 `book`
-的数据。像这样的表达式都是通过 [JFactory](https://github.com/leeonky/jfactory/blob/master/README.md) 来实现的。 另外，`.size=1`
+的数据。像这样的表达式都是通过 [JFactory](https://github.com/test-charm/test-charm-java/jfactory/blob/master/README.md)
+来实现的。 另外，`.size=1`
 这个表达式的含义是指所有符合条件的数据一共为1个，`and [0].name='book'` 则是说第一个元素的 `name` 属性为 `book`
-。像这样的表达式都是通过[DAL-java](https://github.com/leeonky/DAL-java/blob/master/README.md) 来实现的。
+。像这样的表达式都是通过[DAL-java](https://github.com/test-charm/test-charm-java/DAL-java/blob/master/README.md) 来实现的。
 
 与上面的 Cucumber Step 类似，如下所示的 Step 验证数据的结果也是通过的。
 
