@@ -637,9 +637,9 @@ Feature: web ui
             return new ScopedJFactoryCollector(new JFactory(), UserInfo.class) {
               public void onExit() {
                 UserInfo info = (UserInfo)build();
-                locate("css['input[name=username]']").single().fillIn(info.username);
-                locate("css['input[name=password]']").single().fillIn(info.password);
-                locate("css['button[type=submit]']").single().click();
+                perform("css['input[name=username]'].fillIn: $username", info);
+                perform("css['input[name=password]'].fillIn: $password", info);
+                perform("css['button[type=submit]'].click");
               }
             };
           }
