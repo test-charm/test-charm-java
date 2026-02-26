@@ -236,6 +236,56 @@ Feature: exchange
         | AUTO   |
         | FORCED |
 
+    Scenario: DAL with constants
+      Given Inspector in "AUTO" mode
+      Given the following constants for DAL 'Ins1' evaluating:
+        """
+        {
+          "a": "failed"
+        }
+        """
+      When use DAL 'Ins1' to evaluating the following:
+        """
+        1=$a
+        """
+      Then 'Ins1' test still run after 1s
+      And you should see:
+        """
+        WorkBench.Current.header: Ins1
+        """
+      And you should see:
+        """
+        WorkBench[Ins1]: {
+          ::eventually: {
+            DAL.value: ```
+                       1=$a
+                       ```
+
+            Current: { header: Error }
+                   : ```
+                     1=$a
+                       ^
+
+                     Expected to be equal to: java.lang.String
+                                                        ^
+                     <failed>
+                     Actual: java.lang.Integer
+                                       ^
+                     <1>
+                     ```
+          }
+          Output::eventually: {
+            Root: ```
+                  null
+                  ```
+
+            Result: ''
+
+            Inspect: '1= $a'
+          }
+       }
+       """
+
   Rule: release suspend test
     Background: Given FORCED mode DAL Ins1
       When launch inspector web server

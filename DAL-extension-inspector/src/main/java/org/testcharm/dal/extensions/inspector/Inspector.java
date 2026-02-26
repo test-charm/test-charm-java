@@ -1,16 +1,16 @@
 package org.testcharm.dal.extensions.inspector;
 
+import io.javalin.Javalin;
+import io.javalin.http.Context;
+import io.javalin.http.staticfiles.Location;
+import io.javalin.websocket.WsContext;
+import org.apache.tika.Tika;
 import org.testcharm.dal.DAL;
 import org.testcharm.dal.ast.node.DALNode;
 import org.testcharm.dal.runtime.Data;
 import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
 import org.testcharm.interpreter.InterpreterException;
 import org.testcharm.util.Sneaky;
-import io.javalin.Javalin;
-import io.javalin.http.Context;
-import io.javalin.http.staticfiles.Location;
-import io.javalin.websocket.WsContext;
-import org.apache.tika.Tika;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -24,10 +24,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.testcharm.util.function.Extension.getFirstPresent;
 import static java.lang.Long.parseLong;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static org.testcharm.util.function.Extension.getFirstPresent;
 
 public class Inspector {
     private static Inspector inspector = null;
@@ -151,23 +151,26 @@ public class Inspector {
         private final DAL dal;
         private final String code;
         private final List<Watch> watches = new ArrayList<>();
+        private final Object constants;
 
         public DALInstance(Supplier<Object> input, DAL dal, String code) {
             this.input = input;
             this.dal = dal;
             this.code = code;
+            constants = null;
         }
 
-        public DALInstance(Data<?> inputData, DAL dal, String code) {
+        public DALInstance(Data<?> inputData, DAL dal, String code, Object constants) {
             input = inputData::value;
             this.dal = dal;
             this.code = code;
+            this.constants = constants;
         }
 
         public String execute(String code) {
             watches.clear();
             Map<String, Object> response = new HashMap<>();
-            DALRuntimeContext runtimeContext = dal.getRuntimeContextBuilder().build(input::get, null);
+            DALRuntimeContext runtimeContext = dal.getRuntimeContextBuilder().build(input::get, null, constants);
             try {
                 response.put("root", runtimeContext.getThis().dump());
                 DALNode dalNode = dal.compileSingle(code, runtimeContext);
@@ -290,13 +293,13 @@ public class Inspector {
         }
     }
 
-    public boolean inspectInner(DAL dal, Data input, String code) {
+    public boolean inspectInner(DAL dal, Data input, String code, Object constants) {
         if (calledFromInspector())
             return false;
 //        lock inspect by name
 //        check mode
         if (currentMode() == Mode.FORCED) {
-            DALInstance dalInstance = new DALInstance(input, dal, code);
+            DALInstance dalInstance = new DALInstance(input, dal, code, constants);
             dalInstances.put(dal.getName(), dalInstance);
 
 //            List<WsContext> monitored = clientMonitors.entrySet().stream().filter(e -> e.getValue().contains(dal.getName()))
@@ -317,7 +320,7 @@ public class Inspector {
                     .map(o -> clientConnections.get(o.getKey()))
                     .collect(Collectors.toList());
             if (!monitored.isEmpty()) {
-                DALInstance dalInstance = new DALInstance(input, dal, code);
+                DALInstance dalInstance = new DALInstance(input, dal, code, constants);
                 dalInstances.put(dal.getName(), dalInstance);
                 for (WsContext wsContext : monitored) {
                     wsContext.send(ObjectWriter.serialize(new HashMap<String, String>() {{
@@ -336,9 +339,9 @@ public class Inspector {
                 > Duration.between(now, Instant.now()).toMillis();
     }
 
-    public static boolean inspect(DAL dal, Data input, String code) {
+    public static boolean inspect(DAL dal, Data input, String code, Object constants) {
         if (currentMode() != Mode.DISABLED)
-            return inspector.inspectInner(dal, input, code);
+            return inspector.inspectInner(dal, input, code, constants);
         return false;
     }
 

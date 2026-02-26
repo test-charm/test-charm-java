@@ -1,12 +1,5 @@
 package org.testcharm.dal.extensions.inspector.cucumber;
 
-import org.testcharm.dal.DAL;
-import org.testcharm.dal.extensions.basic.binary.util.HexFormatter;
-import org.testcharm.dal.extensions.inspector.Inspector;
-import org.testcharm.dal.extensions.inspector.InspectorExtension;
-import org.testcharm.dal.extensions.inspector.cucumber.page.MainPage;
-import org.testcharm.interpreter.InterpreterException;
-import org.testcharm.pf.PageFlow;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
 import io.cucumber.java.After;
@@ -16,6 +9,13 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.SneakyThrows;
+import org.testcharm.dal.DAL;
+import org.testcharm.dal.extensions.basic.binary.util.HexFormatter;
+import org.testcharm.dal.extensions.inspector.Inspector;
+import org.testcharm.dal.extensions.inspector.InspectorExtension;
+import org.testcharm.dal.extensions.inspector.cucumber.page.MainPage;
+import org.testcharm.interpreter.InterpreterException;
+import org.testcharm.pf.PageFlow;
 
 import java.util.HashMap;
 
@@ -122,5 +122,10 @@ public class InspectorSteps {
     @Given("the {string} binary input:")
     public void theInsBinaryInput(String dalIns, String binary) {
         testContext.addInput(dalIns, new HexFormatter().format(binary, null));
+    }
+
+    @Given("the following constants for DAL {string} evaluating:")
+    public void theFollowingConstantsForDALInsEvaluating(String dalIns, String constantsJson) {
+        testContext.addConstants(dalIns, json(constantsJson));
     }
 }

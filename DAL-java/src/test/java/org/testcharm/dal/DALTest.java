@@ -1,8 +1,8 @@
 package org.testcharm.dal;
 
+import org.junit.jupiter.api.Test;
 import org.testcharm.dal.extensions.DALExtension;
 import org.testcharm.dal.runtime.inspector.DumperFactory;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +28,7 @@ public class DALTest {
         DAL dal = new DAL();
         isCalled = false;
 
-        dal.getRuntimeContextBuilder().registerErrorHook((data, code, e) -> {
+        dal.getRuntimeContextBuilder().registerErrorHook((data, code, e, c) -> {
             ((DALTest) data.value()).isCalled = true;
             assertThat(data.value()).isSameAs(this);
             assertEquals("Error", e.getMessage());
@@ -45,7 +45,7 @@ public class DALTest {
         DAL dal = new DAL();
         isCalled = false;
 
-        dal.getRuntimeContextBuilder().registerErrorHook((data, code, e) -> {
+        dal.getRuntimeContextBuilder().registerErrorHook((data, code, e, c) -> {
             ((DALTest) data.value()).isCalled = true;
             assertThat(data.value()).isSameAs(this);
             assertEquals("Error", e.getMessage());
@@ -61,7 +61,7 @@ public class DALTest {
     void ignore_error_in_hander() {
         DAL dal = new DAL();
 
-        dal.getRuntimeContextBuilder().registerErrorHook((i, code, e) -> {
+        dal.getRuntimeContextBuilder().registerErrorHook((i, code, e, c) -> {
             return true;
         });
 

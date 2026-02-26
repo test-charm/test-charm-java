@@ -10,10 +10,10 @@ public class InspectorExtension implements Extension {
         Inspector.launch();
         Inspector.register(dal);
         dal.getRuntimeContextBuilder()
-                .registerErrorHook((input, code, error) -> Inspector.inspect(dal, input, code))
+                .registerErrorHook((input, code, error, c) -> Inspector.inspect(dal, input, code, c.constants().value()))
                 .registerMetaProperty("inspect", metaData -> {
                     Data<?> data = metaData.data();
-                    Inspector.inspect(dal, data, "{}");
+                    Inspector.inspect(dal, data, "{}", metaData.runtimeContext().constants().value());
                     return data.value();
                 });
     }

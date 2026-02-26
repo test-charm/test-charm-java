@@ -1,10 +1,10 @@
 package org.testcharm.dal.extensions.inspector.cucumber;
 
-import org.testcharm.dal.DAL;
-import org.testcharm.dal.extensions.inspector.InspectorExtension;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.testcharm.dal.DAL;
+import org.testcharm.dal.extensions.inspector.InspectorExtension;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import static org.awaitility.Awaitility.await;
 
 public class TestContext {
     private final Map<String, Executor> executors = new HashMap<>();
+    private final Map<String, Object> constantsMap = new HashMap<>();
     private final DAL dal = DAL.create(InspectorExtension.class);
 
     public void addInput(String dalIns, Object data) {
@@ -23,7 +24,7 @@ public class TestContext {
     }
 
     public void evaluate(String dalIns, String code) {
-        executors.get(dalIns).evaluate(code);
+        executors.get(dalIns).evaluate(code, constantsMap.get(dalIns));
     }
 
     public void createDAL(String name) {
@@ -40,6 +41,10 @@ public class TestContext {
         if (executor.throwing != null)
             return executor.throwing;
         return executor.result;
+    }
+
+    public void addConstants(String dalIns, Object constants) {
+        constantsMap.put(dalIns, constants);
     }
 
     public static class Executor {
@@ -59,13 +64,13 @@ public class TestContext {
             this.dal = dal;
         }
 
-        public void evaluate(String code) {
+        public void evaluate(String code, Object constants) {
             lastEvaluating = code;
             running = true;
             startedAt = Instant.now();
             thread = new Thread(() -> {
                 try {
-                    result = dal.evaluate(input, code);
+                    result = dal.evaluate(() -> input, code, null, constants);
                 } catch (Throwable e) {
                     throwing = e;
                 } finally {

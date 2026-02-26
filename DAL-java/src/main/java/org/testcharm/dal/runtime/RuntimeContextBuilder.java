@@ -63,7 +63,7 @@ public class RuntimeContextBuilder {
     private final CheckerSet checkerSetForEqualing = new CheckerSet(CheckerSet::defaultEqualing);
     private int maxDumpingLineSize = 2000;
     private int maxDumpingObjectSize = 255;
-    private ErrorHook errorHook = (i, code, e) -> false;
+    private ErrorHook errorHook = (i, code, e, c) -> false;
     private final Map<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>> localMetaProperties
             = new TreeMap<>(Classes::compareByExtends);
     private final Map<Class<?>, Map<Pattern, RuntimeHandler<MetaData<?>>>> localMetaPropertyPatterns
@@ -526,7 +526,7 @@ public class RuntimeContextBuilder {
         }
 
         public boolean hookError(String expression, Throwable error) {
-            return errorHook.handle(getThis(), expression, error);
+            return errorHook.handle(getThis(), expression, error, this);
         }
 
         public Data<?> invokeMetaProperty(DALNode inputNode, Data<?> inputData, Object symbolName) {
