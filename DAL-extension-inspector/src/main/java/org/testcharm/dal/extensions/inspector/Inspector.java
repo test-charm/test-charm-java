@@ -175,7 +175,9 @@ public class Inspector {
                 response.put("root", runtimeContext.getThis().dump());
                 DALNode dalNode = dal.compileSingle(code, runtimeContext);
                 response.put("inspect", dalNode.inspect());
+                response.put("constants", constants == null ? "" : runtimeContext.constants().dump());
                 response.put("result", dalNode.evaluateData(runtimeContext).dump());
+
             } catch (InterpreterException e) {
                 response.put("error", e.show(code) + "\n\n" + e.getMessage());
             }

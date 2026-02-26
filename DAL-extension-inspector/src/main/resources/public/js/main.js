@@ -56,6 +56,7 @@ const Workspace = (code, name) => {
             error: '',
             result: '',
             inspect: '',
+            constants: '',
             watches: []
         },
         active: '',
@@ -124,7 +125,7 @@ const appData = () => {
         dalInstances: [DalInstance('Try It!')],
         activeInstance: null,
         exchangeSession: null,
-        outputTabs: ['root', 'result', 'error', 'inspect'],
+        outputTabs: ['root', 'result', 'error', 'inspect', 'constants'],
         disconnectByName(dalName) {
             this.dalInstances.filter(e => e.name === dalName).forEach(dalInstance => dalInstance.connected = false)
         },

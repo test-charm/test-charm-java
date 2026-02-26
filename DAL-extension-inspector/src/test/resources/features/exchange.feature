@@ -228,6 +228,8 @@ Feature: exchange
             Result: ''
 
             Inspect: '1= 2'
+
+            Constants: ''
           }
        }
        """
@@ -282,6 +284,12 @@ Feature: exchange
             Result: ''
 
             Inspect: '1= $a'
+
+            Constants: ```
+                       {
+                           a: java.lang.String <failed>
+                       }
+                       ```
           }
        }
        """
