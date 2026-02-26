@@ -13,7 +13,7 @@ Feature: web ui
         """
       Then page in driver <driver> should:
         """
-        css[.target].text[]= [expected1 expected2]
+        css[.target]: [expected1 expected2]
         """
       And logs should:
         """
@@ -110,7 +110,7 @@ Feature: web ui
         """
       Then page in driver <driver> should:
         """
-        css[.target].text= expected
+        css[.target]: expected
         """
       And logs should:
         """
@@ -137,7 +137,41 @@ Feature: web ui
         """
       Then failed with:
         """
-        Expected list can only have one element, but is: org.testcharm.pf.Elements [
+        Operations can only be performed on a single located element at: css{html} => css{.target}, but is: org.testcharm.pf.Elements [
+            org.testcharm.pf.cucumber.<type> {
+                input: java.lang.Boolean <false>,
+                location: java.lang.String </html[1]/body[1]/div[1]>,
+                locator: css{.target},
+                tag: java.lang.String <div>
+            },
+            org.testcharm.pf.cucumber.<type> {
+                input: java.lang.Boolean <false>,
+                location: java.lang.String </html[1]/body[1]/div[2]>,
+                locator: css{.target},
+                tag: java.lang.String <div>
+            }
+        ]
+        """
+      Examples:
+        | driver     | type                   |
+        | selenium   | Selenium$SeleniumE     |
+        | playwright | Playwright$PlaywrightE |
+
+    Scenario Outline: more than one element on verification
+      Given launch the following web page:
+        """
+        html
+          body
+            .target unexpected
+            .target unexpected
+        """
+      When try to find element via driver <driver>:
+        """
+        css[.target]: unexpected
+        """
+      Then failed with:
+        """
+        Operations can only be performed on a single located element at: css{html} => css{.target}, but is: org.testcharm.pf.Elements [
             org.testcharm.pf.cucumber.<type> {
                 input: java.lang.Boolean <false>,
                 location: java.lang.String </html[1]/body[1]/div[1]>,
@@ -203,7 +237,7 @@ Feature: web ui
         """
       Then failed with:
         """
-        Expected list can only have one element, but is: org.testcharm.pf.Elements []
+        Operations can only be performed on a single located element at: css{html} => css{.target}, but is: org.testcharm.pf.Elements []
         """
       And logs should:
         """
@@ -244,7 +278,7 @@ Feature: web ui
         """
       Then failed with:
         """
-        Expected list can only have one element, but is: org.testcharm.pf.Elements []
+        Operations can only be performed on a single located element at: css{html} => css{.target}, but is: org.testcharm.pf.Elements []
         """
       And logs should:
         """

@@ -342,7 +342,10 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        org.testcharm.dal.runtime.InvalidAdaptiveListException: Expected only one element
+        Expected list can only have one element, but is: org.testcharm.dal.runtime.StaticAdaptiveList [
+            java.lang.String <hello>,
+            java.lang.String <world>
+        ]
         """
       And got the following notation:
         """
@@ -355,7 +358,10 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        org.testcharm.dal.runtime.InvalidAdaptiveListException: Expected only one element
+        Expected list can only have one element, but is: org.testcharm.dal.runtime.StaticAdaptiveList [
+            java.lang.String <hello>,
+            java.lang.String <world>
+        ]
         """
       And got the following notation:
         """

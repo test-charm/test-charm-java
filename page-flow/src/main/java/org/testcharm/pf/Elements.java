@@ -56,8 +56,7 @@ public class Elements<T extends Element<T, ?>> implements AdaptiveList<T> {
     }
 
     private InvalidAdaptiveListException unexpectedElementSize(Object size) {
-        return new InvalidAdaptiveListException(String.format("%s, but %s elements were found",
-                locateInfo("Operations can only be performed on a single located element at: ", " => " + locator), size));
+        return new InvalidAdaptiveListException(locateInfo("Operations can only be performed on a single located element at: ", " => " + locator));
     }
 
     private String locateInfo(String prefix, String action) {

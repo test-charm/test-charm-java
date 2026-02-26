@@ -15,8 +15,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Optional.of;
-import static org.testcharm.dal.runtime.ExpressionException.illegalOp2;
-import static org.testcharm.dal.runtime.ExpressionException.opt1;
 import static org.testcharm.dal.runtime.Order.BUILD_IN;
 
 @Order(BUILD_IN)
@@ -56,12 +54,12 @@ public class Types implements Extension {
 
                     @Override
                     public Data<?> getData(Data<AdaptiveList<?>> data, Object property, DALRuntimeContext context) {
-                        return adaptiveListOf(data, d -> d.map(AdaptiveList::soloList).property(0).property(property));
+                        return adaptiveListOf(data, d -> d.map(AdaptiveList::soloList).property(0).property(property), ExpressionException::illegalOp2);
                     }
 
                     @Override
                     public Set<?> getPropertyNames(Data<AdaptiveList<?>> data) {
-                        return adaptiveListOf(data, d -> d.map(AdaptiveList::soloList).property(0).fieldNames());
+                        return adaptiveListOf(data, d -> d.map(AdaptiveList::soloList).property(0).fieldNames(), ExpressionException::illegalOp2);
                     }
                 })
                 .registerMetaPropertyPattern(AdaptiveList.class, ".*",
@@ -70,7 +68,7 @@ public class Types implements Extension {
                                 return metaData.delegate(d -> d.map(AdaptiveList::list));
                             else
                                 return metaData.delegate(d -> adaptiveListOf(Sneaky.cast(d),
-                                        data -> data.map(AdaptiveList::soloList).property(0)));
+                                        l -> l.map(AdaptiveList::soloList).property(0), ExpressionException::illegalOp2));
                         })
         ;
 
@@ -78,10 +76,12 @@ public class Types implements Extension {
         verifySingle(builder.checkerSetForMatching());
     }
 
+    @SuppressWarnings("unchecked")
     private void verifySingle(CheckerSet checkerSet) {
         checkerSet.register((expected, actual) -> {
             if (actual.instanceOf(AdaptiveList.class)) {
-                Data<Object> single = opt1(() -> actual.map(t -> ((AdaptiveList<?>) t).single()));
+                Data<Object> single = adaptiveListOf((Data<AdaptiveList<?>>) actual, l -> l.map(AdaptiveList::single),
+                        ExpressionException::illegalOp1);
                 Checker checkerOfElement = checkerSet.fetch(expected, single);
                 return of(new Checker() {
                     @Override
@@ -94,11 +94,12 @@ public class Types implements Extension {
         });
     }
 
-    private <T> T adaptiveListOf(Data<AdaptiveList<?>> data, Function<Data<AdaptiveList<?>>, T> function) {
+    private <T> T adaptiveListOf(Data<AdaptiveList<?>> data, Function<Data<AdaptiveList<?>>, T> function,
+                                 Function<String, ExpressionException> exceptionSupplier) {
         try {
             return function.apply(data);
         } catch (InvalidAdaptiveListException e) {
-            throw illegalOp2("Expected list can only have one element, but is: " + data.dump());
+            throw exceptionSupplier.apply(e.getMessage() + ", but is: " + data.dump());
         }
     }
 }
