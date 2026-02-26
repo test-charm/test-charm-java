@@ -7,10 +7,7 @@ import org.testcharm.dal.runtime.RuntimeContextBuilder;
 import org.testcharm.dal.type.AllowNull;
 import org.testcharm.dal.type.Partial;
 import org.testcharm.dal.type.Schema;
-import org.testcharm.util.BeanClass;
-import org.testcharm.util.Classes;
-import org.testcharm.util.PropertyAccessor;
-import org.testcharm.util.PropertyReader;
+import org.testcharm.util.*;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -20,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
-import static org.testcharm.util.CollectionHelper.toStream;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.joining;
@@ -111,7 +107,7 @@ public class Expect {
     public Stream<Expect> subElements() {
         AtomicInteger index = new AtomicInteger();
         return expect == null ? Stream.generate(() -> sub(index.getAndIncrement()))
-                : toStream(expect).map(e -> sub(index.getAndIncrement()));
+                : CollectionHelper.convertToStream(expect).map(e -> sub(index.getAndIncrement()));
     }
 
     @SuppressWarnings("unchecked")

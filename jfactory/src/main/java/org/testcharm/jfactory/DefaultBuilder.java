@@ -6,11 +6,11 @@ import org.testcharm.util.CollectionHelper;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+import static java.util.Objects.hash;
 import static org.testcharm.jfactory.DefaultBuilder.BuildFrom.SPEC;
 import static org.testcharm.util.BeanClass.cast;
 import static org.testcharm.util.function.Extension.firstPresent;
-import static java.util.Arrays.asList;
-import static java.util.Objects.hash;
 
 class DefaultBuilder<T> implements Builder<T> {
     enum BuildFrom {
@@ -123,7 +123,7 @@ class DefaultBuilder<T> implements Builder<T> {
             String property = replaceStartsWithIndexBracket(jFactory.aliasSetStore.resolve(
                     objectFactory, key, isCollection(value)), newBuilder);
             if (isCollection(value)) {
-                List<Object> objects = CollectionHelper.toStream(value).collect(Collectors.toList());
+                List<Object> objects = CollectionHelper.convertToStream(value).collect(Collectors.toList());
                 if (objects.isEmpty() || !property.contains("$"))
                     newBuilder.properties.append(trimIndexAlias(property), value);
                 else for (int i = 0; i < objects.size(); i++)

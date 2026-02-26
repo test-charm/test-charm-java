@@ -106,10 +106,13 @@ public class ListScopeNode extends DALNode {
             @Override
             public Data<?> equalTo() {
                 try {
-                    Data<?> sorted = actual.map(e -> opt1(actual::list).sort(getComparator(context)));
-                    return sorted.execute(() -> type == Type.CONTAINS ?
-                            verifyContainElement(context, sorted.list(), actual)
-                            : verifyCorrespondingElement(context, getVerificationExpressions(sorted.list(), actual, context)));
+                    // make sure push Scoped actual to stack
+                    return actual.execute(() -> {
+                        Data<?> sorted = actual.map(e -> opt1(actual::list).sort(getComparator(context)));
+                        return sorted.execute(() -> (Data<?>) (type == Type.CONTAINS ?
+                                verifyContainElement(context, sorted.list(), actual)
+                                : verifyCorrespondingElement(context, getVerificationExpressions(sorted.list(), actual, context))));
+                    });
                 } catch (ListMappingElementAccessException e) {
                     throw exception(expression -> locateError(e, expression.left().getOperandPosition()));
                 }

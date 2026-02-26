@@ -13,7 +13,7 @@ import static org.testcharm.util.BeanClass.create;
 public class CollectionHelper {
 
     @SuppressWarnings("unchecked")
-    public static <E> Stream<E> toStream(Object collection) {
+    public static <E> Stream<E> convertToStream(Object collection) {
         if (collection != null) {
             Class<?> collectionType = collection.getClass();
             if (collectionType.isArray())
@@ -26,6 +26,18 @@ public class CollectionHelper {
         throw new CannotToStreamException(collection);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <E> Stream<E> asStream(Object collection) {
+        Class<?> collectionType = collection.getClass();
+        if (collectionType.isArray())
+            return IntStream.range(0, Array.getLength(collection)).mapToObj(i -> (E) Array.get(collection, i));
+        else if (collection instanceof Iterable)
+            return StreamSupport.stream(((Iterable<E>) collection).spliterator(), false);
+        else if (collection instanceof Stream)
+            return (Stream<E>) collection;
+        return (Stream<E>) Stream.of(collection);
+    }
+
     public static <T> T convert(Object collection, BeanClass<T> toType) {
         return convert(collection, toType, Converter.getInstance());
     }
@@ -34,7 +46,7 @@ public class CollectionHelper {
     public static <T> T convert(Object collection, BeanClass<T> toType, Converter elementConverter) {
         if (collection != null) {
             Class<?> elementType = toType.getElementType().getType();
-            return (T) toType.createCollection((toStream(collection).map(o ->
+            return (T) toType.createCollection((convertToStream(collection).map(o ->
                     elementConverter.convert(elementType, o))).collect(Collectors.toList()));
         }
         return null;

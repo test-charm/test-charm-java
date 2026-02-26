@@ -30,7 +30,7 @@ Feature: return
   Scenario: return hook via interface
     Given the following java class:
     """
-    public class DataValue implements ScopedObject {
+    public class DataValue implements Scoped {
       public int i = 100;
       public int j = 0;
       public void onExit() {

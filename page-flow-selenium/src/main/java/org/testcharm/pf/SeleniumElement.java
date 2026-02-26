@@ -1,15 +1,15 @@
 package org.testcharm.pf;
 
-import org.testcharm.dal.runtime.AdaptiveList;
 import org.openqa.selenium.support.ui.Select;
+import org.testcharm.dal.runtime.AdaptiveList;
+import org.testcharm.util.CollectionHelper;
 
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.testcharm.pf.By.*;
 import static java.lang.String.format;
 import static org.openqa.selenium.By.cssSelector;
+import static org.testcharm.pf.By.*;
 
 public abstract class SeleniumElement<T extends SeleniumElement<T>>
         extends AbstractElement<T, org.openqa.selenium.WebElement>
@@ -86,8 +86,7 @@ public abstract class SeleniumElement<T extends SeleniumElement<T>>
             Select select = new Select(element);
             if (select.isMultiple())
                 select.deselectAll();
-            Pattern.compile("\r\n|\r|\n").splitAsStream(String.valueOf(value).trim())
-                    .forEach(select::selectByVisibleText);
+            CollectionHelper.asStream(value).forEach(text -> select.selectByVisibleText(String.valueOf(text)));
         } else
             super.fillIn(value);
         return (T) this;

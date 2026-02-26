@@ -1,8 +1,9 @@
 package org.testcharm.pf;
 
-import org.testcharm.util.BeanClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcharm.util.BeanClass;
+import org.testcharm.util.Collector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,20 @@ public interface Element<T extends Element<T, E>, E> {
 
     default T fillIn(Object value) {
         return clear().typeIn(String.valueOf(value));
+    }
+
+    default Collector fillIn() {
+        return new ScopedCollector() {
+            @Override
+            public void onExit() {
+                fillIn(build());
+            }
+
+            @Override
+            public void setValue(Object value) {
+                fillIn(value);
+            }
+        };
     }
 
     default boolean isInput() {

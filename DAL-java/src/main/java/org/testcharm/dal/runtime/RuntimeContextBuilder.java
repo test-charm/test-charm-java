@@ -39,7 +39,6 @@ import static org.testcharm.dal.runtime.schema.Actual.actual;
 import static org.testcharm.dal.runtime.schema.Verification.expect;
 import static org.testcharm.util.Classes.getClassName;
 import static org.testcharm.util.Classes.named;
-import static org.testcharm.util.CollectionHelper.toStream;
 import static org.testcharm.util.Sneaky.cast;
 import static org.testcharm.util.Sneaky.sneakyThrow;
 
@@ -367,7 +366,7 @@ public class RuntimeContextBuilder {
 
         public DALCollection<Object> createCollection(Object instance) {
             return dALCollectionFactories.tryGetData(instance).map(factory -> factory.create(instance))
-                    .orElseGet(() -> new CollectionDALCollection<>(toStream(instance).collect(toList())));
+                    .orElseGet(() -> new CollectionDALCollection<>(CollectionHelper.convertToStream(instance).collect(toList())));
         }
 
         public boolean isRegisteredList(Object instance) {

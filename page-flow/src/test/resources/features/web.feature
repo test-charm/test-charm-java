@@ -538,10 +538,7 @@ Feature: web ui
         """
       When perform via driver <driver>:
         """
-        css[select].fillIn: ```
-                            Apple
-                            Date
-                            ```
+        css[select].fillIn: [Apple Date]
         """
       Then page in driver <driver> should:
         """

@@ -1,5 +1,5 @@
 package org.testcharm.dal.runtime;
 
-public interface ScopedObject {
+public interface Scoped {
     void onExit();
 }

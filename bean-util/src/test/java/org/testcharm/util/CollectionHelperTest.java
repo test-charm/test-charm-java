@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.testcharm.dal.Assertions.expect;
-import static org.testcharm.util.CollectionHelper.convert;
-import static org.testcharm.util.CollectionHelper.toStream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.testcharm.dal.Assertions.expect;
+import static org.testcharm.util.CollectionHelper.convert;
 
 public class CollectionHelperTest {
 
@@ -26,24 +25,24 @@ public class CollectionHelperTest {
 
         @Test
         void support_null_input() {
-            assertThrows(CannotToStreamException.class, () -> toStream(null));
+            assertThrows(CannotToStreamException.class, () -> CollectionHelper.convertToStream(null));
         }
 
         @Test
         void support_get_array_elements() {
-            assertThat(toStream(new String[]{"hello", "world"}).collect(Collectors.toList()))
+            assertThat(CollectionHelper.convertToStream(new String[]{"hello", "world"}).collect(Collectors.toList()))
                     .isEqualTo(asList("hello", "world"));
         }
 
         @Test
         void support_get_collection_elements() {
-            assertThat(toStream(asList("hello", "world")).collect(Collectors.toList()))
+            assertThat(CollectionHelper.convertToStream(asList("hello", "world")).collect(Collectors.toList()))
                     .isEqualTo(asList("hello", "world"));
         }
 
         @Test
         void support_get_stream_elements() {
-            assertThat(toStream(asList("hello", "world").stream()).collect(Collectors.toList()))
+            assertThat(CollectionHelper.convertToStream(asList("hello", "world").stream()).collect(Collectors.toList()))
                     .isEqualTo(asList("hello", "world"));
         }
     }

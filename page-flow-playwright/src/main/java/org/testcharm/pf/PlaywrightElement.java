@@ -2,6 +2,7 @@ package org.testcharm.pf;
 
 import com.microsoft.playwright.Locator;
 import org.testcharm.dal.runtime.AdaptiveList;
+import org.testcharm.util.CollectionHelper;
 
 import java.util.Collection;
 import java.util.List;
@@ -80,7 +81,7 @@ public abstract class PlaywrightElement<T extends PlaywrightElement<T>>
             if (locator.isChecked() != (boolean) value)
                 click();
         } else if (selectAble()) {
-            locator.selectOption(String.valueOf(value).trim().split("\r\n|\r|\n"));
+            locator.selectOption(CollectionHelper.asStream(value).map(String::valueOf).toArray(String[]::new));
         } else
             locator.fill(String.valueOf(value));
         return (T) this;

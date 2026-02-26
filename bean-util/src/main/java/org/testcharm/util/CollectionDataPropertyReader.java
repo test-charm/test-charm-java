@@ -9,6 +9,6 @@ class CollectionDataPropertyReader<T> extends DataPropertyAccessor<T> implements
 
     @Override
     public Object getValue(T instance) {
-        return CollectionHelper.toStream(instance).toArray()[parseInt(getName())];
+        return CollectionHelper.convertToStream(instance).toArray()[parseInt(getName())];
     }
 }
