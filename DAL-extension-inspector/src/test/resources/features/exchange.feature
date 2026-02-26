@@ -153,7 +153,7 @@ Feature: exchange
         """
       When you:
         """
-        Monitors[Ins1]: false
+        Monitors[Ins1].fillIn: false
         """
       And use DAL 'Ins1' to evaluating the following:
         """
@@ -180,7 +180,7 @@ Feature: exchange
         """
       When you:
         """
-        Monitors[Ins1]: false
+        Monitors[Ins1].fillIn: false
         """
       And use DAL 'Ins1' to evaluating the following:
         """
@@ -301,7 +301,7 @@ Feature: exchange
         """
       When you:
         """
-        Monitors[Ins1]: false
+        Monitors[Ins1].fillIn: false
         """
       Then DAL 'Ins1' test finished with the following result
         """

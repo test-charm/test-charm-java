@@ -105,7 +105,7 @@ Feature: basic
         """
       When you:
         """
-        AutoExecute: false
+        AutoExecute.fillIn: false
         WorkBench[Try It!].DAL.typeIn: message
         """
       Then you should see after 1s:
