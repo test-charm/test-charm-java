@@ -45,6 +45,7 @@ public class Steps {
     @Before
     public void importDependencies() {
         JavaExecutor.executor().main().importDependency("org.testcharm.jfactory.*");
+        JavaExecutor.executor().main().importDependency("org.testcharm.util.*");
         JavaExecutor.executor().main().importDependency("org.testcharm.dal.*");
     }
 

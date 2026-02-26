@@ -1,13 +1,13 @@
 package org.testcharm.pf;
 
-import org.testcharm.dal.runtime.AdaptiveList;
 import com.microsoft.playwright.Locator;
+import org.testcharm.dal.runtime.AdaptiveList;
 
 import java.util.Collection;
 import java.util.List;
 
-import static org.testcharm.pf.By.*;
 import static java.lang.String.format;
+import static org.testcharm.pf.By.*;
 
 public abstract class PlaywrightElement<T extends PlaywrightElement<T>>
         extends AbstractElement<T, Locator> implements WebElement<T, Locator> {
