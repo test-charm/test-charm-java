@@ -1,9 +1,5 @@
 package org.testcharm.pf.cucumber;
 
-import org.testcharm.dal.DAL;
-import org.testcharm.dal.runtime.DALException;
-import org.testcharm.pf.Element;
-import org.testcharm.util.Sneaky;
 import com.github.valfirst.slf4jtest.TestLogger;
 import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import com.microsoft.playwright.BrowserType;
@@ -16,11 +12,17 @@ import io.cucumber.java.en.When;
 import io.javalin.Javalin;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testcharm.dal.DAL;
+import org.testcharm.interpreter.InterpreterException;
+import org.testcharm.pf.Element;
+import org.testcharm.util.JavaExecutor;
+import org.testcharm.util.Sneaky;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.testcharm.dal.Assertions.expect;
@@ -37,6 +39,7 @@ public class Steps {
             }})).newContext());
     private Selenium.SeleniumE seleniumE;
     private Playwright.PlaywrightE playwrightE;
+    private Map<String, Object> lastFormData;
 
     @When("launch the following web page:")
     public void launchTheFollowingWebPage(String pug) throws IOException {
@@ -44,6 +47,14 @@ public class Steps {
         javalin = Javalin.create().events(event -> event.serverStarted(serverReadyLatch::countDown));
         String html = Pug4J.render(new StringReader(pug), "", new HashMap<>());
         javalin.get("/", ctx -> ctx.html(html));
+        javalin.post("/submit", ctx -> {
+            lastFormData = ctx.formParamMap().entrySet().stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> e.getValue().get(0)
+                    ));
+            ctx.result("ok");
+        });
         javalin.start(10081);
     }
 
@@ -122,7 +133,7 @@ public class Steps {
     public void perform_via_driver_selenium(String actions) {
         try {
             DAL.dal().evaluateAll(rootSeleniumElement(), actions);
-        } catch (DALException e) {
+        } catch (InterpreterException e) {
             String detailMessage = "\n" + e.show(actions) + "\n\n" + e.getMessage();
             throw new AssertionError(detailMessage);
         }
@@ -132,9 +143,30 @@ public class Steps {
     public void perform_via_driver_playwright(String actions) {
         try {
             DAL.dal().evaluateAll(rootPlaywrightElement(), actions);
-        } catch (DALException e) {
+        } catch (InterpreterException e) {
             String detailMessage = "\n" + e.show(actions) + "\n\n" + e.getMessage();
             throw new AssertionError(detailMessage);
         }
+    }
+
+    @Then("server should receive form data:")
+    public void serverShouldReceiveFormData(String exp) {
+        expect(lastFormData).should(exp);
+    }
+
+    @When("perform page {string} via driver playwright:")
+    @When("perform page {string} via driver Playwright:")
+    public void performPageViaDriverDriverPlaywright(String page, String exp) {
+        JavaExecutor.executor().main().addArg("element", rootPlaywrightElement());
+        JavaExecutor.executor().main().returnExpression("new " + page + "((org.testcharm.pf.cucumber.Playwright.PlaywrightE)args.get(\"element\"))");
+        expect(JavaExecutor.executor().main().evaluate()).should(exp);
+    }
+
+    @When("perform page {string} via driver selenium:")
+    @When("perform page {string} via driver Selenium:")
+    public void performPageViaDriverDriverSelenium(String page, String exp) {
+        JavaExecutor.executor().main().addArg("element", rootSeleniumElement());
+        JavaExecutor.executor().main().returnExpression("new " + page + "((org.testcharm.pf.cucumber.Selenium.SeleniumE)args.get(\"element\"))");
+        expect(JavaExecutor.executor().main().evaluate()).should(exp);
     }
 }

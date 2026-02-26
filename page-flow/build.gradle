@@ -1,8 +1,11 @@
 dependencies {
     api project(':DAL-java')
-    api project(':DAL-extension-basic')
-    api libs.prod.slf4j.api
+    implementation project(':DAL-extension-basic')
+    api project(':jfactory')
+    implementation project(':DAL-extension-jfactory')
+    implementation libs.prod.slf4j.api
 
+    testImplementation project(':java-compiler-util')
     testImplementation project(':page-flow-playwright')
     testImplementation project(':page-flow-selenium')
     testImplementation libs.test.javalin

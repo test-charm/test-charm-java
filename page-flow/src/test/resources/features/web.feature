@@ -582,3 +582,94 @@ Feature: web ui
         | driver     |
         | selenium   |
         | playwright |
+
+  Rule: Submit Form
+
+    Scenario Outline:  Submit Form
+      Given launch the following web page:
+        """
+        html
+          head
+          body
+            form(action="http://host.docker.internal:10081/submit" method="POST")
+              input(name="username" type="text")
+              input(name="password" type="password")
+              button(type="submit") Submit
+        """
+      When perform via driver <driver>:
+        """
+        css: {
+        'input[name=username]'.fillIn: alice
+        'input[name=password]'.fillIn: secret
+        'button[type=submit]'.click: {...}
+        }
+        """
+      Then server should receive form data:
+        """
+        = {
+          username= alice
+          password= secret
+        }
+        """
+      Examples:
+        | driver     |
+        | selenium   |
+        | playwright |
+
+    Scenario Outline:  Submit Form with JFactory
+      And the following class definition:
+        """
+        public class UserInfo {
+          public String username, password;
+        }
+        """
+      Given the following class definition:
+        """
+        import org.testcharm.pf.*;
+        import org.testcharm.pf.cucumber.<driver>.*;
+        import org.testcharm.jfactory.*;
+        public class MainPage extends AbstractRegion<<driver>E> {
+          public MainPage(<driver>E element) {
+            super(element);
+          }
+
+          public ScopedJFactoryCollector login() {
+            return new ScopedJFactoryCollector(new JFactory(), UserInfo.class) {
+              public void onExit() {
+                UserInfo info = (UserInfo)build();
+                locate("css['input[name=username]']").single().fillIn(info.username);
+                locate("css['input[name=password]']").single().fillIn(info.password);
+                locate("css['button[type=submit]']").single().click();
+              }
+            };
+          }
+        }
+        """
+      And launch the following web page:
+        """
+        html
+          head
+          body
+            form(action="http://host.docker.internal:10081/submit" method="POST")
+              input(name="username" type="text")
+              input(name="password" type="password")
+              button(type="submit") Submit
+        """
+      When perform page "MainPage" via driver <driver>:
+        """
+        login: {
+          username: alice
+          password: secret
+        }
+        """
+      Then server should receive form data:
+        """
+        = {
+          username= alice
+          password= secret
+        }
+        """
+      Examples:
+        | driver     |
+        | Selenium   |
+        | Playwright |
