@@ -257,7 +257,7 @@ public class IntegrationTestContext {
     }
 
     public void verifyInspect(String inspect) {
-        assertThat(compiler.compile(BaseTest.createSourceCode(expression), dal.getRuntimeContextBuilder().build(null)).get(0).inspect())
+        assertThat(compiler.compile(BaseTest.createSourceCode(expression), dal.getRuntimeContextBuilder().build(null, null, constants)).get(0).inspect())
                 .isEqualTo(inspect);
     }
 

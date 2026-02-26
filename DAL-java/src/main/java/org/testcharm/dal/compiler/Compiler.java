@@ -325,9 +325,9 @@ public class Compiler {
     private Optional<DALNode> constantNode(DALProcedure dalProcedure) {
         return dalProcedure.getSourceCode().tryFetch(() -> Tokens.CONSTANT.scan(dalProcedure.getSourceCode())
                 .map(token -> {
-                    if (dalProcedure.getRuntimeContext().hasConstants())
-                        return new ConstantNode(token.getContent().substring(1));
-                    return null;
+                    String name = token.getContent().substring(1);
+                    return !name.isEmpty() && dalProcedure.getRuntimeContext().hasConstants(name)
+                            ? new ConstantNode(name).setPositionBegin(token.getPosition()) : null;
                 }));
     }
 

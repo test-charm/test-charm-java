@@ -583,8 +583,8 @@ public class RuntimeContextBuilder {
             return stack.getLast();
         }
 
-        public boolean hasConstants() {
-            return constants != null;
+        public boolean hasConstants(String name) {
+            return constants != null && constants().fieldNames().contains(name);
         }
 
         public Data<?> constants() {

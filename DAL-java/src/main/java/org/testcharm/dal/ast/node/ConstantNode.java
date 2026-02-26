@@ -20,4 +20,9 @@ public class ConstantNode extends DALNode {
     public Data<?> evaluateData(RuntimeContextBuilder.DALRuntimeContext context) {
         return context.constants().property(value);
     }
+
+    @Override
+    public boolean needPostBlankWarningCheck() {
+        return true;
+    }
 }

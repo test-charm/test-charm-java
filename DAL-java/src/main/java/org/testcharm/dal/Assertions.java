@@ -25,6 +25,7 @@ public class Assertions {
     private DAL dal;
     private static Supplier<DAL> dalFactory = () -> DAL.dal("AssertD");
     private Class<?> schema;
+    private Object constants;
 
     public static void setDALFactory(Supplier<DAL> dalFactory) {
         Assertions.dalFactory = dalFactory;
@@ -58,7 +59,7 @@ public class Assertions {
     public Assertions should(String prefix, String verification) {
         String fullCode = prefix + verification;
         try {
-            getDAL().evaluate(inputCode, fullCode, schema);
+            getDAL().evaluate(inputCode, fullCode, schema, constants);
             return this;
         } catch (InterpreterException e) {
             String detailMessage = e.show(fullCode, prefix.length()) + "\n\n" + e.getMessage();
@@ -119,5 +120,10 @@ public class Assertions {
         } catch (InterpreterException e) {
             throw new AssertionError(e.getMessage());
         }
+    }
+
+    public Assertions constants(Object constants) {
+        this.constants = constants;
+        return this;
     }
 }

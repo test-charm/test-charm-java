@@ -9,6 +9,7 @@ public class Accessors {
     private static boolean dumpInput = true;
     private DAL dal;
     private static Supplier<DAL> dalFactory = () -> DAL.dal("AssertD");
+    private Object constants;
 
     public static void setDALFactory(Supplier<DAL> dalFactory) {
         Accessors.dalFactory = dalFactory;
@@ -33,7 +34,7 @@ public class Accessors {
 
     public <T> T from(Object input) {
         try {
-            return getDAL().evaluate(input, expression);
+            return getDAL().evaluate(() -> input, expression, null, constants);
         } catch (InterpreterException e) {
             String detailMessage = "\n" + e.show(expression, 0) + "\n\n" + e.getMessage();
             if (dumpInput)
@@ -53,5 +54,10 @@ public class Accessors {
         if (dal == null)
             dal = dalFactory.get();
         return dal;
+    }
+
+    public Accessors constants(Object constants) {
+        this.constants = constants;
+        return this;
     }
 }
