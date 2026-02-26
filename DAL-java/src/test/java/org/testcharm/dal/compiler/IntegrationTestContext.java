@@ -36,6 +36,7 @@ public class IntegrationTestContext {
     private final DAL dal;
     private ByteArrayOutputStream waringOutput;
     private Object input = null;
+    private Object constants = null;
     private Object result;
     private InterpreterException exception;
     private Throwable bizException;
@@ -119,7 +120,7 @@ public class IntegrationTestContext {
             });
             classes.stream().filter(t -> t.getSimpleName().equals("_DALRegister")).forEach(r ->
                     ((Consumer) Sneaky.get(() -> r.newInstance())).accept(dal));
-            result = dal.evaluate(input, expression);
+            result = dal.evaluate(() -> input, expression, null, constants);
         } catch (InterpreterException e) {
             exception = e;
         }
@@ -422,6 +423,11 @@ public class IntegrationTestContext {
 
     public void shouldAssertError(String verification) {
         expect(bizException).should(verification.replace("#package#", javaCompiler.packagePrefix()));
+    }
+
+    @SneakyThrows
+    public void givenJsonConstant(String json) {
+        constants = new ObjectMapper().readValue(String.format("[%s]", json), List.class).get(0);
     }
 
     public static class Empty {

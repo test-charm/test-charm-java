@@ -1,9 +1,9 @@
 package org.testcharm.dal.cucumber;
 
-import org.testcharm.dal.compiler.IntegrationTestContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
+import org.testcharm.dal.compiler.IntegrationTestContext;
 
 public class IntegrationSteps {
     private IntegrationTestContext integrationTestContext;
@@ -268,5 +268,10 @@ public class IntegrationSteps {
     @Then("got assert error:")
     public void assertError(String verification) {
         integrationTestContext.shouldAssertError(verification);
+    }
+
+    @Given("the following constants:")
+    public void theFollowingConstants(String json) {
+        integrationTestContext.givenJsonConstant(json);
     }
 }

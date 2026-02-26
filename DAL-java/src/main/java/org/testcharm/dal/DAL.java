@@ -109,7 +109,12 @@ public class DAL {
 
     @SuppressWarnings("unchecked")
     public <T> T evaluate(InputCode<Object> input, String expression, Class<?> rootSchema) {
-        DALRuntimeContext runtimeContext = runtimeContextBuilder.build(input, rootSchema);
+        return evaluate(input, expression, rootSchema, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T evaluate(InputCode<Object> input, String expression, Class<?> rootSchema, Object constants) {
+        DALRuntimeContext runtimeContext = runtimeContextBuilder.build(input, rootSchema, constants);
         try {
             return (T) compileSingle(expression, runtimeContext).evaluate(runtimeContext);
         } catch (Throwable e) {

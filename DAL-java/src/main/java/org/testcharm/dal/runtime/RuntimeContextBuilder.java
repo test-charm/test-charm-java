@@ -92,9 +92,13 @@ public class RuntimeContextBuilder {
     }
 
     public DALRuntimeContext build(InputCode<?> inputSupplier, Class<?> rootSchema) {
+        return build(inputSupplier, rootSchema, null);
+    }
+
+    public DALRuntimeContext build(InputCode<?> inputSupplier, Class<?> rootSchema, Object constants) {
         if (inputSupplier == null)
-            return new DALRuntimeContext(() -> null, rootSchema);
-        return new DALRuntimeContext(inputSupplier, rootSchema);
+            return new DALRuntimeContext(() -> null, rootSchema, constants);
+        return new DALRuntimeContext(inputSupplier, rootSchema, constants);
     }
 
     public RuntimeContextBuilder registerValueFormat(Formatter<?, ?> formatter) {
@@ -307,12 +311,14 @@ public class RuntimeContextBuilder {
         private final LinkedList<Data<?>> stack = new LinkedList<>();
         private final LinkedList<Integer> positionStack = new LinkedList<>();
         private final Map<Data<?>, PartialPropertyStack> partialPropertyStacks;
+        private final Object constants;
 
         public Features features() {
             return features;
         }
 
-        public DALRuntimeContext(InputCode<?> supplier, Class<?> schema) {
+        public DALRuntimeContext(InputCode<?> supplier, Class<?> schema, Object constants) {
+            this.constants = constants;
             stack.push(lazy(supplier, SchemaType.create(schema == null ? null : BeanClass.create(schema))));
             positionStack.push(0);
             partialPropertyStacks = new HashMap<>();
@@ -575,6 +581,14 @@ public class RuntimeContextBuilder {
 
         public Data<?> inputRoot() {
             return stack.getLast();
+        }
+
+        public boolean hasConstants() {
+            return constants != null;
+        }
+
+        public Data<?> constants() {
+            return data(constants);
         }
     }
 }

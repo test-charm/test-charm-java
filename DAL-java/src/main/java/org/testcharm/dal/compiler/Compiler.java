@@ -64,7 +64,7 @@ public class Compiler {
                     .and(endWith(Notations.CLOSE_REGEX.getLabel())).as(NodeFactory::regex)),
             WILDCARD = Notations.Operators.WILDCARD.node(WildcardNode::new),
             ROW_WILDCARD = Notations.Operators.ROW_WILDCARD.node(WildcardNode::new),
-            CONST = oneOf(STRING, CONST_TRUE, CONST_FALSE, CONST_NULL, this::compileUserDefinedLiteral, NUMBER),
+            CONST = oneOf(STRING, CONST_TRUE, CONST_FALSE, CONST_NULL, this::constantNode, this::compileUserDefinedLiteral, NUMBER),
             ELEMENT_ELLIPSIS = Notations.Operators.ELEMENT_ELLIPSIS.node(token -> new ListEllipsisNode()),
             SCHEMA = Tokens.SCHEMA.nodeParser(NodeFactory::schema),
             INTEGER_OR_STRING = oneOf(INTEGER, STRING),
@@ -320,6 +320,15 @@ public class Compiler {
         return dalProcedure.getSourceCode().tryFetch(() -> Tokens.USER_LITERAL_SYMBOL.scan(dalProcedure.getSourceCode())
                 .flatMap(token -> dalProcedure.getRuntimeContext().takeUserDefinedLiteral(token.getContent())
                         .map(result -> new ConstValueNode(result.getValue()).setPositionBegin(token.getPosition()))));
+    }
+
+    private Optional<DALNode> constantNode(DALProcedure dalProcedure) {
+        return dalProcedure.getSourceCode().tryFetch(() -> Tokens.CONSTANT.scan(dalProcedure.getSourceCode())
+                .map(token -> {
+                    if (dalProcedure.getRuntimeContext().hasConstants())
+                        return new ConstantNode(token.getContent().substring(1));
+                    return null;
+                }));
     }
 
     private ObjectParser.Mandatory<DALProcedure, Character> charNode(EscapeChars escapeChars) {

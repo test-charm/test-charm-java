@@ -10,12 +10,12 @@ import org.testcharm.util.NumberParser;
 
 import java.util.List;
 
+import static java.util.Collections.emptySet;
 import static org.testcharm.dal.compiler.Constants.*;
 import static org.testcharm.dal.compiler.Notations.Keywords;
 import static org.testcharm.interpreter.TokenScanner.tokenScanner;
 import static org.testcharm.interpreter.TokenSpec.tokenSpec;
 import static org.testcharm.util.function.Extension.not;
-import static java.util.Collections.emptySet;
 
 public class Tokens {
     private static final NumberParser numberParser = new NumberParser();
@@ -39,7 +39,10 @@ public class Tokens {
             RELAX_DOT_SYMBOL = tokenSpec(not(RELAX_PROPERTY_DELIMITER::contains), emptySet(), RELAX_PROPERTY_DELIMITER)
                     .predicate(not(Tokens::isNumber)).scanner(),
             SCHEMA = tokenSpec(not(DELIMITER::contains), Keywords.ALL_STRING, DELIMITER)
-                    .predicate(not(Tokens::isNumber)).scanner();
+                    .predicate(not(Tokens::isNumber)).scanner(),
+            CONSTANT = tokenSpec(c -> c.equals('$'), emptySet(), PROPERTY_DELIMITER)
+                    .scanner();
+
 
     public static final TokenScanner.Mandatory<RuntimeContextBuilder.DALRuntimeContext, DALNode, DALExpression,
             DALOperator, DALProcedure>
