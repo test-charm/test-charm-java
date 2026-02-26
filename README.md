@@ -4,5 +4,5 @@
 [![Lost commit](https://img.shields.io/github/last-commit/test-charm/test-charm-java.svg)](https://github.com/test-charm/test-charm-java)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[![jfactory](https://img.shields.io/maven-central/v/org.test-charm/jfactory.svg?label=module-a)](https://search.maven.org/artifact/org.test-charm/jfactory)
-[![DAL-java](https://img.shields.io/maven-central/v/org.test-charm/DAL-java.svg?label=module-b)](https://search.maven.org/artifact/org.test-charm/DAL-java)
+[![jfactory](https://img.shields.io/maven-central/v/org.test-charm/jfactory.svg?label=jfactory)](https://search.maven.org/artifact/org.test-charm/jfactory)
+[![DAL-java](https://img.shields.io/maven-central/v/org.test-charm/DAL-java.svg?label=DAL-java)](https://search.maven.org/artifact/org.test-charm/DAL-java)
