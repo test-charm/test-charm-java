@@ -1,13 +1,13 @@
 package org.testcharm.dal.ast;
 
+import org.junit.jupiter.api.Test;
 import org.testcharm.dal.DAL;
-import org.testcharm.dal.ast.node.ConstValueNode;
 import org.testcharm.dal.ast.node.DALExpression;
 import org.testcharm.dal.ast.node.ListScopeNode;
+import org.testcharm.dal.ast.node.LiteralNode;
 import org.testcharm.dal.ast.opt.DALOperator;
 import org.testcharm.dal.ast.opt.Factory;
 import org.testcharm.dal.runtime.RuntimeContextBuilder;
-import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +24,7 @@ class ListScopeNodeTest {
     @Test
     void empty_list_equal_to_or_matches_empty_list() {
         List<Object> emptyList = Collections.emptyList();
-        assertThat(DALExpression.expression(new ConstValueNode(emptyList), equal, listScopeNode).evaluate(DALRuntimeContext)).isSameAs(emptyList);
-        assertThat(DALExpression.expression(new ConstValueNode(emptyList), match, listScopeNode).evaluate(DALRuntimeContext)).isSameAs(emptyList);
+        assertThat(DALExpression.expression(new LiteralNode(emptyList), equal, listScopeNode).evaluate(DALRuntimeContext)).isSameAs(emptyList);
+        assertThat(DALExpression.expression(new LiteralNode(emptyList), match, listScopeNode).evaluate(DALRuntimeContext)).isSameAs(emptyList);
     }
 }

@@ -13,12 +13,12 @@ public class NodeFactory {
     private static final NumberParser numberParser = new NumberParser();
 
     public static DALNode stringSymbol(DALNode dalNode) {
-        return new SymbolNode(((ConstValueNode) dalNode).getValue(), SymbolNode.Type.STRING)
+        return new SymbolNode(((LiteralNode) dalNode).getValue(), SymbolNode.Type.STRING)
                 .setPositionBegin(dalNode.getPositionBegin());
     }
 
     public static DALNode numberSymbol(DALNode dalNode) {
-        return new SymbolNode(((ConstValueNode) dalNode).getValue(), SymbolNode.Type.NUMBER)
+        return new SymbolNode(((LiteralNode) dalNode).getValue(), SymbolNode.Type.NUMBER)
                 .setPositionBegin(dalNode.getPositionBegin());
     }
 
@@ -43,48 +43,48 @@ public class NodeFactory {
     }
 
     public static DALNode bracketSymbolNode(DALNode node) {
-        return new SymbolNode(((ConstValueNode) node).getValue(), SymbolNode.Type.BRACKET);
+        return new SymbolNode(((LiteralNode) node).getValue(), SymbolNode.Type.BRACKET);
     }
 
     public static DALNode parenthesesNode(DALNode node) {
         return new ParenthesesNode(node);
     }
 
-    public static DALNode constString(List<Character> characters) {
-        return new ConstValueNode(TextUtil.join(characters));
+    public static DALNode literalString(List<Character> characters) {
+        return new LiteralNode(TextUtil.join(characters));
     }
 
     public static DALNode relaxString(Token token) {
-        return new ConstValueNode(token.getContent().trim());
+        return new LiteralNode(token.getContent().trim());
     }
 
     public static DALNode regex(List<Character> characters) {
         return new RegexNode(TextUtil.join(characters));
     }
 
-    public static DALNode constTrue(String token) {
-        return new ConstValueNode(true);
+    public static DALNode literalTrue(String token) {
+        return new LiteralNode(true);
     }
 
-    public static DALNode constFalse(String token) {
-        return new ConstValueNode(false);
+    public static DALNode literalFalse(String token) {
+        return new LiteralNode(false);
     }
 
-    public static DALNode constNull(String token) {
-        return new ConstValueNode(null);
+    public static DALNode literalNull(String token) {
+        return new LiteralNode(null);
     }
 
-    public static ConstValueNode constNumber(Token token) {
-        return new ConstValueNode(numberParser.parse(token.getContent()));
+    public static LiteralNode literalNumber(Token token) {
+        return new LiteralNode(numberParser.parse(token.getContent()));
     }
 
-    public static ConstValueNode constInteger(Token token) {
+    public static LiteralNode literalInteger(Token token) {
         Number number = numberParser.parse(token.getContent());
         if (number != null) {
             Class<? extends Number> type = number.getClass();
             if (type.equals(Integer.class) || type.equals(Long.class) || type.equals(Short.class)
                     || type.equals(Byte.class) || type.equals(BigInteger.class)) {
-                return new ConstValueNode(number);
+                return new LiteralNode(number);
             }
         }
         throw new SyntaxException("expect an integer", token.getPosition());
@@ -96,7 +96,7 @@ public class NodeFactory {
         return new GroupExpression(list);
     }
 
-    public static DALNode constRemarkNode(DALNode node) {
+    public static DALNode literalRemarkNode(DALNode node) {
         return new ConstRemarkNode(node);
     }
 

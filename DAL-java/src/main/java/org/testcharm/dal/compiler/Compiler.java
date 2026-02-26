@@ -46,29 +46,29 @@ public class Compiler {
             TABLE, SHORT_VERIFICATION_OPERAND, CELL_VERIFICATION_OPERAND, GROUP_PROPERTY, OPTIONAL_PROPERTY_CHAIN,
             OBJECT_VERIFICATION_PROPERTY, CONST_REMARK,
             ROOT_INPUT = procedure -> when(procedure.isCodeBeginning()).optional(() -> InputNode.Root.INSTANCE),
-            NUMBER = Tokens.NUMBER.nodeParser(NodeFactory::constNumber),
-            INTEGER = Tokens.INTEGER.nodeParser(NodeFactory::constInteger),
+            NUMBER = Tokens.NUMBER.nodeParser(NodeFactory::literalNumber),
+            INTEGER = Tokens.INTEGER.nodeParser(NodeFactory::literalInteger),
             SINGLE_QUOTED_STRING = Notations.SINGLE_QUOTED.with(many(charNode(SINGLE_QUOTED_ESCAPES))
-                    .and(endWith(Notations.SINGLE_QUOTED.getLabel())).as(NodeFactory::constString)),
+                    .and(endWith(Notations.SINGLE_QUOTED.getLabel())).as(NodeFactory::literalString)),
             DOUBLE_QUOTED_STRING = Notations.DOUBLE_QUOTED.with(many(charNode(DOUBLE_QUOTED_ESCAPES))
-                    .and(endWith(Notations.DOUBLE_QUOTED.getLabel())).as(NodeFactory::constString)),
+                    .and(endWith(Notations.DOUBLE_QUOTED.getLabel())).as(NodeFactory::literalString)),
             TEXT_BLOCK = positionNode(many(Notations.TEXT_BLOCK).and(atLeast(3)).as(TextBlockNotationNode::new))
                     .concat(clause(this::textAttribute)).concat(clause(node -> many(charNode(new EscapeChars()))
                             .and(endWithPosition(((NotationAttributeNode) node).endNotation()))
                             .as(ls -> new TextBlockNode((NotationAttributeNode) node, ls)))),
-            STRING = oneOf(TEXT_BLOCK, SINGLE_QUOTED_STRING, DOUBLE_QUOTED_STRING),
-            CONST_TRUE = Notations.Keywords.TRUE.wordNode(NodeFactory::constTrue, PROPERTY_DELIMITER_STRING),
-            CONST_FALSE = Notations.Keywords.FALSE.wordNode(NodeFactory::constFalse, PROPERTY_DELIMITER_STRING),
-            CONST_NULL = Notations.Keywords.NULL.wordNode(NodeFactory::constNull, PROPERTY_DELIMITER_STRING),
+            LITERAL_STRING = oneOf(TEXT_BLOCK, SINGLE_QUOTED_STRING, DOUBLE_QUOTED_STRING),
+            LITERAL_TRUE = Notations.Keywords.TRUE.wordNode(NodeFactory::literalTrue, PROPERTY_DELIMITER_STRING),
+            LITERAL_FALSE = Notations.Keywords.FALSE.wordNode(NodeFactory::literalFalse, PROPERTY_DELIMITER_STRING),
+            LITERAL_NULL = Notations.Keywords.NULL.wordNode(NodeFactory::literalNull, PROPERTY_DELIMITER_STRING),
             REGEX = Notations.OPEN_REGEX.with(many(charNode(REGEX_ESCAPES))
                     .and(endWith(Notations.CLOSE_REGEX.getLabel())).as(NodeFactory::regex)),
             WILDCARD = Notations.Operators.WILDCARD.node(WildcardNode::new),
             ROW_WILDCARD = Notations.Operators.ROW_WILDCARD.node(WildcardNode::new),
-            CONST = oneOf(STRING, CONST_TRUE, CONST_FALSE, CONST_NULL, this::constantNode, this::compileUserDefinedLiteral, NUMBER),
+            CONST = oneOf(LITERAL_STRING, LITERAL_TRUE, LITERAL_FALSE, LITERAL_NULL, this::constantNode, this::compileUserDefinedLiteral, NUMBER),
             ELEMENT_ELLIPSIS = Notations.Operators.ELEMENT_ELLIPSIS.node(token -> new ListEllipsisNode()),
             SCHEMA = Tokens.SCHEMA.nodeParser(NodeFactory::schema),
-            INTEGER_OR_STRING = oneOf(INTEGER, STRING),
-            STRING_PROPERTY = procedure -> procedure.isEnableRelaxProperty() ? single(STRING)
+            INTEGER_OR_STRING = oneOf(INTEGER, LITERAL_STRING),
+            STRING_PROPERTY = procedure -> procedure.isEnableRelaxProperty() ? single(LITERAL_STRING)
                     .as(NodeFactory::stringSymbol).parse(procedure) : empty(),
             NUMBER_PROPERTY = procedure -> procedure.isEnableNumberProperty() ? single(NUMBER)
                     .as(NodeFactory::numberSymbol).parse(procedure) : empty(),
@@ -159,7 +159,7 @@ public class Compiler {
         PARENTHESES = lazyNode(() -> enableCommaAnd(Notations.OPENING_PARENTHESES.with(single(EXPRESSION).and(endWith(Notations.CLOSING_PARENTHESES))
                 .as(NodeFactory::parenthesesNode))));
         CONST_REMARK = lazyNode(() -> enableCommaAnd(Notations.OPENING_PARENTHESES.with(single(EXPRESSION).and(endWith(Notations.CLOSING_PARENTHESES))
-                .as(NodeFactory::constRemarkNode))));
+                .as(NodeFactory::literalRemarkNode))));
         PROPERTY = DEFAULT_INPUT.with(oneOf(EXPLICIT_PROPERTY_CLAUSE, IMPLICIT_PROPERTY_CLAUSE));
         OPTIONAL_PROPERTY_CHAIN = PROPERTY.concatAll(EXPLICIT_PROPERTY_CLAUSE);
         PROPERTY_CHAIN = OPTIONAL_PROPERTY_CHAIN.mandatory("Expect a object property");
@@ -182,7 +182,6 @@ public class Compiler {
                 positionNode(Notations.MATRIX_COLUMN_SPLITTER.before(DEFAULT_INDEX_HEADER).concat(TABLE_BODY_CLAUSE)));
         VERIFICATION_SPECIAL_OPERAND = oneOf(REGEX, OBJECT, LIST, WILDCARD, TABLE);
         CONST_WITH_REMARK = CONST.concat(Operators.CONST_REMARK.clause(CONST_REMARK));
-//                PARENTHESES.clause(NodeFactory::constRemarkNode));
         OPERAND = lazyNode(() -> oneOf(CONST_WITH_REMARK, Operators.UNARY_OPERATORS.unary(OPERAND), PROPERTY, PARENTHESES, ROOT_INPUT))
                 .mandatory("Expect a value or expression");
         VERIFICATION_VALUE_OPERAND = oneOf(CONST_WITH_REMARK, Operators.UNARY_OPERATORS.unary(OPERAND), DEFAULT_INPUT.with(EXPLICIT_PROPERTY_CLAUSE), PARENTHESES);
@@ -319,7 +318,7 @@ public class Compiler {
     private Optional<DALNode> compileUserDefinedLiteral(DALProcedure dalProcedure) {
         return dalProcedure.getSourceCode().tryFetch(() -> Tokens.USER_LITERAL_SYMBOL.scan(dalProcedure.getSourceCode())
                 .flatMap(token -> dalProcedure.getRuntimeContext().takeUserDefinedLiteral(token.getContent())
-                        .map(result -> new ConstValueNode(result.getValue()).setPositionBegin(token.getPosition()))));
+                        .map(result -> new LiteralNode(result.getValue()).setPositionBegin(token.getPosition()))));
     }
 
     private Optional<DALNode> constantNode(DALProcedure dalProcedure) {

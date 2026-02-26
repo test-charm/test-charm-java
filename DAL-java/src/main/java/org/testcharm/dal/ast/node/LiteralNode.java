@@ -4,11 +4,11 @@ import org.testcharm.dal.ast.node.table.RowHeader;
 import org.testcharm.dal.ast.node.table.RowType;
 import org.testcharm.dal.runtime.RuntimeContextBuilder;
 
-public class ConstValueNode extends DALNode {
+public class LiteralNode extends DALNode {
 
     private final Object value;
 
-    public ConstValueNode(Object value) {
+    public LiteralNode(Object value) {
         this.value = value;
     }
 

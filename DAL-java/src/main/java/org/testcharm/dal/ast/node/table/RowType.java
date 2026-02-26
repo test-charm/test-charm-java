@@ -106,8 +106,8 @@ class SpecifyIndexRowType extends RowType {
     }
 
     static Optional<DALNode> indexToExpression(DALNode node, DALRuntimeContext context) {
-        return when(node instanceof ConstValueNode).optional(() -> expression(new StackInput(context), Factory.executable(EMPTY),
-                new SymbolNode(((ConstValueNode) node).getValue(), BRACKET).setPositionBegin(node.getPositionBegin())));
+        return when(node instanceof LiteralNode).optional(() -> expression(new StackInput(context), Factory.executable(EMPTY),
+                new SymbolNode(((LiteralNode) node).getValue(), BRACKET).setPositionBegin(node.getPositionBegin())));
     }
 }
 

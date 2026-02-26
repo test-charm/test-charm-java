@@ -1,7 +1,7 @@
 package org.testcharm.dal;
 
-import org.testcharm.dal.ast.node.ConstValueNode;
 import org.testcharm.dal.ast.node.InputNode;
+import org.testcharm.dal.ast.node.LiteralNode;
 import org.testcharm.dal.ast.opt.Factory;
 import org.testcharm.dal.runtime.Data;
 import org.testcharm.dal.runtime.IllegalTypeException;
@@ -114,7 +114,7 @@ public class Assertions {
 
     public Assertions isEqualTo(Object expect) {
         try {
-            expression(InputNode.Root.INSTANCE, Factory.equal(), new ConstValueNode(expect))
+            expression(InputNode.Root.INSTANCE, Factory.equal(), new LiteralNode(expect))
                     .evaluate(getDAL().getRuntimeContextBuilder().build(inputCode));
             return this;
         } catch (InterpreterException e) {
