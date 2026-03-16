@@ -1,15 +1,17 @@
 package org.testcharm.dal.runtime;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 public class IterableDALCollection<E> extends DALCollectionBase<E> {
-    private final Iterator<E> iterator;
+    private Iterator<E> iterator;
+    private final Iterable<E> iterable;
     private final List<E> cached = new ArrayList<>();
 
     public IterableDALCollection(Iterable<E> iterable) {
-        iterator = StreamSupport.stream(iterable.spliterator(), false).iterator();
+        this.iterable = iterable;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class IterableDALCollection<E> extends DALCollectionBase<E> {
                 if (position < cached.size()) {
                     return true;
                 }
-                return iterator.hasNext();
+                return getIterator().hasNext();
             }
 
             @Override
@@ -37,7 +39,7 @@ public class IterableDALCollection<E> extends DALCollectionBase<E> {
     }
 
     private E getNext() {
-        E next = iterator.next();
+        E next = getIterator().next();
         cached.add(next);
         return next;
     }
@@ -46,7 +48,7 @@ public class IterableDALCollection<E> extends DALCollectionBase<E> {
     protected E getByPosition(int position) {
         if (position < cached.size())
             return cached.get(position);
-        while (iterator.hasNext()) {
+        while (getIterator().hasNext()) {
             getNext();
             if (position < cached.size())
                 return cached.get(position);
@@ -54,21 +56,13 @@ public class IterableDALCollection<E> extends DALCollectionBase<E> {
         throw new IndexOutOfBoundsException();
     }
 
+    private Iterator<E> getIterator() {
+        return iterator == null ? (iterator = iterable.iterator()) : iterator;
+    }
+
     @Override
     public int size() {
         return (int) StreamSupport.stream(
                 requireLimitedCollection("Not supported for infinite collection").spliterator(), false).count();
-    }
-
-    @Override
-    public DALCollection<E> filter(Predicate<E> predicate) {
-        return new IterableDALCollection<E>(() -> Spliterators.iterator(StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false).filter(predicate).spliterator())) {
-
-            @Override
-            public int firstIndex() {
-                return IterableDALCollection.this.firstIndex();
-            }
-        };
     }
 }

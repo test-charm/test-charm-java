@@ -125,7 +125,7 @@ Feature: assert has many
     message.trim: ```
                   orders: [{
                     ::hasMany[order_lines]::on[:id=not_exist]: []
-                                              ^
+                                                               ^
                   }]
 
                   org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "NOT_EXIST" not found; SQL statement:

@@ -112,6 +112,28 @@ Feature: filter
     The root value was: null
     """
 
+  Scenario: filter is lazy evaluation
+    Given the following java class:
+    """
+    public class ErrorList implements Iterable<String> {
+      @Override
+      public Iterator<String> iterator() {
+        throw new RuntimeException("Should not evaluate");
+      }
+    }
+    """
+    Then the following should pass:
+    """
+    ::filter: {
+      not-exist: any
+    }
+    : {
+      ::filter: {
+        not-exist: any
+      }
+    }
+    """
+
   Scenario: filter! result should have at least one element
     Given the following json:
     """
