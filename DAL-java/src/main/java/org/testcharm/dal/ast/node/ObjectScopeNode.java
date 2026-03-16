@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.testcharm.dal.runtime.ExpressionException.exception;
-import static org.testcharm.dal.runtime.ExpressionException.opt1;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
+import static org.testcharm.dal.runtime.ExpressionException.exception;
+import static org.testcharm.dal.runtime.ExpressionException.opt1;
 
 public class ObjectScopeNode extends DALNode {
     private final List<DALNode> verificationExpressions = new ArrayList<>();
@@ -94,5 +94,10 @@ public class ObjectScopeNode extends DALNode {
     @Override
     public Stream<Object> collectFields(Data<?> data) {
         return verificationExpressions.stream().flatMap(expression -> expression.collectFields(data));
+    }
+
+    @Override
+    public boolean improvePrecedence() {
+        return true;
     }
 }

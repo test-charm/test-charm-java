@@ -63,3 +63,72 @@ Feature: verification operators
       | opt | result |
       | :   | 10     |
       | =   | 10     |
+
+  Scenario: improve precedence in object verification
+    Given the following json:
+    """
+    {
+      "key": "hello"
+    }
+    """
+    When evaluate by:
+    """
+    : {...}.key
+    """
+    Then the result should:
+    """
+    = hello
+    """
+    When evaluate by:
+    """
+    : {key: hello}.key
+    """
+    Then the result should:
+    """
+    = hello
+    """
+
+  Scenario: improve precedence in list verification
+    Given the following json:
+    """
+    [
+      {
+        "key": "hello"
+      }
+    ]
+    """
+    When evaluate by:
+    """
+    : [...][0].key
+    """
+    Then the result should:
+    """
+    = hello
+    """
+    When evaluate by:
+    """
+    : [{key: hello}]::size
+    """
+    Then the result should:
+    """
+    = 1
+    """
+    When evaluate by:
+    """
+    : | key   |
+      | hello |
+      ::size
+    """
+    Then the result should:
+    """
+    = 1
+    """
+    When evaluate by:
+    """
+    : >>| key | hello |
+      ::size
+    """
+    Then the result should:
+    """
+    = 1
+    """

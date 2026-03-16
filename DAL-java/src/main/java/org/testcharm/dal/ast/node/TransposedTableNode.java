@@ -58,4 +58,9 @@ public class TransposedTableNode extends DALNode {
     public String inspect() {
         return tableHead.inspect() + tableBody.inspect();
     }
+
+    @Override
+    public boolean improvePrecedence() {
+        return true;
+    }
 }

@@ -38,6 +38,14 @@ public class DALExpression extends DALNode implements Expression<DALRuntimeConte
     }
 
     @Override
+    public boolean compareLeft(DALExpression leftExpression) {
+        if ((leftExpression.operator().type() == Operators.EQUAL || leftExpression.operator().type() == Operators.MATCH)
+                && leftExpression.right().improvePrecedence())
+            return false;
+        return Expression.super.compareLeft(leftExpression);
+    }
+
+    @Override
     public DALNode left() {
         return left;
     }
@@ -119,6 +127,9 @@ public class DALExpression extends DALNode implements Expression<DALRuntimeConte
 
     @Override
     public boolean needPostBlankWarningCheck() {
+        if (right instanceof TableNode || right instanceof TransposedTableNode) {
+            return false;
+        }
         return !isGenerated();
     }
 

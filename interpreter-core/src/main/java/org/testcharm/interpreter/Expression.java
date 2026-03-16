@@ -13,18 +13,26 @@ public interface Expression<C extends RuntimeContext, N extends Node<C, N>, E ex
     default N applyPrecedence(ExpressionFactory<C, N, E, O> factory) {
         if (left() instanceof Expression) {
             E leftExpression = (E) left();
-            if (operator().isPrecedentThan(leftExpression.operator()))
+            if (compareLeft(leftExpression))
                 return (N) factory.create(leftExpression.left(), leftExpression.operator(),
                         factory.create(leftExpression.right(), operator(), right())
                                 .applyPrecedence(factory));
         }
         if (right() instanceof Expression) {
             E rightExpression = (E) right();
-            if (operator().isPrecedentThan(rightExpression.operator()))
+            if (compareRight(rightExpression))
                 return (N) factory.create(factory.create(left(), operator(),
                                 rightExpression.left()).applyPrecedence(factory),
                         rightExpression.operator(), rightExpression.right());
         }
         return (N) this;
+    }
+
+    default boolean compareRight(E rightExpression) {
+        return operator().isPrecedentThan(rightExpression.operator());
+    }
+
+    default boolean compareLeft(E leftExpression) {
+        return operator().isPrecedentThan(leftExpression.operator());
     }
 }

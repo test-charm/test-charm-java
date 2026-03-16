@@ -71,4 +71,9 @@ public class TableNode extends DALNode {
     public Row fetchDataRowSkipEllipsis(int indexSkipEllipsis) {
         return body.dataRowSkipEllipsis(indexSkipEllipsis);
     }
+
+    @Override
+    public boolean improvePrecedence() {
+        return true;
+    }
 }

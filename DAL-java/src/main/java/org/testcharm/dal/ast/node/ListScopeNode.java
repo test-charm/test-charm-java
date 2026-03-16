@@ -269,4 +269,9 @@ public class ListScopeNode extends DALNode {
             super(format, position);
         }
     }
+
+    @Override
+    public boolean improvePrecedence() {
+        return true;
+    }
 }

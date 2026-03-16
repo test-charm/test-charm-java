@@ -92,4 +92,8 @@ public abstract class DALNode extends NodeBase<DALRuntimeContext, DALNode> {
     public Boolean isAssertion() {
         return false;
     }
+
+    public boolean improvePrecedence() {
+        return false;
+    }
 }
