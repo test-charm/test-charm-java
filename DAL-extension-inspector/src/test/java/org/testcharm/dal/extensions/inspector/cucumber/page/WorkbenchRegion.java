@@ -34,7 +34,7 @@ public class WorkbenchRegion extends Tab {
     }
 
     public boolean isConnected() {
-        return !getHeader().find(css(".session-state.connected")).isEmpty();
+        return !getHeader().find(css(".session-state.connected")).list().isEmpty();
     }
 
     public void Release() {

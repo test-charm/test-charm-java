@@ -69,11 +69,11 @@ public interface Element<T extends Element<T, E>, E> {
 
     By getLocator();
 
-    void setLocator(By locator);
+    T setLocator(By locator);
 
     T parent();
 
-    void parent(T parent);
+    T parent(T parent);
 
     default Object value() {
         throw new IllegalStateException("Not support operation");

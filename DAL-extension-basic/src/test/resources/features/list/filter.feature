@@ -288,3 +288,33 @@ Feature: filter
       list::filter: {length= 3}
       = [abc]
       """
+
+  Rule: For adaptive list
+
+    Scenario: filter is lazy evaluation
+      Given the following java class:
+        """
+        public class Test {
+          public AdaptiveList getList() {
+            return AdaptiveList.staticList(new ErrorList());
+          }
+
+          public static class ErrorList extends ArrayList<String> {
+            @Override
+            public Iterator<String> iterator() {
+              throw new RuntimeException("Should not evaluate");
+            }
+          }
+        }
+        """
+      Then the following should pass:
+        """
+        list::filter: {
+            not-exist: any
+        }
+        : {
+            ::filter: {
+            not-exist: any
+            }
+        }
+        """

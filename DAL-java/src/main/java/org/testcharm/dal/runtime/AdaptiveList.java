@@ -1,18 +1,26 @@
 package org.testcharm.dal.runtime;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
+
 public interface AdaptiveList<T> {
     DALCollection<T> list();
 
-    default boolean isEmpty() {
-        return list().isEmpty();
+    default List<T> soloList() {
+        DALCollection<T> list = list();
+        Iterator<IndexedElement<T>> iterator = list.iterator();
+        if (iterator.hasNext()) {
+            IndexedElement<T> next = iterator.next();
+            if (!iterator.hasNext())
+                return singletonList(next.value());
+        }
+        throw new InvalidAdaptiveListException("Expected list can only have one element");
     }
-
-    List<T> soloList();
 
     default T single() {
         return soloList().get(0);

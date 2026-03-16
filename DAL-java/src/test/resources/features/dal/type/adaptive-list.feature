@@ -306,7 +306,7 @@ Feature: single or list
         """
       Then failed with the message:
         """
-        Not supported for infinite collection
+        Expected list can only have one element
         """
 
     Scenario: verify with a single object, the verification is delegated to the sole element of the list

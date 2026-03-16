@@ -12,9 +12,11 @@ public abstract class AbstractElement<T extends Element<T, E>, E> implements Ele
         return locator;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void setLocator(By locator) {
+    public T setLocator(By locator) {
         this.locator = locator;
+        return (T) this;
     }
 
     @Override
@@ -35,9 +37,11 @@ public abstract class AbstractElement<T extends Element<T, E>, E> implements Ele
         return parent;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void parent(T parent) {
+    public T parent(T parent) {
         this.parent = parent;
+        return (T) this;
     }
 
     @Override
