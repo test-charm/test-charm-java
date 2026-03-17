@@ -2,6 +2,7 @@ package org.testcharm.dal.extensions.inspector.cucumber.page;
 
 import org.testcharm.dal.extensions.inspector.cucumber.page.e.Element;
 import org.testcharm.dal.extensions.inspector.cucumber.page.e.Tabs;
+import org.testcharm.dal.runtime.AdaptiveList;
 import org.testcharm.pf.AbstractRegion;
 import org.testcharm.pf.Elements;
 
@@ -35,7 +36,7 @@ public class MainPage extends AbstractRegion<Element> {
     }
 
     public Map<String, Element> Monitors() {
-        return locate("css[.instance-monitors .switch]").stream()
+        return ((AdaptiveList<Element>) locate("css[.instance-monitors .switch]")).list().values()
                 .collect(Collectors.toMap(Element::text, Function.identity()));
     }
 

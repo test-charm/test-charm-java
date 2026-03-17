@@ -54,12 +54,12 @@ public class Types implements Extension {
 
                     @Override
                     public Data<?> getData(Data<AdaptiveList<?>> data, Object property, DALRuntimeContext context) {
-                        return adaptiveListOf(data, d -> d.map(AdaptiveList::soloList).property(0).property(property), ExpressionException::illegalOp2);
+                        return adaptiveListOf(data, d -> d.map(AdaptiveList::single).property(property), ExpressionException::illegalOp2);
                     }
 
                     @Override
                     public Set<?> getPropertyNames(Data<AdaptiveList<?>> data) {
-                        return adaptiveListOf(data, d -> d.map(AdaptiveList::soloList).property(0).fieldNames(), ExpressionException::illegalOp2);
+                        return adaptiveListOf(data, d -> d.map(AdaptiveList::single).fieldNames(), ExpressionException::illegalOp2);
                     }
                 })
                 .registerMetaPropertyPattern(AdaptiveList.class, ".*",
@@ -68,7 +68,7 @@ public class Types implements Extension {
                                 return metaData.delegate(d -> d.map(AdaptiveList::list));
                             else
                                 return metaData.delegate(d -> adaptiveListOf(Sneaky.cast(d),
-                                        l -> l.map(AdaptiveList::soloList).property(0), ExpressionException::illegalOp2));
+                                        l -> l.map(AdaptiveList::single), ExpressionException::illegalOp2));
                         })
         ;
 

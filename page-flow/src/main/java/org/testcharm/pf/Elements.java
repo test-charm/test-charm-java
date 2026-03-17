@@ -34,17 +34,16 @@ public class Elements<T extends Element<T, ?>> implements AdaptiveList<T> {
         });
     }
 
-    @Override
-    public List<T> soloList() {
-        return new Retryer(element.timeout(), 100).get(() -> {
-            DALCollection<T> elements = list();
-            if (elements.size() != 1)
-                throw new InvalidAdaptiveListException(locateInfo("Operations can only be performed on a single located element at: ", " => " + locator));
-            return elements;
-        }).collect();
-    }
-
     private String locateInfo(String prefix, String action) {
         return element.locators().stream().map(By::toString).collect(Collectors.joining(" / ", prefix, action));
+    }
+
+    @Override
+    public T single() {
+        try {
+            return new Retryer(element.timeout(), 100).get(AdaptiveList.super::single);
+        } catch (InvalidAdaptiveListException ig) {
+            throw new InvalidAdaptiveListException(locateInfo("Operations can only be performed on a single located element at: ", " => " + locator));
+        }
     }
 }
