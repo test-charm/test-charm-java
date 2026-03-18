@@ -591,6 +591,66 @@ Feature: web ui
         | selenium   |
         | playwright |
 
+    Scenario Outline: upload one file
+      Given the following class definition:
+        """
+        public class TextFile implements org.testcharm.io.MemoryFile {
+          private String name;
+
+          public String getName() {
+            return name;
+          }
+
+          public void setName(String name) {
+            this.name = name;
+          }
+
+          public String content;
+
+          @Override
+          public byte[] binary() {
+              return content.getBytes();
+          }
+        }
+        """
+      Given the following class definition:
+        """
+        public class File extends Spec<TextFile> {
+        }
+        """
+      And register "jFactory" with:
+        """
+        jFactory.register(File.class);
+        """
+      Given launch the following web page:
+        """
+        html
+        head
+        body
+          form(action="http://host.docker.internal:10081/submit" method="POST")
+            input(type= 'file' name= 'f')
+            button(type="submit") Submit
+        """
+      When perform via driver <driver>:
+        """
+        css[input].fillIn(File): {
+          name= foo
+          content= 'hello world'
+        }
+
+        css[button].click: {...}
+        """
+      Then server should receive form data:
+        """
+        = {
+          f: foo
+        }
+        """
+      Examples:
+        | driver     |
+        | selenium   |
+        | playwright |
+
   Rule: Submit Form
 
     Scenario Outline:  Submit Form

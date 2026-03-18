@@ -15,7 +15,9 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcharm.dal.DAL;
 import org.testcharm.interpreter.InterpreterException;
+import org.testcharm.jfactory.JFactory;
 import org.testcharm.pf.Element;
+import org.testcharm.pf.PageFlow;
 import org.testcharm.util.JavaExecutor;
 import org.testcharm.util.Sneaky;
 
@@ -105,6 +107,9 @@ public class Steps {
     @Before
     public void flushLog() {
         logger.clearAll();
+        JavaExecutor.executor().importDependency(
+                "org.testcharm.jfactory.*"
+        );
     }
 
     @And("logs should:")
@@ -174,5 +179,12 @@ public class Steps {
         JavaExecutor.executor().main().addArg("element", rootSeleniumElement());
         JavaExecutor.executor().main().returnExpression("new " + page + "((org.testcharm.pf.cucumber.Selenium.SeleniumE)args.get(\"element\"))");
         expect(JavaExecutor.executor().main().evaluate()).should(exp);
+    }
+
+    @And("register {string} with:")
+    public void registerWith(String jfVar, String expression) {
+        JavaExecutor.executor().main().addDeclarations(String.format("JFactory %s = new JFactory()", jfVar));
+        JavaExecutor.executor().main().addRegisters(expression);
+        PageFlow.setDal((JFactory) JavaExecutor.executor().main().field(jfVar));
     }
 }

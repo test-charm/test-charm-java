@@ -20,6 +20,8 @@ services:
       - '7900:7900'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - /tmp:/tmp
     environment:
       - VNC_NO_PASSWORD=1
 
@@ -30,5 +32,7 @@ services:
     command: [ "npx", "-y", "playwright@1.50.1", "run-server", "--port", "3000", "--host", "0.0.0.0" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - /tmp:/tmp
     environment:
       DISPLAY: web-driver-arm:99.0

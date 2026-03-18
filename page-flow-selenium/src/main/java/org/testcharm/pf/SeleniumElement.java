@@ -5,9 +5,14 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testcharm.dal.runtime.AdaptiveList;
+import org.testcharm.io.MemoryFile;
 import org.testcharm.util.BeanClass;
 import org.testcharm.util.CollectionHelper;
+import org.testcharm.util.Sneaky;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -99,6 +104,10 @@ public abstract class SeleniumElement<T extends SeleniumElement<T>>
             if (select.isMultiple())
                 select.deselectAll();
             CollectionHelper.asStream(value).forEach(text -> select.selectByVisibleText(String.valueOf(text)));
+        } else if (value instanceof MemoryFile) {
+            Path tempfile = Paths.get(System.getProperty("java.io.tmpdir"), ((MemoryFile) value).getName());
+            Sneaky.run(() -> Files.write(tempfile, ((MemoryFile) value).binary()));
+            super.fillIn(tempfile);
         } else
             super.fillIn(value);
         return (T) this;

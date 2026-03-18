@@ -50,7 +50,7 @@ public interface Element<T extends Element<T, E>, E> {
     }
 
     default Collector fillIn() {
-        return new ScopedCollector() {
+        return new ScopedJFactoryCollector(PageFlow.jFactory(), Object.class) {
             @Override
             public void onExit() {
                 fillIn(build());
