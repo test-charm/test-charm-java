@@ -6,6 +6,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.testcharm.pf.By;
 import org.testcharm.pf.PlaywrightElement;
+import org.testcharm.pf.PlaywrightPageFlow;
 
 import java.util.function.Function;
 
@@ -39,7 +40,7 @@ public class Playwright {
             }
         }
 
-        public PlaywrightE open(String url) {
+        public PlaywrightE open(String url, PlaywrightPageFlow.Builder builder) {
             if (playwright == null)
                 playwright = com.microsoft.playwright.Playwright.create();
             if (browser == null)
@@ -49,15 +50,16 @@ public class Playwright {
 
             Page page = browserContext.newPage();
             page.navigate(url);
-            PlaywrightE e = new PlaywrightE(page.locator("html"));
+            PlaywrightE e = new PlaywrightE(builder.build(), page.locator("html"));
             e.setLocator(By.css("html"));
+
             return e;
         }
     }
 
-    public static class PlaywrightE extends PlaywrightElement<PlaywrightE> {
-        public PlaywrightE(Locator locator) {
-            super(locator);
+    public static class PlaywrightE extends PlaywrightElement<PlaywrightE, PlaywrightPageFlow> {
+        public PlaywrightE(PlaywrightPageFlow pf, Locator locator) {
+            super(pf, locator);
         }
     }
 }

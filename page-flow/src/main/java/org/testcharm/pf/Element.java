@@ -8,12 +8,12 @@ import org.testcharm.util.Collector;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Element<T extends Element<T, E>, E> {
+public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
     Logger logger = LoggerFactory.getLogger(Element.class);
 
     @SuppressWarnings("unchecked")
     default T newChildren(E element) {
-        return (T) BeanClass.create(getClass()).newInstance(element);
+        return (T) BeanClass.create(getClass()).newInstance(pageFlow(), element);
     }
 
     List<E> findElements(By by);
@@ -50,7 +50,7 @@ public interface Element<T extends Element<T, E>, E> {
     }
 
     default Collector fillIn() {
-        return new ScopedJFactoryCollector(PageFlow.jFactory(), Object.class) {
+        return new ScopedJFactoryCollector(pageFlow().jFactory(), Object.class) {
             @Override
             public void onExit() {
                 fillIn(build());
@@ -107,4 +107,8 @@ public interface Element<T extends Element<T, E>, E> {
     }
 
     String getDom();
+
+    P pageFlow();
+
+    E raw();
 }

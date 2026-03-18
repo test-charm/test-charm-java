@@ -15,7 +15,6 @@ import org.testcharm.dal.extensions.inspector.Inspector;
 import org.testcharm.dal.extensions.inspector.InspectorExtension;
 import org.testcharm.dal.extensions.inspector.cucumber.page.MainPage;
 import org.testcharm.interpreter.InterpreterException;
-import org.testcharm.pf.PageFlow;
 
 import java.util.HashMap;
 
@@ -51,7 +50,6 @@ public class InspectorSteps {
     public void initTest() {
         testContext = new TestContext();
         Inspector.shutdown();
-        PageFlow.setDAL(dal);
     }
 
     @When("launch inspector web server")

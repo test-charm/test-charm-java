@@ -6,11 +6,11 @@ import org.testcharm.pf.Pages;
 import org.testcharm.pf.Target;
 import org.testcharm.util.BeanClass;
 
+import static java.lang.String.format;
 import static org.testcharm.pf.By.css;
 import static org.testcharm.pf.By.xpath;
-import static java.lang.String.format;
 
-public class Tabs<T extends Tab, E extends Element<E, ?>> extends AbstractRegion<E> {
+public class Tabs<T extends Tab, E extends Element<E, ?, ?>> extends AbstractRegion<E> {
     final Pages<T> tabs;
 
     public Tabs(E element) {

@@ -1,6 +1,6 @@
 package org.testcharm.pf;
 
-public interface WebElement<T extends WebElement<T, E>, E> extends Element<T, E> {
+public interface WebElement<T extends WebElement<T, E, P>, E, P extends PageFlow> extends Element<T, E, P> {
 
     String[] EMPTY_STRING_ARRAY = new String[0];
 

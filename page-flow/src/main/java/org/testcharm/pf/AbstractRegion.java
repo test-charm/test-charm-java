@@ -1,6 +1,6 @@
 package org.testcharm.pf;
 
-public class AbstractRegion<T extends Element<T, ?>> implements Region<T> {
+public class AbstractRegion<T extends Element<T, ?, ?>> implements Region<T> {
     private final T element;
 
     public AbstractRegion(T element) {

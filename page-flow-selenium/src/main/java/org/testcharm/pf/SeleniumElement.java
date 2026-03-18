@@ -2,11 +2,9 @@ package org.testcharm.pf;
 
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testcharm.dal.runtime.AdaptiveList;
 import org.testcharm.io.MemoryFile;
-import org.testcharm.util.BeanClass;
 import org.testcharm.util.CollectionHelper;
 import org.testcharm.util.Sneaky;
 
@@ -20,57 +18,48 @@ import static java.lang.String.format;
 import static org.openqa.selenium.By.cssSelector;
 import static org.testcharm.pf.By.*;
 
-public abstract class SeleniumElement<T extends SeleniumElement<T>>
-        extends AbstractElement<T, org.openqa.selenium.WebElement>
-        implements WebElement<T, org.openqa.selenium.WebElement> {
-    protected final org.openqa.selenium.WebElement element;
-    private final WebDriver webDriver;
+public abstract class SeleniumElement<T extends SeleniumElement<T, P>, P extends SeleniumPageFlow>
+        extends AbstractElement<T, org.openqa.selenium.WebElement, P>
+        implements WebElement<T, org.openqa.selenium.WebElement, P> {
 
-    public SeleniumElement(WebDriver webDriver, org.openqa.selenium.WebElement element) {
-        this.element = element;
-        this.webDriver = webDriver;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T newChildren(org.openqa.selenium.WebElement element) {
-        return (T) BeanClass.create(getClass()).newInstance(webDriver, element);
+    public SeleniumElement(P pf, org.openqa.selenium.WebElement element) {
+        super(pf, element);
     }
 
     @Override
     public String text() {
-        return element.getText();
+        return raw().getText();
     }
 
     @Override
     public String getTag() {
-        return element.getTagName();
+        return raw().getTagName();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T click() {
-        element.click();
+        raw().click();
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T typeIn(String value) {
-        element.sendKeys(value);
+        raw().sendKeys(value);
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T clear() {
-        element.clear();
+        raw().clear();
         return (T) this;
     }
 
     @Override
     public List<org.openqa.selenium.WebElement> findElements(By by) {
-        return element.findElements(seleniumBy(by));
+        return raw().findElements(seleniumBy(by));
     }
 
     private static org.openqa.selenium.By seleniumBy(By by) {
@@ -90,17 +79,17 @@ public abstract class SeleniumElement<T extends SeleniumElement<T>>
 
     @Override
     public String attributeValue(String name) {
-        return element.getAttribute(name);
+        return raw().getAttribute(name);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T fillIn(Object value) {
         if (checkAble()) {
-            if (element.isSelected() != (boolean) value)
+            if (raw().isSelected() != (boolean) value)
                 click();
         } else if (selectAble()) {
-            Select select = new Select(element);
+            Select select = new Select(raw());
             if (select.isMultiple())
                 select.deselectAll();
             CollectionHelper.asStream(value).forEach(text -> select.selectByVisibleText(String.valueOf(text)));
@@ -116,16 +105,16 @@ public abstract class SeleniumElement<T extends SeleniumElement<T>>
     @Override
     public Object value() {
         if (checkAble())
-            return element.isSelected();
+            return raw().isSelected();
         else if (selectAble())
-            return AdaptiveList.staticList(new Select(element).getAllSelectedOptions().stream()
+            return AdaptiveList.staticList(new Select(raw()).getAllSelectedOptions().stream()
                     .map(org.openqa.selenium.WebElement::getText).collect(Collectors.toList()));
         return WebElement.super.value();
     }
 
     @Override
     public String getLocation() {
-        return generateFullXPath(element);
+        return generateFullXPath(raw());
     }
 
     private String generateFullXPath(org.openqa.selenium.WebElement element) {
@@ -153,11 +142,11 @@ public abstract class SeleniumElement<T extends SeleniumElement<T>>
 
     @Override
     public byte[] screenshot() {
-        return element.getScreenshotAs(OutputType.BYTES);
+        return raw().getScreenshotAs(OutputType.BYTES);
     }
 
     @Override
     public String getDom() {
-        return (String) ((JavascriptExecutor) webDriver).executeScript("return arguments[0].outerHTML;", element);
+        return (String) ((JavascriptExecutor) pageFlow().webDriver()).executeScript("return arguments[0].outerHTML;", raw());
     }
 }

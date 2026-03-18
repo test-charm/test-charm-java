@@ -5,6 +5,7 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
 import org.testcharm.dal.extensions.inspector.cucumber.page.e.Element;
 import org.testcharm.pf.By;
+import org.testcharm.pf.PlaywrightPageFlow;
 
 import java.util.function.Function;
 
@@ -47,7 +48,7 @@ public class BrowserContextPlaywright {
 
         Page page = browserContext.newPage();
         page.navigate(url);
-        Element e = new Element(page.locator("html"));
+        Element e = new Element(PlaywrightPageFlow.builder().build(), page.locator("html"));
         e.setLocator(By.css("html"));
         return e;
     }

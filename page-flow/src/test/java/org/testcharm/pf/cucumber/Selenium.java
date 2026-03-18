@@ -4,14 +4,15 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testcharm.pf.SeleniumElement;
+import org.testcharm.pf.SeleniumPageFlow;
 
 import java.util.Objects;
 import java.util.function.Supplier;
 
 public class Selenium {
-    public static class SeleniumE extends SeleniumElement<SeleniumE> {
-        public SeleniumE(WebDriver webDriver, WebElement element) {
-            super(webDriver, element);
+    public static class SeleniumE extends SeleniumElement<SeleniumE, SeleniumPageFlow> {
+        public SeleniumE(SeleniumPageFlow pageFlow, WebElement element) {
+            super(pageFlow, element);
         }
     }
 
@@ -30,12 +31,12 @@ public class Selenium {
             }
         }
 
-        public SeleniumE open(String url) {
+        public SeleniumE open(String url, SeleniumPageFlow.Builder sBuilder) {
             if (webDriver == null)
                 webDriver = driverFactory.get();
             webDriver.get(url);
             By by = By.tagName("html");
-            SeleniumE e = new SeleniumE(webDriver, webDriver.findElement(by));
+            SeleniumE e = new SeleniumE(sBuilder.webDriver(webDriver).build(), webDriver.findElement(by));
             e.setLocator(org.testcharm.pf.By.css("html"));
             return e;
         }

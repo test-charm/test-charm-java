@@ -10,7 +10,7 @@ import org.testcharm.util.Sneaky;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Elements<T extends Element<T, ?>> implements AdaptiveList<T> {
+public class Elements<T extends Element<T, ?, ?>> implements AdaptiveList<T> {
     private final T element;
     private final By locator;
 

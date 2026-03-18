@@ -19,9 +19,9 @@ public class ElementExtension implements Extension {
     public void extend(DAL dal) {
         dal.getRuntimeContextBuilder()
                 .registerPropertyAccessor(WebElement.class,
-                        new JavaClassPropertyAccessor<WebElement<?, ?>>((BeanClass) BeanClass.create(WebElement.class)) {
+                        new JavaClassPropertyAccessor<WebElement<?, ?, ?>>((BeanClass) BeanClass.create(WebElement.class)) {
                             @Override
-                            public Object getValue(WebElement<?, ?> webElement, Object property) {
+                            public Object getValue(WebElement<?, ?, ?> webElement, Object property) {
                                 if (property instanceof String && ((String) property).startsWith("@"))
                                     return webElement.attribute(((String) property).substring(1));
                                 return super.getValue(webElement, property);

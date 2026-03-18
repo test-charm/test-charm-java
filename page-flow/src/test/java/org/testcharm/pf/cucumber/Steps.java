@@ -17,7 +17,8 @@ import org.testcharm.dal.DAL;
 import org.testcharm.interpreter.InterpreterException;
 import org.testcharm.jfactory.JFactory;
 import org.testcharm.pf.Element;
-import org.testcharm.pf.PageFlow;
+import org.testcharm.pf.PlaywrightPageFlow;
+import org.testcharm.pf.SeleniumPageFlow;
 import org.testcharm.util.JavaExecutor;
 import org.testcharm.util.Sneaky;
 
@@ -33,6 +34,8 @@ import static org.testcharm.dal.Assertions.expect;
 public class Steps {
     private Throwable lastError;
     private Javalin javalin;
+    private PlaywrightPageFlow.Builder pBuilder;
+    private SeleniumPageFlow.Builder sBuilder;
     private final Selenium.BrowserSelenium browserSelenium = new Selenium.BrowserSelenium(() ->
             Sneaky.get(() -> new RemoteWebDriver(new URL("http://www.s.com:4444"), DesiredCapabilities.chrome())));
 
@@ -87,7 +90,7 @@ public class Steps {
 
     private Selenium.SeleniumE rootSeleniumElement() {
         if (seleniumE == null)
-            seleniumE = browserSelenium.open("http://host.docker.internal:10081");
+            seleniumE = browserSelenium.open("http://host.docker.internal:10081", sBuilder);
         return seleniumE;
     }
 
@@ -98,7 +101,7 @@ public class Steps {
 
     private Playwright.PlaywrightE rootPlaywrightElement() {
         if (playwrightE == null)
-            playwrightE = BROWSER_CONTEXT_PLAYWRIGHT.open("http://host.docker.internal:10081");
+            playwrightE = BROWSER_CONTEXT_PLAYWRIGHT.open("http://host.docker.internal:10081", pBuilder);
         return playwrightE;
     }
 
@@ -110,6 +113,8 @@ public class Steps {
         JavaExecutor.executor().importDependency(
                 "org.testcharm.jfactory.*"
         );
+        pBuilder = PlaywrightPageFlow.builder();
+        sBuilder = SeleniumPageFlow.builder();
     }
 
     @And("logs should:")
@@ -185,6 +190,8 @@ public class Steps {
     public void registerWith(String jfVar, String expression) {
         JavaExecutor.executor().main().addDeclarations(String.format("JFactory %s = new JFactory()", jfVar));
         JavaExecutor.executor().main().addRegisters(expression);
-        PageFlow.setDal((JFactory) JavaExecutor.executor().main().field(jfVar));
+
+        sBuilder.jFactory((JFactory) JavaExecutor.executor().main().field(jfVar));
+        pBuilder.jFactory((JFactory) JavaExecutor.executor().main().field(jfVar));
     }
 }

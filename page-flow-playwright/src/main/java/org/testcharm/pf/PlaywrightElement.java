@@ -15,22 +15,21 @@ import java.util.List;
 import static java.lang.String.format;
 import static org.testcharm.pf.By.*;
 
-public abstract class PlaywrightElement<T extends PlaywrightElement<T>>
-        extends AbstractElement<T, Locator> implements WebElement<T, Locator> {
-    protected final Locator locator;
+public abstract class PlaywrightElement<T extends PlaywrightElement<T, P>, P extends PlaywrightPageFlow>
+        extends AbstractElement<T, Locator, P> implements WebElement<T, Locator, P> {
 
-    protected PlaywrightElement(Locator locator) {
-        this.locator = locator;
+    protected PlaywrightElement(P pf, Locator locator) {
+        super(pf, locator);
     }
 
     @Override
     public String attributeValue(String name) {
-        return locator.getAttribute(name);
+        return raw().getAttribute(name);
     }
 
     @Override
     public List<Locator> findElements(By by) {
-        return locator.locator(locateInfo(by)).all();
+        return raw().locator(locateInfo(by)).all();
     }
 
     private String locateInfo(By by) {
@@ -50,32 +49,32 @@ public abstract class PlaywrightElement<T extends PlaywrightElement<T>>
 
     @Override
     public String getTag() {
-        return locator.evaluate("el => el.tagName").toString().toLowerCase();
+        return raw().evaluate("el => el.tagName").toString().toLowerCase();
     }
 
     @Override
     public String text() {
-        return locator.evaluate("el => el.innerText").toString();
+        return raw().evaluate("el => el.innerText").toString();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T click() {
-        locator.click();
+        raw().click();
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T typeIn(String value) {
-        locator.pressSequentially(value);
+        raw().pressSequentially(value);
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T clear() {
-        locator.clear();
+        raw().clear();
         return (T) this;
     }
 
@@ -83,41 +82,41 @@ public abstract class PlaywrightElement<T extends PlaywrightElement<T>>
     @Override
     public T fillIn(Object value) {
         if (checkAble()) {
-            if (locator.isChecked() != (boolean) value)
+            if (raw().isChecked() != (boolean) value)
                 click();
         } else if (selectAble()) {
-            locator.selectOption(CollectionHelper.asStream(value).map(String::valueOf).toArray(String[]::new));
+            raw().selectOption(CollectionHelper.asStream(value).map(String::valueOf).toArray(String[]::new));
         } else if (value instanceof MemoryFile) {
             Path tempfile = Paths.get(System.getProperty("java.io.tmpdir"), ((MemoryFile) value).getName());
             Sneaky.run(() -> Files.write(tempfile, ((MemoryFile) value).binary()));
-            locator.setInputFiles(tempfile);
+            raw().setInputFiles(tempfile);
         } else
-            locator.fill(String.valueOf(value));
+            raw().fill(String.valueOf(value));
         return (T) this;
     }
 
     @Override
     public Object value() {
         if (checkAble())
-            return locator.isChecked();
+            return raw().isChecked();
         if (selectAble())
             return AdaptiveList.staticList((Collection<?>)
-                    locator.evaluate("select => Array.from(select.selectedOptions).map(option => option.text)"));
-        return locator.inputValue();
+                    raw().evaluate("select => Array.from(select.selectedOptions).map(option => option.text)"));
+        return raw().inputValue();
     }
 
     @Override
     public String getLocation() {
-        return (String) locator.evaluate("element => { const getXPath = (node) => { if (node.tagName === 'HTML') return '/html[1]'; let ix=0; const siblings = node.parentNode.childNodes; for (var i=0; i<siblings.length; i++) { const sibling = siblings[i]; if (sibling === node) return getXPath(node.parentNode) + '/' + node.tagName.toLowerCase() + '[' + (ix+1) + ']'; if (sibling.nodeType === 1 && sibling.tagName === node.tagName) ix++; } }; return getXPath(element); }");
+        return (String) raw().evaluate("element => { const getXPath = (node) => { if (node.tagName === 'HTML') return '/html[1]'; let ix=0; const siblings = node.parentNode.childNodes; for (var i=0; i<siblings.length; i++) { const sibling = siblings[i]; if (sibling === node) return getXPath(node.parentNode) + '/' + node.tagName.toLowerCase() + '[' + (ix+1) + ']'; if (sibling.nodeType === 1 && sibling.tagName === node.tagName) ix++; } }; return getXPath(element); }");
     }
 
     @Override
     public byte[] screenshot() {
-        return locator.screenshot();
+        return raw().screenshot();
     }
 
     @Override
     public String getDom() {
-        return (String) locator.evaluate("e => e.outerHTML");
+        return (String) raw().evaluate("e => e.outerHTML");
     }
 }

@@ -3,27 +3,12 @@ package org.testcharm.pf;
 import org.testcharm.dal.DAL;
 import org.testcharm.jfactory.JFactory;
 
-public class PageFlow {
-    private static DAL dal;
-    private static JFactory jFactory;
+import java.util.Map;
 
-    static DAL dal() {
-        if (dal == null)
-            dal = DAL.dal("PageFlow");
-        return dal;
-    }
+public interface PageFlow {
+    DAL dal();
 
-    static JFactory jFactory() {
-        if (jFactory == null)
-            jFactory = new JFactory();
-        return jFactory;
-    }
+    JFactory jFactory();
 
-    public static void setDAL(DAL dal) {
-        PageFlow.dal = dal;
-    }
-
-    public static void setDal(JFactory jFactory) {
-        PageFlow.jFactory = jFactory;
-    }
+    Map<String, Object> objects();
 }

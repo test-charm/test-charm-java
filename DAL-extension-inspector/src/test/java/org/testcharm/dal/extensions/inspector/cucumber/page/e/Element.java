@@ -1,13 +1,14 @@
 package org.testcharm.dal.extensions.inspector.cucumber.page.e;
 
-import org.testcharm.pf.PlaywrightElement;
 import com.microsoft.playwright.Locator;
+import org.testcharm.pf.PlaywrightElement;
+import org.testcharm.pf.PlaywrightPageFlow;
 
 import static java.util.Arrays.binarySearch;
 
-public class Element extends PlaywrightElement<Element> {
-    public Element(Locator element) {
-        super(element);
+public class Element extends PlaywrightElement<Element, PlaywrightPageFlow> {
+    public Element(PlaywrightPageFlow pf, Locator element) {
+        super(pf, element);
     }
 
     @Override
