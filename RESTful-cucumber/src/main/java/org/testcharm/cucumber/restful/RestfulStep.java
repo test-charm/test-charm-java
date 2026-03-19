@@ -1,5 +1,9 @@
 package org.testcharm.cucumber.restful;
 
+import io.cucumber.docstring.DocString;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.testcharm.dal.Accessors;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONArray;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONObject;
@@ -8,10 +12,6 @@ import org.testcharm.jfactory.cucumber.Table;
 import org.testcharm.util.BeanClass;
 import org.testcharm.util.PropertyReader;
 import org.testcharm.util.Sneaky;
-import io.cucumber.docstring.DocString;
-import io.cucumber.java.After;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +29,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.testcharm.dal.Assertions.expect;
-import static org.testcharm.dal.extensions.basic.binary.BinaryExtension.readAllAndClose;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static org.testcharm.dal.Assertions.expect;
+import static org.testcharm.dal.extensions.basic.binary.BinaryExtension.readAllAndClose;
+import static org.testcharm.util.Sneaky.sneakyRun;
 
 public class RestfulStep {
     public static final String CHARSET = "utf-8";
@@ -112,7 +113,7 @@ public class RestfulStep {
     }
 
     public void postForm(String path, Map<String, ?> params) throws IOException, URISyntaxException {
-        requestAndResponse("POST", path, connection -> Sneaky.run(() -> {
+        requestAndResponse("POST", path, sneakyRun(connection -> {
             connection.setDoOutput(true);
             String boundary = UUID.randomUUID().toString();
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -323,8 +324,12 @@ public class RestfulStep {
     }
 
     private void appendEntry(HttpStream httpStream, String key, String value, String boundary) {
-        httpStream.bound(boundary, () -> Sneaky.get(() -> key.startsWith("@") ?
-                httpStream.appendFile(key, request.files.get(value)) : httpStream.appendField(key, value)));
+        httpStream.bound(boundary, () -> {
+            if (key.startsWith("@"))
+                httpStream.appendFile(key, request.files.get(value));
+            else
+                httpStream.appendField(key, value);
+        });
     }
 
     private void buildRequestBody(HttpURLConnection connection, String contentType, byte[] bytes) {

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Long.parseLong;
 import static java.util.Optional.ofNullable;
+import static org.testcharm.util.Sneaky.sneakyGet;
 import static org.testcharm.util.function.Extension.getFirstPresent;
 
 public class Inspector {
@@ -208,7 +209,7 @@ public class Inspector {
         private byte[] getBytes(Data<?> data) {
             return getFirstPresent(
                     () -> data.cast(byte[].class),
-                    () -> data.cast(InputStream.class).map(stream -> Sneaky.get(() -> {
+                    () -> data.cast(InputStream.class).map(sneakyGet(stream -> {
                         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
                             int size;
                             byte[] data1 = new byte[1024];

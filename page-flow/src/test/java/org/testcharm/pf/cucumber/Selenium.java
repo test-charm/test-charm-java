@@ -3,7 +3,7 @@ package org.testcharm.pf.cucumber;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.testcharm.pf.FileManager;
+import org.testcharm.io.FileManager;
 import org.testcharm.pf.SeleniumElement;
 import org.testcharm.pf.SeleniumPageFlow;
 

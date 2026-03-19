@@ -1,6 +1,7 @@
 package org.testcharm.pf;
 
 import org.openqa.selenium.WebDriver;
+import org.testcharm.io.FileManager;
 
 public class SeleniumPageFlow extends AbstractPageFlow {
     private final WebDriver webDriver;

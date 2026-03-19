@@ -118,8 +118,8 @@ public class IntegrationTestContext {
                 dal.getRuntimeContextBuilder().registerTextFormatter(formatter,
                         (TextFormatter) Sneaky.get(formatterClass::newInstance));
             });
-            classes.stream().filter(t -> t.getSimpleName().equals("_DALRegister")).forEach(r ->
-                    ((Consumer) Sneaky.get(() -> r.newInstance())).accept(dal));
+            classes.stream().filter(t -> t.getSimpleName().equals("_DALRegister")).forEach(
+                    r -> ((Consumer) Sneaky.get(r::newInstance)).accept(dal));
             result = dal.evaluate(() -> input, expression, null, constants);
         } catch (InterpreterException e) {
             exception = e;

@@ -17,8 +17,7 @@ class ObjectWriter {
 
     private String xmlString() {
         StringWriter writer = new StringWriter();
-        Sneaky.run(() -> Sneaky.get(TransformerFactory.newInstance()::newTransformer)
-                .transform(new DOMSource(doc), new StreamResult(writer)));
+        Sneaky.run(() -> TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(writer)));
         return writer.getBuffer().toString();
     }
 

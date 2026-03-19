@@ -6,10 +6,11 @@ import org.testcharm.dal.extensions.basic.file.util.FileJavaClassPropertyAccesso
 import org.testcharm.dal.extensions.basic.file.util.ToString;
 import org.testcharm.dal.extensions.basic.file.util.Util;
 import org.testcharm.dal.runtime.Extension;
-import org.testcharm.util.Sneaky;
 
 import java.io.File;
 import java.io.FileInputStream;
+
+import static org.testcharm.util.Sneaky.sneakyGet;
 
 @SuppressWarnings("unused")
 public class FileExtension implements Extension {
@@ -19,7 +20,7 @@ public class FileExtension implements Extension {
         dal.getRuntimeContextBuilder()
                 .registerStaticMethodExtension(ToString.class)
                 .registerStaticMethodExtension(Methods.class)
-                .registerImplicitData(File.class, file -> Sneaky.get(() -> new FileInputStream(file)))
+                .registerImplicitData(File.class, sneakyGet(FileInputStream::new))
                 .registerDALCollectionFactory(File.class, new FileDALCollectionFactory())
                 .registerPropertyAccessor(File.class, new FileJavaClassPropertyAccessor())
                 .registerDumper(File.class, data -> data.value().isDirectory()

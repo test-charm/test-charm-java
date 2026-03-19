@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.testcharm.util.ClassDefinition.guessClassName;
+import static org.testcharm.util.Sneaky.sneakyGet;
 
 public class JavaExecutor {
     private static final AtomicInteger index = new AtomicInteger();
@@ -53,9 +54,8 @@ public class JavaExecutor {
             allCompiled.addAll(javaCompiler.compile(unCompiled.values()));
             unCompiled.clear();
         }
-        return Sneaky.get(() -> findDefinition(allCompiled, className).map(d ->
-                Sneaky.get(() -> URLClassLoader.newInstance(Sneaky.get(() ->
-                                new URL[]{javaCompiler.getLocation().getAbsoluteFile().toURI().toURL()}))
+        return Sneaky.get(() -> findDefinition(allCompiled, className).map(sneakyGet(d ->
+                URLClassLoader.newInstance(Sneaky.get(() -> new URL[]{javaCompiler.getLocation().getAbsoluteFile().toURI().toURL()}))
                         .loadClass(d.className()))).orElseThrow(() -> new ClassNotFoundException(className)));
     }
 

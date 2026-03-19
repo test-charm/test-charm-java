@@ -11,9 +11,9 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.testcharm.util.function.Extension.getFirstPresent;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static org.testcharm.util.function.Extension.getFirstPresent;
 
 public class Classes {
     public static List<Class<?>> allTypesIn(String packageName) {
@@ -49,7 +49,7 @@ public class Classes {
                 return ((JarURLConnection) resource.openConnection()).getJarFile().stream()
                         .map(jarEntry -> jarEntry.getName().replace('/', '.'))
                         .filter(name -> name.endsWith(".class") && name.startsWith(packageName))
-                        .map(name -> Sneaky.get(() -> Class.forName(name.substring(0, name.length() - 6))))
+                        .map(Sneaky.sneakyGet(name -> Class.forName(name.substring(0, name.length() - 6))))
                         .collect(toList());
             else {
                 InputStream stream = resource.openStream();

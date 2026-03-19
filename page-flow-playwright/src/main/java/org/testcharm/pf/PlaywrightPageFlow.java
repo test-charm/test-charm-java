@@ -1,5 +1,7 @@
 package org.testcharm.pf;
 
+import org.testcharm.io.FileManager;
+
 public class PlaywrightPageFlow extends AbstractPageFlow {
     private final FileManager fileManager;
 

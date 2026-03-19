@@ -531,11 +531,9 @@ Feature: exchange
       When shutdown web server
       Then you should see:
         """
-        WorkBench::eventually: {
-          Current: {
-            DAL.@class= [... disconnected ...]
-            connected: false
-          }
+        WorkBench.Current::eventually: {
+          DAL.@class= [... disconnected ...]
+          connected: false
         }
         """
 

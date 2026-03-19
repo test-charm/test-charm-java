@@ -19,7 +19,6 @@ import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
 import org.testcharm.util.Converter;
 import org.testcharm.util.JavaCompiler;
 import org.testcharm.util.JavaCompilerPoolLegacy;
-import org.testcharm.util.Sneaky;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,6 +43,7 @@ import static org.testcharm.dal.Assertions.expect;
 import static org.testcharm.dal.DAL.dal;
 import static org.testcharm.dal.extensions.basic.text.Methods.json;
 import static org.testcharm.dal.extensions.basic.zip.Methods.unzip;
+import static org.testcharm.util.Sneaky.sneakyRun;
 
 public class Steps {
     private AssertionError assertionError;
@@ -134,7 +134,7 @@ public class Steps {
     @SneakyThrows
     public void zipFile(String fileName, DataTable files) {
         try (ZipFile zipFile = new ZipFile(fileName)) {
-            files.asLists().stream().map(list -> list.get(0)).forEach(fileNameInZip -> Sneaky.run(() -> {
+            files.asLists().stream().map(list -> list.get(0)).forEach(sneakyRun(fileNameInZip -> {
                 File file = new File(fileNameInZip);
                 if (file.isDirectory())
                     zipFile.addFolder(file);

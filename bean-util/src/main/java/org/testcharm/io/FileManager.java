@@ -1,11 +1,13 @@
-package org.testcharm.pf;
+package org.testcharm.io;
 
-import org.testcharm.io.MemoryFile;
 import org.testcharm.util.Sneaky;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
+
+import static org.testcharm.util.Sneaky.sneakyRun;
 
 public class FileManager {
     private final Path root;
@@ -23,12 +25,20 @@ public class FileManager {
     }
 
     public void clean() {
-        Sneaky.run(() -> Files.walk(root).filter(Files::isRegularFile).forEach(f -> Sneaky.run(() -> Files.delete(f))));
+        Sneaky.run(() -> {
+            try (Stream<Path> walk = Files.walk(root)) {
+                walk.filter(Files::isRegularFile).forEach(sneakyRun(Files::delete));
+            }
+        });
     }
 
     public Path write(MemoryFile file) {
-        Path path = root.resolve(file.getName());
-        Sneaky.run(() -> Files.write(path, file.binary()));
+        return write(file.getName(), file.binary());
+    }
+
+    public Path write(String name, byte[] binary) {
+        Path path = root.resolve(name);
+        Sneaky.run(() -> Files.write(path, binary));
         return path;
     }
 

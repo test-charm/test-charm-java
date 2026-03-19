@@ -20,7 +20,6 @@ import org.testcharm.pf.Element;
 import org.testcharm.pf.PlaywrightPageFlow;
 import org.testcharm.pf.SeleniumPageFlow;
 import org.testcharm.util.JavaExecutor;
-import org.testcharm.util.Sneaky;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,14 +29,15 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.testcharm.dal.Assertions.expect;
+import static org.testcharm.util.Sneaky.sneakyGet;
 
 public class Steps {
     private Throwable lastError;
     private Javalin javalin;
     private PlaywrightPageFlow.Builder<?, ?> pBuilder;
     private SeleniumPageFlow.Builder<?, ?> sBuilder;
-    private final Selenium.BrowserSelenium browserSelenium = new Selenium.BrowserSelenium(() ->
-            Sneaky.get(() -> new RemoteWebDriver(new URL("http://www.s.com:4444"), DesiredCapabilities.chrome())));
+    private final Selenium.BrowserSelenium browserSelenium = new Selenium.BrowserSelenium(
+            sneakyGet(() -> new RemoteWebDriver(new URL("http://www.s.com:4444"), DesiredCapabilities.chrome())));
 
     private static final Playwright.BrowserContextPlaywright BROWSER_CONTEXT_PLAYWRIGHT = new Playwright.BrowserContextPlaywright(playwright ->
             playwright.chromium().connect("ws://www.s.com:3000/", new BrowserType.ConnectOptions().setHeaders(
