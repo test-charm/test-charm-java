@@ -21,7 +21,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - /tmp:/tmp
+      - /tmp/testcharm:/tmp/s
     environment:
       - VNC_NO_PASSWORD=1
 
@@ -33,6 +33,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - /tmp:/tmp
+      - /tmp/testcharm:/tmp/p
     environment:
       DISPLAY: web-driver-arm:99.0

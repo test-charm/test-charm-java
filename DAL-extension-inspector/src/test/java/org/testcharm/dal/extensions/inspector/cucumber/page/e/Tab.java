@@ -1,8 +1,8 @@
 package org.testcharm.dal.extensions.inspector.cucumber.page.e;
 
-import org.testcharm.pf.AbstractRegion;
+import org.testcharm.pf.AbstractPanel;
 
-public class Tab extends AbstractRegion<Element> {
+public class Tab extends AbstractPanel<Element> {
     private final Element header;
 
     public Tab(Element header, Element element) {

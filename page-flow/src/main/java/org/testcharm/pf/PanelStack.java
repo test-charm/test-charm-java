@@ -1,6 +1,6 @@
 package org.testcharm.pf;
 
-public class Pages<P> {
+public class PanelStack<P extends Panel<? extends Element<?, ?, ?>>> {
     protected P current = null;
 
     public P getCurrent() {

@@ -5,15 +5,15 @@ import org.testcharm.dal.extensions.inspector.cucumber.page.e.Tab;
 import org.testcharm.dal.extensions.inspector.cucumber.page.e.Tabs;
 import org.testcharm.pf.Elements;
 
-public class WorkspaceRegion extends Tab {
-    private final Tabs<OutputRegion, Element> outputs;
+public class WorkspacePanel extends Tab {
+    private final Tabs<OutputPanel, Element> outputs;
 
-    public WorkspaceRegion(Element header, Element element) {
+    public WorkspacePanel(Element header, Element element) {
         super(header, element);
-        outputs = new Tabs<OutputRegion, Element>(locate("css[.code-results]").single()) {
+        outputs = new Tabs<OutputPanel, Element>(locate("css[.code-results]").single()) {
 
             @Override
-            public OutputRegion getCurrent() {
+            public OutputPanel getCurrent() {
                 try {
                     return createTab(locate("css[.tab-header.active]").single(),
                             locate("css[.tab-content.active]").single());
@@ -23,19 +23,19 @@ public class WorkspaceRegion extends Tab {
             }
 
             @Override
-            protected OutputRegion createTab(Element header, Element tab) {
+            protected OutputPanel createTab(Element header, Element tab) {
                 if (header.text().equals("Watches"))
-                    return new WatchesRegion(header, tab);
-                return new OutputRegion(header, tab);
+                    return new WatchesPanel(header, tab);
+                return new OutputPanel(header, tab);
             }
         };
     }
 
-    public OutputRegion Current() {
+    public OutputPanel Current() {
         return outputs.getCurrent();
     }
 
-    public OutputRegion Output(String name) {
+    public OutputPanel Output(String name) {
         return outputs.switchTo(name);
     }
 

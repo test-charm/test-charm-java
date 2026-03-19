@@ -1,8 +1,8 @@
 package org.testcharm.dal.extensions.inspector.cucumber.page.e;
 
-import org.testcharm.pf.AbstractRegion;
+import org.testcharm.pf.AbstractPanel;
 import org.testcharm.pf.Element;
-import org.testcharm.pf.Pages;
+import org.testcharm.pf.PanelStack;
 import org.testcharm.pf.Target;
 import org.testcharm.util.BeanClass;
 
@@ -10,12 +10,12 @@ import static java.lang.String.format;
 import static org.testcharm.pf.By.css;
 import static org.testcharm.pf.By.xpath;
 
-public class Tabs<T extends Tab, E extends Element<E, ?, ?>> extends AbstractRegion<E> {
-    final Pages<T> tabs;
+public class Tabs<T extends Tab, E extends Element<E, ?, ?>> extends AbstractPanel<E> {
+    final PanelStack<T> tabs;
 
     public Tabs(E element) {
         super(element);
-        tabs = new Pages<T>() {
+        tabs = new PanelStack<T>() {
             @Override
             public T getCurrent() {
                 return Tabs.this.getCurrent();

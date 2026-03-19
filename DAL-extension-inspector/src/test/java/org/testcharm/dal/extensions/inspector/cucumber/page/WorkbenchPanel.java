@@ -7,13 +7,13 @@ import org.testcharm.pf.Elements;
 
 import static org.testcharm.pf.By.css;
 
-public class WorkbenchRegion extends Tab {
+public class WorkbenchPanel extends Tab {
 
-    private final Tabs<WorkspaceRegion, Element> workspaces;
+    private final Tabs<WorkspacePanel, Element> workspaces;
 
-    public WorkbenchRegion(Element header, Element element) {
+    public WorkbenchPanel(Element header, Element element) {
         super(header, element);
-        workspaces = new Tabs<WorkspaceRegion, Element>(locate("css[.workspaces]").single()) {
+        workspaces = new Tabs<WorkspacePanel, Element>(locate("css[.workspaces]").single()) {
         };
     }
 
@@ -21,11 +21,11 @@ public class WorkbenchRegion extends Tab {
         return locate("placeholder[DAL expression]");
     }
 
-    public OutputRegion Current() {
+    public OutputPanel Current() {
         return workspaces.getCurrent().Current();
     }
 
-    public OutputRegion Output(String name) {
+    public OutputPanel Output(String name) {
         return workspaces.getCurrent().Output(name);
     }
 
@@ -49,7 +49,7 @@ public class WorkbenchRegion extends Tab {
         perform("css[.new].click");
     }
 
-    public WorkspaceRegion Workspace(String target) {
+    public WorkspacePanel Workspace(String target) {
         return target.equals("Current") ? workspaces.getCurrent() : workspaces.switchTo(target);
     }
 }

@@ -12,12 +12,6 @@ public class AbstractPageFlow implements PageFlow {
     private final JFactory jFactory;
     private final Map<String, Object> objects = new HashMap<>();
 
-    @Deprecated
-    public AbstractPageFlow(DAL dal, JFactory jFactory) {
-        this.dal = dal;
-        this.jFactory = jFactory;
-    }
-
     AbstractPageFlow(Builder<?, ?> builder) {
         dal = builder.dal;
         jFactory = builder.jFactory;

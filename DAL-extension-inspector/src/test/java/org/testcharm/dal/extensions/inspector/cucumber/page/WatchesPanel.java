@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import static org.testcharm.pf.By.css;
 
-public class WatchesRegion extends OutputRegion implements ProxyObject {
-    public WatchesRegion(Element header, Element tab) {
+public class WatchesPanel extends OutputPanel implements ProxyObject {
+    public WatchesPanel(Element header, Element tab) {
         super(header, tab);
     }
 

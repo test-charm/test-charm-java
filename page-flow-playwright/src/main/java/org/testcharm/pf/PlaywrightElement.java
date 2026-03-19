@@ -4,11 +4,7 @@ import com.microsoft.playwright.Locator;
 import org.testcharm.dal.runtime.AdaptiveList;
 import org.testcharm.io.MemoryFile;
 import org.testcharm.util.CollectionHelper;
-import org.testcharm.util.Sneaky;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
@@ -87,9 +83,7 @@ public abstract class PlaywrightElement<T extends PlaywrightElement<T, P>, P ext
         } else if (selectAble()) {
             raw().selectOption(CollectionHelper.asStream(value).map(String::valueOf).toArray(String[]::new));
         } else if (value instanceof MemoryFile) {
-            Path tempfile = Paths.get(System.getProperty("java.io.tmpdir"), ((MemoryFile) value).getName());
-            Sneaky.run(() -> Files.write(tempfile, ((MemoryFile) value).binary()));
-            raw().setInputFiles(tempfile);
+            raw().setInputFiles(pageFlow().file().write((MemoryFile) value));
         } else
             raw().fill(String.valueOf(value));
         return (T) this;

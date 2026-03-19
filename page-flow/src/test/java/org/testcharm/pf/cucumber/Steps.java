@@ -34,8 +34,8 @@ import static org.testcharm.dal.Assertions.expect;
 public class Steps {
     private Throwable lastError;
     private Javalin javalin;
-    private PlaywrightPageFlow.Builder pBuilder;
-    private SeleniumPageFlow.Builder sBuilder;
+    private PlaywrightPageFlow.Builder<?, ?> pBuilder;
+    private SeleniumPageFlow.Builder<?, ?> sBuilder;
     private final Selenium.BrowserSelenium browserSelenium = new Selenium.BrowserSelenium(() ->
             Sneaky.get(() -> new RemoteWebDriver(new URL("http://www.s.com:4444"), DesiredCapabilities.chrome())));
 

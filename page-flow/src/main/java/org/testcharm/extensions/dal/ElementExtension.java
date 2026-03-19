@@ -4,7 +4,7 @@ import org.testcharm.dal.DAL;
 import org.testcharm.dal.runtime.*;
 import org.testcharm.pf.By;
 import org.testcharm.pf.Element;
-import org.testcharm.pf.Region;
+import org.testcharm.pf.Panel;
 import org.testcharm.pf.WebElement;
 import org.testcharm.util.BeanClass;
 import org.testcharm.util.Sneaky;
@@ -30,7 +30,7 @@ public class ElementExtension implements Extension {
                 .registerDumper(By.class, byData -> (data, dumpingBuffer) -> dumpingBuffer.append(data.value().toString()))
                 .registerMetaProperty(Element.class, "watch", (RuntimeDataHandler<MetaData<Element>>)
                         elementMetaData -> watch(elementMetaData, dal, Element::screenshot))
-                .registerMetaProperty(Region.class, "watch", (RuntimeDataHandler<MetaData<Region>>)
+                .registerMetaProperty(Panel.class, "watch", (RuntimeDataHandler<MetaData<Panel>>)
                         elementMetaData -> watch(elementMetaData, dal, r -> r.element().screenshot()))
         ;
     }

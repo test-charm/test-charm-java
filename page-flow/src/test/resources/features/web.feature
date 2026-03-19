@@ -696,7 +696,7 @@ Feature: web ui
         import org.testcharm.pf.*;
         import org.testcharm.pf.cucumber.<driver>.*;
         import org.testcharm.jfactory.*;
-        public class MainPage extends AbstractRegion<<driver>E> {
+        public class MainPage extends AbstractPanel<<driver>E> {
           public MainPage(<driver>E element) {
             super(element);
           }
