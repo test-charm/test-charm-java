@@ -12,7 +12,7 @@ class FileManagerTest {
 
     @BeforeEach
     void clean() {
-        fileManager.clean();
+        fileManager.cleanFiles();
     }
 
     @Test
@@ -46,8 +46,25 @@ class FileManagerTest {
             }
         });
 
-        fileManager.clean();
+        fileManager.cleanFiles();
 
         expect(fileManager.root()).should(": []");
+    }
+
+    @Test
+    void create_write_clean_sub_dir() {
+        FileManager sub = fileManager.mkdir("sub");
+
+        expect(fileManager.root()).should("sub: {...}");
+
+        sub.write("file", new byte[]{2});
+
+        expect(fileManager.root()).should("sub.file.binary: [2]");
+
+        fileManager.cleanFiles();
+        expect(fileManager.root()).should("sub: []");
+
+        fileManager.clean();
+        expect(fileManager.root()).should("[]");
     }
 }
