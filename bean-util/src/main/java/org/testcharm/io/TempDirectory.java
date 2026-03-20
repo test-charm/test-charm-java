@@ -52,19 +52,23 @@ public class TempDirectory {
     }
 
     public Path write(String name, byte[] binary) {
-        Path path = root.resolve(name);
+        Path path = resolve(name);
         Sneaky.run(() -> Files.write(path, binary));
         return path;
     }
 
     public Path write(String name, String text) {
-        Path path = root.resolve(name);
+        Path path = resolve(name);
         Sneaky.run(() -> Files.write(path, text.getBytes(StandardCharsets.UTF_8)));
         return path;
     }
 
     public TempDirectory mkdir(String sub) {
         return new TempDirectory(root.resolve(sub));
+    }
+
+    public Path resolve(String name) {
+        return root.resolve(name);
     }
 
     public static class Shared extends TempDirectory {
@@ -110,6 +114,10 @@ public class TempDirectory {
         @Override
         public Shared clean() {
             return (Shared) super.clean();
+        }
+
+        public Path remote() {
+            return remote;
         }
     }
 }

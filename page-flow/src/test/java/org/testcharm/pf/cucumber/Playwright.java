@@ -50,7 +50,7 @@ public class Playwright {
 
             Page page = browserContext.newPage();
             page.navigate(url);
-            PlaywrightE e = new PlaywrightE(builder.build(), page.locator("html"));
+            PlaywrightE e = new PlaywrightE(builder.page(page).build(), page.locator("html"));
             e.setLocator(By.css("html"));
             return e;
         }

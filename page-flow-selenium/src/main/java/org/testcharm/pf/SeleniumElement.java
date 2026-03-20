@@ -144,4 +144,9 @@ public abstract class SeleniumElement<T extends SeleniumElement<T, P>, P extends
     public String getDom() {
         return (String) ((JavascriptExecutor) pageFlow().webDriver()).executeScript("return arguments[0].outerHTML;", raw());
     }
+
+    @Override
+    public T download() {
+        return click();
+    }
 }

@@ -1,5 +1,6 @@
 package org.testcharm.pf;
 
+import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Locator;
 import org.testcharm.dal.runtime.AdaptiveList;
 import org.testcharm.io.MemoryFile;
@@ -112,5 +113,12 @@ public abstract class PlaywrightElement<T extends PlaywrightElement<T, P>, P ext
     @Override
     public String getDom() {
         return (String) raw().evaluate("e => e.outerHTML");
+    }
+
+    @Override
+    public T download() {
+        Download download = pageFlow().page().waitForDownload(this::click);
+        download.saveAs(pageFlow().workingDir().resolve(download.suggestedFilename()));
+        return (T) this;
     }
 }

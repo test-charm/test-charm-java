@@ -383,6 +383,37 @@ Feature: web ui
         | selenium   |
         | playwright |
 
+    Scenario Outline: download file
+      Given launch the following web page:
+        """
+        html
+        head
+            script.
+              function downloadFile() {
+                  const element = document.createElement('a');
+                  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent('hello world'));
+                  element.setAttribute('download', 'hello.txt');
+                  document.body.appendChild(element);
+                  element.click();
+                  document.body.removeChild(element);
+              }
+        body
+            button(onclick="downloadFile()") Download
+        """
+      When perform via driver <driver>:
+        """
+        css[button].download
+        """
+      Then working dir should:
+        """
+        hello.txt: 'hello world'
+        """
+      Examples:
+        | driver     |
+        | selenium   |
+        | playwright |
+
+
   Rule: input output
 
     Scenario Outline: web element textarea input select is input

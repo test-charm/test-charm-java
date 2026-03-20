@@ -39,7 +39,18 @@ public class Steps {
     private PlaywrightPageFlow.Builder<?, ?> pBuilder;
     private SeleniumPageFlow.Builder<?, ?> sBuilder;
     private final Selenium.BrowserSelenium browserSelenium = new Selenium.BrowserSelenium(
-            sneakyGet(() -> new RemoteWebDriver(new URL("http://www.s.com:4444"), DesiredCapabilities.chrome())));
+            sneakyGet(() -> {
+                DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+                capabilities.setCapability("goog:chromeOptions", new HashMap<String, Object>() {{
+                    put("prefs", new HashMap<String, Object>() {{
+                        put("download.default_directory", SWorkingDir.remote().toString());
+                        put("download.prompt_for_download", false);
+                        put("download.directory_upgrade", true);
+                        put("safebrowsing.enabled", true);
+                    }});
+                }});
+                return new RemoteWebDriver(new URL("http://www.s.com:4444"), capabilities);
+            }));
 
     private static final Playwright.BrowserContextPlaywright BROWSER_CONTEXT_PLAYWRIGHT = new Playwright.BrowserContextPlaywright(playwright ->
             playwright.chromium().connect("ws://www.s.com:3000/", new BrowserType.ConnectOptions().setHeaders(
@@ -49,6 +60,8 @@ public class Steps {
     private Selenium.SeleniumE seleniumE;
     private Playwright.PlaywrightE playwrightE;
     private Map<String, Object> lastFormData;
+    private TempDirectory pWorkingDir = new TempDirectory(Paths.get("/tmp/testcharm"));
+    private TempDirectory.Shared SWorkingDir = new TempDirectory.Shared(Paths.get("/tmp/testcharm"), Paths.get("/tmp/s"));
 
     @When("launch the following web page:")
     public void launchTheFollowingWebPage(String pug) throws IOException {
@@ -116,10 +129,8 @@ public class Steps {
         JavaExecutor.executor().importDependency(
                 "org.testcharm.jfactory.*"
         );
-        pBuilder = PlaywrightPageFlow.builder()
-                .workingDir(new TempDirectory(Paths.get("/tmp/testcharm")).clean());
-        sBuilder = SeleniumPageFlow.builder()
-                .workingDir(new TempDirectory.Shared(Paths.get("/tmp/testcharm"), Paths.get("/tmp/s")).clean());
+        pBuilder = PlaywrightPageFlow.builder().workingDir(pWorkingDir.clean());
+        sBuilder = SeleniumPageFlow.builder().workingDir(SWorkingDir.clean());
     }
 
     @And("logs should:")
@@ -198,5 +209,10 @@ public class Steps {
 
         sBuilder.jFactory((JFactory) JavaExecutor.executor().main().field(jfVar));
         pBuilder.jFactory((JFactory) JavaExecutor.executor().main().field(jfVar));
+    }
+
+    @Then("working dir should:")
+    public void workingDirShould(String expression) {
+        expect(Paths.get("/tmp/testcharm")).should(expression);
     }
 }

@@ -33,4 +33,6 @@ public interface WebElement<T extends WebElement<T, E, P>, E, P extends PageFlow
             return attribute("value");
         return Element.super.value();
     }
+
+    T download();
 }
