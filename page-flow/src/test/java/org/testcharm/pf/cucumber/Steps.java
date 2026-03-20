@@ -15,6 +15,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcharm.dal.DAL;
 import org.testcharm.interpreter.InterpreterException;
+import org.testcharm.io.TempDirectory;
 import org.testcharm.jfactory.JFactory;
 import org.testcharm.pf.Element;
 import org.testcharm.pf.PlaywrightPageFlow;
@@ -24,6 +25,7 @@ import org.testcharm.util.JavaExecutor;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -89,8 +91,9 @@ public class Steps {
     }
 
     private Selenium.SeleniumE rootSeleniumElement() {
-        if (seleniumE == null)
+        if (seleniumE == null) {
             seleniumE = browserSelenium.open("http://host.docker.internal:10081", sBuilder);
+        }
         return seleniumE;
     }
 
@@ -113,8 +116,10 @@ public class Steps {
         JavaExecutor.executor().importDependency(
                 "org.testcharm.jfactory.*"
         );
-        pBuilder = PlaywrightPageFlow.builder();
-        sBuilder = SeleniumPageFlow.builder();
+        pBuilder = PlaywrightPageFlow.builder()
+                .workingDir(new TempDirectory(Paths.get("/tmp/testcharm")).clean());
+        sBuilder = SeleniumPageFlow.builder()
+                .workingDir(new TempDirectory.Shared(Paths.get("/tmp/testcharm"), Paths.get("/tmp/s")).clean());
     }
 
     @And("logs should:")

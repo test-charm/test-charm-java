@@ -28,8 +28,9 @@ public class TempDirectory {
         return root;
     }
 
-    public void clean() {
+    public TempDirectory clean() {
         cleanSubs(root);
+        return this;
     }
 
     private Path cleanSubs(Path dir) {
@@ -104,6 +105,11 @@ public class TempDirectory {
 
         public Path localOf(Path remote) {
             return root().resolve(this.remote.relativize(remote));
+        }
+
+        @Override
+        public Shared clean() {
+            return (Shared) super.clean();
         }
     }
 }
