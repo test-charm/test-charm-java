@@ -4,8 +4,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.support.ui.Select;
 import org.testcharm.dal.runtime.AdaptiveList;
-import org.testcharm.io.FileManager;
 import org.testcharm.io.MemoryFile;
+import org.testcharm.io.TempDirectory;
 import org.testcharm.util.CollectionHelper;
 
 import java.util.List;
@@ -91,7 +91,7 @@ public abstract class SeleniumElement<T extends SeleniumElement<T, P>, P extends
                 select.deselectAll();
             CollectionHelper.asStream(value).forEach(text -> select.selectByVisibleText(String.valueOf(text)));
         } else if (value instanceof MemoryFile)
-            super.fillIn(pageFlow().file().remoteOf(FileManager::write, (MemoryFile) value));
+            super.fillIn(pageFlow().workingDir().remoteOf(TempDirectory::write, (MemoryFile) value));
         else
             super.fillIn(value);
         return (T) this;

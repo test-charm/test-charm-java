@@ -1,7 +1,7 @@
 package org.testcharm.pf;
 
 import org.openqa.selenium.WebDriver;
-import org.testcharm.io.FileManager;
+import org.testcharm.io.TempDirectory;
 
 public class SeleniumPageFlow extends AbstractPageFlow {
     private final WebDriver webDriver;
@@ -10,16 +10,16 @@ public class SeleniumPageFlow extends AbstractPageFlow {
         return webDriver;
     }
 
-    private final FileManager.Shared fileManager;
+    private final TempDirectory.Shared workingDir;
 
-    public FileManager.Shared file() {
-        return fileManager;
+    public TempDirectory.Shared workingDir() {
+        return workingDir;
     }
 
     public SeleniumPageFlow(Builder<?, ?> builder) {
         super(builder);
         webDriver = builder.webDriver;
-        fileManager = builder.fileManager;
+        workingDir = builder.workingDir;
     }
 
     public static Builder<?, ?> builder() {
@@ -27,7 +27,7 @@ public class SeleniumPageFlow extends AbstractPageFlow {
     }
 
     public static class Builder<B extends Builder<B, P>, P extends SeleniumPageFlow> extends AbstractPageFlow.Builder<Builder<B, P>, SeleniumPageFlow> {
-        private FileManager.Shared fileManager = new FileManager.Shared();
+        private TempDirectory.Shared workingDir = new TempDirectory.Shared();
         private WebDriver webDriver;
 
         public B webDriver(WebDriver webDriver) {
@@ -36,8 +36,8 @@ public class SeleniumPageFlow extends AbstractPageFlow {
         }
 
         @SuppressWarnings("unchecked")
-        public B fileManager(FileManager.Shared fileManager) {
-            this.fileManager = fileManager;
+        public B workingDir(TempDirectory.Shared workingDir) {
+            this.workingDir = workingDir;
             return (B) this;
         }
 

@@ -4,7 +4,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import org.testcharm.io.FileManager;
+import org.testcharm.io.TempDirectory;
 import org.testcharm.pf.By;
 import org.testcharm.pf.PlaywrightElement;
 import org.testcharm.pf.PlaywrightPageFlow;
@@ -52,7 +52,7 @@ public class Playwright {
 
             Page page = browserContext.newPage();
             page.navigate(url);
-            PlaywrightE e = new PlaywrightE(builder.fileManager(new FileManager(Paths.get("/tmp/testcharm"))).build(), page.locator("html"));
+            PlaywrightE e = new PlaywrightE(builder.workingDir(new TempDirectory(Paths.get("/tmp/testcharm"))).build(), page.locator("html"));
             e.setLocator(By.css("html"));
             return e;
         }

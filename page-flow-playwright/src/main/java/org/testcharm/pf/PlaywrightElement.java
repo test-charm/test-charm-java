@@ -83,7 +83,7 @@ public abstract class PlaywrightElement<T extends PlaywrightElement<T, P>, P ext
         } else if (selectAble()) {
             raw().selectOption(CollectionHelper.asStream(value).map(String::valueOf).toArray(String[]::new));
         } else if (value instanceof MemoryFile) {
-            raw().setInputFiles(pageFlow().file().write((MemoryFile) value));
+            raw().setInputFiles(pageFlow().workingDir().write((MemoryFile) value));
         } else
             raw().fill(String.valueOf(value));
         return (T) this;

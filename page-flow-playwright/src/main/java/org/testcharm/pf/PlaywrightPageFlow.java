@@ -1,17 +1,17 @@
 package org.testcharm.pf;
 
-import org.testcharm.io.FileManager;
+import org.testcharm.io.TempDirectory;
 
 public class PlaywrightPageFlow extends AbstractPageFlow {
-    private final FileManager fileManager;
+    private final TempDirectory workingDir;
 
-    public FileManager file() {
-        return fileManager;
+    public TempDirectory workingDir() {
+        return workingDir;
     }
 
     public <B extends Builder<B, P>, P extends PlaywrightPageFlow> PlaywrightPageFlow(Builder<B, P> builder) {
         super(builder);
-        fileManager = builder.fileManager;
+        workingDir = builder.workingDir;
     }
 
     public static Builder<?, ?> builder() {
@@ -19,11 +19,11 @@ public class PlaywrightPageFlow extends AbstractPageFlow {
     }
 
     public static class Builder<B extends Builder<B, P>, P extends PlaywrightPageFlow> extends AbstractPageFlow.Builder<B, P> {
-        private FileManager fileManager = new FileManager();
+        private TempDirectory workingDir = new TempDirectory();
 
         @SuppressWarnings("unchecked")
-        public B fileManager(FileManager fileManager) {
-            this.fileManager = fileManager;
+        public B workingDir(TempDirectory workingDir) {
+            this.workingDir = workingDir;
             return (B) this;
         }
 

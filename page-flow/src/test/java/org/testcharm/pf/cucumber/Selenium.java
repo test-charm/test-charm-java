@@ -3,7 +3,7 @@ package org.testcharm.pf.cucumber;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.testcharm.io.FileManager;
+import org.testcharm.io.TempDirectory;
 import org.testcharm.pf.SeleniumElement;
 import org.testcharm.pf.SeleniumPageFlow;
 
@@ -38,7 +38,7 @@ public class Selenium {
                 webDriver = driverFactory.get();
             webDriver.get(url);
             By by = By.tagName("html");
-            SeleniumE e = new SeleniumE(sBuilder.webDriver(webDriver).fileManager(new FileManager.Shared(Paths.get("/tmp/testcharm"), Paths.get("/tmp/s"))).build(), webDriver.findElement(by));
+            SeleniumE e = new SeleniumE(sBuilder.webDriver(webDriver).workingDir(new TempDirectory.Shared(Paths.get("/tmp/testcharm"), Paths.get("/tmp/s"))).build(), webDriver.findElement(by));
             e.setLocator(org.testcharm.pf.By.css("html"));
             return e;
         }
