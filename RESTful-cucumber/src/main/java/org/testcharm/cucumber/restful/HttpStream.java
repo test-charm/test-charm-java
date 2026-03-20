@@ -17,18 +17,22 @@ class HttpStream {
     }
 
     public HttpStream appendFile(String key, RestfulStep.UploadFile uploadFile) {
+        return appendFile(key.substring(1), uploadFile.getName(), uploadFile.getContent());
+    }
+
+    public HttpStream appendFile(String key, String name, byte[] content) {
         append(String.format("Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"",
-                key.substring(1), uploadFile.getName())).crlf()
-                .append("Content-Type: " + URLConnection.guessContentTypeFromName(uploadFile.getName())).crlf()
+                key, name)).crlf()
+                .append("Content-Type: " + URLConnection.guessContentTypeFromName(name)).crlf()
                 .append("Content-Transfer-Encoding: binary").crlf().crlf()
-                .append(uploadFile.getContent());
+                .append(content);
         return this;
     }
 
-    public HttpStream appendField(String key, String value) {
+    public HttpStream appendField(String key, Object value) {
         append("Content-Disposition: form-data; name=\"" + key + "\"").crlf()
                 .append("Content-Type: text/plain; charset=" + RestfulStep.CHARSET).crlf().crlf()
-                .append(value);
+                .append(String.valueOf(value));
         return this;
     }
 

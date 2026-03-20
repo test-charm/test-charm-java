@@ -3,10 +3,6 @@ package org.testcharm.cucumber.restful;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.testcharm.cucumber.restful.extensions.PathVariableReplacement;
-import org.testcharm.cucumber.restful.spec.FormBeans;
-import org.testcharm.cucumber.restful.spec.LoginRequests;
-import org.testcharm.jfactory.JFactory;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -21,6 +17,10 @@ import org.mockserver.model.Format;
 import org.mockserver.model.Header;
 import org.mockserver.model.Parameter;
 import org.mockserver.verify.VerificationTimes;
+import org.testcharm.cucumber.restful.extensions.PathVariableReplacement;
+import org.testcharm.cucumber.restful.spec.FormBeans;
+import org.testcharm.cucumber.restful.spec.LoginRequests;
+import org.testcharm.jfactory.JFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.testcharm.cucumber.restful.RestfulStep.UploadFile.content;
-import static org.testcharm.dal.Accessors.get;
-import static org.testcharm.dal.Assertions.expect;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.testcharm.cucumber.restful.RestfulStep.UploadFile.content;
+import static org.testcharm.dal.Accessors.get;
+import static org.testcharm.dal.Assertions.expect;
 
 public class Steps {
     private static final ClientAndServer mockServer = startClientAndServer(8080);
@@ -51,7 +51,9 @@ public class Steps {
     @Before("@jfactory")
     public void setJFactory() {
         JFactory jFactory = new JFactory();
-        jFactory.register(LoginRequests.LoginRequest.class).register(FormBeans.DefaultFormBean.class);
+        jFactory.register(LoginRequests.LoginRequest.class)
+                .register(FormBeans.DefaultFormBean.class)
+                .register(org.testcharm.cucumber.restful.spec.Files.ATextFile.class);
         restfulStep.setJFactory(jFactory);
     }
 

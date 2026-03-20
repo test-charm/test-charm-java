@@ -406,7 +406,7 @@ Feature: web ui
         """
       Then working dir should:
         """
-        hello.txt: 'hello world'
+        ::eventually: { hello.txt: 'hello world' }
         """
       Examples:
         | driver     |

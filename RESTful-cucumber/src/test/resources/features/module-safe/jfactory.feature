@@ -179,3 +179,31 @@ Feature: JFactory Integration
         | oneFile    | hello 头像               | image.png |
         | str        | bla                      | *         |
       """
+
+  Scenario: upload file with jfactory
+    When POST form "/files":
+        """
+        : {
+          key: value
+          file(ATextFile): {
+            name= u.txt
+            content= hello-world
+          }
+        }
+        """
+    Then got request:
+        """
+        : [{
+          method: 'POST'
+          path: '/files'
+          headers: {
+            ['Content-Type']: [/^multipart\/form-data.*/]
+          }
+        }]
+        """
+    And got request form data:
+        """
+        : | +fieldName | outputStream.data.string | name  |
+          | file       | hello-world              | u.txt |
+          | key        | value                    | *     |
+        """

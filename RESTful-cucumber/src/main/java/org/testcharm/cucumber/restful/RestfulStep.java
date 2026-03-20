@@ -5,11 +5,16 @@ import io.cucumber.java.After;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testcharm.dal.Accessors;
+import org.testcharm.dal.DAL;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONArray;
+import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONException;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONObject;
+import org.testcharm.dal.runtime.Data;
+import org.testcharm.io.MemoryFile;
 import org.testcharm.jfactory.JFactory;
 import org.testcharm.jfactory.cucumber.Table;
 import org.testcharm.util.BeanClass;
+import org.testcharm.util.Collector;
 import org.testcharm.util.PropertyReader;
 import org.testcharm.util.Sneaky;
 
@@ -109,7 +114,16 @@ public class RestfulStep {
 
     @When("POST form {string}:")
     public void postForm(String path, String form) throws IOException, URISyntaxException {
-        postForm(path, new JSONObject(evaluator.eval(form)).toMap());
+        try {
+            postForm(path, new JSONObject(evaluator.eval(form)).toMap());
+        } catch (JSONException ig) {
+            Collector collector = jFactory.collector();
+            Accessors.get(form).from(collector);
+            Data<?> data = DAL.dal().getRuntimeContextBuilder().build(collector.build()).getThis();
+            Map<String, Object> map = new LinkedHashMap<>();
+            data.fieldNames().forEach(k -> map.put(String.valueOf(k), data.property(k).value()));
+            postForm(path, map);
+        }
     }
 
     public void postForm(String path, Map<String, ?> params) throws IOException, URISyntaxException {
@@ -118,7 +132,7 @@ public class RestfulStep {
             String boundary = UUID.randomUUID().toString();
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             HttpStream httpStream = new HttpStream(connection.getOutputStream(), UTF_8);
-            params.forEach((key, value) -> appendEntry(httpStream, key, Objects.requireNonNull(value).toString(), boundary));
+            params.forEach((key, value) -> appendEntry(httpStream, key, value, boundary));
             httpStream.close(boundary);
         }));
     }
@@ -323,10 +337,12 @@ public class RestfulStep {
         }
     }
 
-    private void appendEntry(HttpStream httpStream, String key, String value, String boundary) {
+    private void appendEntry(HttpStream httpStream, String key, Object value, String boundary) {
         httpStream.bound(boundary, () -> {
             if (key.startsWith("@"))
-                httpStream.appendFile(key, request.files.get(value));
+                httpStream.appendFile(key, request.files.get(String.valueOf(value)));
+            else if (value instanceof MemoryFile)
+                httpStream.appendFile(key, ((MemoryFile) value).getName(), ((MemoryFile) value).binary());
             else
                 httpStream.appendField(key, value);
         });

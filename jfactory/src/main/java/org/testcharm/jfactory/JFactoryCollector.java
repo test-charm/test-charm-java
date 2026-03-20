@@ -22,6 +22,8 @@ public class JFactoryCollector extends Collector {
 
     protected JFactoryCollector(JFactory jFactory, String... traitsSpec) {
         this(jFactory, Object.class);
+        if (traitsSpec.length == 0)
+            throw new IllegalArgumentException("Traits spec cannot be empty");
         this.traitsSpec = traitsSpec;
     }
 

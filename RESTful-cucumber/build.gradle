@@ -3,6 +3,7 @@ dependencies {
 
     implementation project(':DAL-java')
     implementation project(':DAL-extension-basic')
+    implementation project(':DAL-extension-jfactory')
     implementation project(':jfactory')
     implementation project(':jfactory-cucumber')
 
