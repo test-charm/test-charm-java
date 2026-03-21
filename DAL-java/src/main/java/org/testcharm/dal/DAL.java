@@ -3,7 +3,6 @@ package org.testcharm.dal;
 import org.testcharm.dal.ast.node.DALNode;
 import org.testcharm.dal.compiler.Compiler;
 import org.testcharm.dal.compiler.Notations;
-import org.testcharm.dal.runtime.Data;
 import org.testcharm.dal.runtime.Extension;
 import org.testcharm.dal.runtime.RuntimeContextBuilder;
 import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
@@ -85,9 +84,13 @@ public class DAL {
         return evaluateAll(() -> input, expressions);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> List<T> evaluateAll(InputCode<Object> input, String expressions) {
-        DALRuntimeContext runtimeContext = runtimeContextBuilder.build(input);
+        return evaluateAll(input, expressions, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> evaluateAll(InputCode<Object> input, String expressions, Object constants) {
+        DALRuntimeContext runtimeContext = runtimeContextBuilder.build(input, null, constants);
         try {
             return compile(expressions, runtimeContext).stream()
                     .map(node -> (T) node.evaluate(runtimeContext))
@@ -107,7 +110,6 @@ public class DAL {
         return evaluate(input, expression, null);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T evaluate(InputCode<Object> input, String expression, Class<?> rootSchema) {
         return evaluate(input, expression, rootSchema, null);
     }
@@ -122,19 +124,6 @@ public class DAL {
                 throw e;
             return null;
         }
-    }
-
-    public Data<?> evaluateData(Object input, String expression) {
-        return evaluateData(() -> input, expression, null);
-    }
-
-    public Data<?> evaluateData(InputCode<Object> input, String expression) {
-        return evaluateData(input, expression, null);
-    }
-
-    public Data<?> evaluateData(InputCode<Object> input, String expression, Class<?> rootSchema) {
-        return compileSingle(expression, runtimeContextBuilder.build(input, rootSchema))
-                .evaluateData(runtimeContextBuilder.build(input, rootSchema));
     }
 
     public DALNode compileSingle(String expression, DALRuntimeContext runtimeContext) {

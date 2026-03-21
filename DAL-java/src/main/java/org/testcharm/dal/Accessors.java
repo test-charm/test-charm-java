@@ -8,7 +8,7 @@ public class Accessors {
     private final String expression;
     private static boolean dumpInput = true;
     private DAL dal;
-    private static Supplier<DAL> dalFactory = () -> DAL.dal("AssertD");
+    private static Supplier<DAL> dalFactory = DAL::dal;
     private Object constants;
 
     public static void setDALFactory(Supplier<DAL> dalFactory) {

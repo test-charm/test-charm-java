@@ -23,7 +23,7 @@ public class Assertions {
     private final InputCode<Object> inputCode;
     public static boolean dumpInput = true;
     private DAL dal;
-    private static Supplier<DAL> dalFactory = () -> DAL.dal("AssertD");
+    private static Supplier<DAL> dalFactory = DAL::dal;
     private Class<?> schema;
     private Object constants;
 

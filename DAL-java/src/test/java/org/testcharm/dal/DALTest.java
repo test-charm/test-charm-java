@@ -81,7 +81,7 @@ public class DALTest {
         DAL dal = new DAL("");
         dal.getRuntimeContextBuilder().registerDumper(SkipType.class, DumperFactory.skip());
 
-        assertThat(dal.evaluateData(new SkipType(), "").dump())
-                .isEqualTo("*skipped*");
+        assertEquals("*skipped*",
+                dal.getRuntimeContextBuilder().build(new SkipType()).getThis().dump());
     }
 }

@@ -413,7 +413,7 @@ Feature: dump-data
     """
     public class Data {
       {
-        org.testcharm.dal.DAL.dal("AssertD").getRuntimeContextBuilder().registerDumper(Data.class, data ->
+        org.testcharm.dal.DAL.dal().getRuntimeContextBuilder().registerDumper(Data.class, data ->
         new org.testcharm.dal.runtime.inspector.Dumper(){
           public void dump(org.testcharm.dal.runtime.Data data,
             org.testcharm.dal.runtime.inspector.DumpingBuffer dumpingBuffer) {
