@@ -207,3 +207,36 @@ Feature: JFactory Integration
           | file       | hello-world              | u.txt |
           | key        | value                    | *     |
         """
+
+#  Scenario Outline: <method> with body created by spec
+#    When <method> "/index":
+#    """
+#    (LoginRequest): {
+#      username: admin
+#      captcha: {
+#        code: '1234'
+#      }
+#    }
+#    """
+#    Then "http://www.a.com" got a "<method>" request on "/index" with body matching
+#    """
+#    : [{
+#      method: '<method>'
+#      path: '/index'
+#      headers: {
+#        ['Content-Type']: ['application/json']
+#      }
+#      body.json= {
+#        username: admin,
+#        password: password#1,
+#        captcha: {
+#          code: '1234'
+#        }
+#      }
+#    }]
+#    """
+#    Examples:
+#      | method |
+#      | POST   |
+#      | PUT    |
+#

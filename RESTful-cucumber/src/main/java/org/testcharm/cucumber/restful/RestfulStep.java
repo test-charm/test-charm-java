@@ -38,6 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.testcharm.dal.Assertions.expect;
+import static org.testcharm.dal.Evaluator.evaluateObject;
 import static org.testcharm.dal.extensions.basic.binary.BinaryExtension.readAllAndClose;
 import static org.testcharm.util.Sneaky.sneakyRun;
 
@@ -83,8 +84,16 @@ public class RestfulStep {
         if (Objects.equals(contentType, "application/octet-stream")) {
             post(path, getBytesOf(content.getContent()), contentType);
         } else {
-            post(path, evaluator.eval(content.getContent()), content.getContentType());
+            byte[] bodyBytes = parseBody(evaluator.eval(content.getContent()), content.getContentType());
+            post(path, bodyBytes, content.getContentType());
         }
+    }
+
+    private byte[] parseBody(String eval, String contentType) {
+//        if (contentType == null) {
+//
+//        }
+        return eval.getBytes(UTF_8);
     }
 
     public void post(String path, byte[] bytes, String contentType) throws IOException, URISyntaxException {
@@ -118,8 +127,8 @@ public class RestfulStep {
             postForm(path, new JSONObject(evaluator.eval(form)).toMap());
         } catch (JSONException ig) {
             Collector collector = jFactory.collector();
-            Accessors.get(form).from(collector);
-            Data<?> data = DAL.dal().getRuntimeContextBuilder().build(collector.build()).getThis();
+            evaluateObject(form).on(collector);
+            Data<?> data = DAL.dal().wrap(collector.build());
             Map<String, Object> map = new LinkedHashMap<>();
             data.fieldNames().forEach(k -> map.put(String.valueOf(k), data.property(k).value()));
             postForm(path, map);

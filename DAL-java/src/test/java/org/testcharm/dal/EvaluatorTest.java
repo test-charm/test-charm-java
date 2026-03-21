@@ -47,6 +47,11 @@ class EvaluatorTest {
 
     @Test
     void evaluate_object_ignore_verification_opt() {
+        assertEquals("hello", evaluateObject("{ length: 5 toUpperCase: HELLO }").on("hello"));
+    }
+
+    @Test
+    void evaluate_object_ignore_verification_opt_and_braces() {
         assertEquals("hello", evaluateObject("length: 5 toUpperCase: HELLO").on("hello"));
     }
 

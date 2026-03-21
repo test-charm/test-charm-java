@@ -3,6 +3,7 @@ package org.testcharm.dal;
 import org.testcharm.dal.ast.node.DALNode;
 import org.testcharm.dal.compiler.Compiler;
 import org.testcharm.dal.compiler.Notations;
+import org.testcharm.dal.runtime.Data;
 import org.testcharm.dal.runtime.Extension;
 import org.testcharm.dal.runtime.RuntimeContextBuilder;
 import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
@@ -155,5 +156,9 @@ public class DAL {
                 .sorted(Comparator.comparing(Extension::order))
                 .forEach(e -> e.extend(this));
         return this;
+    }
+
+    public Data<?> wrap(Object object) {
+        return getRuntimeContextBuilder().build(object).getThis();
     }
 }

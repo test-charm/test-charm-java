@@ -1,6 +1,7 @@
 package org.testcharm.pf;
 
 import org.testcharm.dal.Accessors;
+import org.testcharm.dal.Evaluator;
 
 public interface Panel<E extends Element<E, ?, ?>> {
     E element();
@@ -10,7 +11,15 @@ public interface Panel<E extends Element<E, ?, ?>> {
     }
 
     default <O> O perform(String expression, Object constants) {
-        return Accessors.get(expression).by(element().pageFlow().dal()).constants(constants).from(element());
+        return Evaluator.evaluate(expression).by(element().pageFlow().dal()).constants(constants).on(element());
+    }
+
+    default <O> O performAll(String expressions) {
+        return performAll(expressions, null);
+    }
+
+    default <O> O performAll(String expressions, Object constants) {
+        return Evaluator.evaluateAll(expressions).by(element().pageFlow().dal()).constants(constants).on(element());
     }
 
     default Elements<E> locate(String expression) {

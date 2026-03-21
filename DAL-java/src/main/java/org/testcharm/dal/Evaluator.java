@@ -57,7 +57,12 @@ public class Evaluator {
                 case OBJECT:
                     String allExpression;
                     if (!expression.trim().startsWith(":")) {
-                        allExpression = ": {\n" + expression + "\n}";
+                        if (expression.trim().startsWith("{")
+                                || expression.trim().startsWith("[")
+                                || expression.trim().startsWith("|")) {
+                            allExpression = ":\n" + expression;
+                        } else
+                            allExpression = ": {\n" + expression + "\n}";
                     } else {
                         allExpression = expression;
                     }
