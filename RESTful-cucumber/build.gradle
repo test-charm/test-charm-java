@@ -9,9 +9,9 @@ dependencies {
 
     testImplementation libs.test.mockserver
     testImplementation libs.test.mockserver.netty
-
     testImplementation libs.test.cucumber.picocontainer
     testImplementation libs.test.commons.fileupload
+    testImplementation project(':java-compiler-util')
 }
 
 task testModuleSafe(type: Test) {

@@ -3,7 +3,7 @@ Feature: RESTful api steps
   Background:
     Given base url "http://www.a.com"
 
-  Rule: Basic Request
+  Rule: Basic Request GET/DELETE
 
     Scenario Outline: <method> with no params
       When <method> "/index"
@@ -72,6 +72,34 @@ Feature: RESTful api steps
         | GET    |
         | DELETE |
 
+    Scenario Outline: <method> with header
+      Given header by RESTful api:
+      """
+      {
+        "key1": "value1",
+        "key2": ["value2", "value3"]
+      }
+      """
+      When <method> "/index"
+      Then got request:
+      """
+      : [{
+        method: '<method>'
+        path: '/index'
+        headers: {
+          key1: ['value1']
+          key2: ['value2', 'value3']
+        }
+      }]
+      """
+      And "http://www.a.com" got a "<method>" request on "/index"
+      Examples:
+        | method |
+        | GET    |
+        | DELETE |
+
+  Rule: Basic Request POST/PUT/PATCH
+
     Scenario Outline: <method> with body and no params
       When <method> "/index":
       """
@@ -99,32 +127,6 @@ Feature: RESTful api steps
         | method |
         | POST   |
         | PUT    |
-
-    Scenario Outline: <method> with header
-      Given header by RESTful api:
-      """
-      {
-        "key1": "value1",
-        "key2": ["value2", "value3"]
-      }
-      """
-      When <method> "/index"
-      Then got request:
-      """
-      : [{
-        method: '<method>'
-        path: '/index'
-        headers: {
-          key1: ['value1']
-          key2: ['value2', 'value3']
-        }
-      }]
-      """
-      And "http://www.a.com" got a "<method>" request on "/index"
-      Examples:
-        | method |
-        | GET    |
-        | DELETE |
 
     Scenario Outline: <method> with body and header and default content type is application/json
       Given header by RESTful api:
