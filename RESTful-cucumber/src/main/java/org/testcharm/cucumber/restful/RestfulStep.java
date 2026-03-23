@@ -9,7 +9,6 @@ import org.testcharm.dal.DAL;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONArray;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONException;
 import org.testcharm.dal.extensions.basic.string.jsonsource.org.json.JSONObject;
-import org.testcharm.dal.runtime.Data;
 import org.testcharm.io.MemoryFile;
 import org.testcharm.jfactory.JFactory;
 import org.testcharm.jfactory.cucumber.Table;
@@ -78,6 +77,22 @@ public class RestfulStep {
         });
     }
 
+    @When("GET {string}:")
+    public void getWithParams(String path, String params) throws IOException, URISyntaxException {
+        get(pathWithParams(path, params));
+    }
+
+    @When("DELETE {string}")
+    public void delete(String path) throws IOException, URISyntaxException {
+        requestAndResponse("DELETE", path, connection -> {
+        });
+    }
+
+    @When("DELETE {string}:")
+    public void deleteWithParams(String path, String params) throws IOException, URISyntaxException {
+        delete(pathWithParams(path, params));
+    }
+
     @When("POST {string}:")
     public void post(String path, DocString content) throws IOException, URISyntaxException {
         String contentType = content.getContentType();
@@ -90,9 +105,6 @@ public class RestfulStep {
     }
 
     private byte[] parseBody(String eval, String contentType) {
-//        if (contentType == null) {
-//
-//        }
         return eval.getBytes(UTF_8);
     }
 
@@ -128,10 +140,7 @@ public class RestfulStep {
         } catch (JSONException ig) {
             Collector collector = jFactory.collector();
             evaluateObject(form).on(collector);
-            Data<?> data = DAL.dal().wrap(collector.build());
-            Map<String, Object> map = new LinkedHashMap<>();
-            data.fieldNames().forEach(k -> map.put(String.valueOf(k), data.property(k).value()));
-            postForm(path, map);
+            postForm(path, DAL.dal().wrap(collector.build()).toMap());
         }
     }
 
@@ -227,12 +236,6 @@ public class RestfulStep {
         patch(path, object, null);
     }
 
-    @When("DELETE {string}")
-    public void delete(String path) throws IOException, URISyntaxException {
-        requestAndResponse("DELETE", path, connection -> {
-        });
-    }
-
     @After
     public void reset() {
         request = new Request();
@@ -279,16 +282,6 @@ public class RestfulStep {
     public void deleteAndResponseShouldBe(String path, String expression) throws IOException, URISyntaxException {
         delete(path);
         responseShouldBe(expression);
-    }
-
-    @When("GET {string}:")
-    public void getWithParams(String path, String params) throws IOException, URISyntaxException {
-        get(pathWithParams(path, params));
-    }
-
-    @When("DELETE {string}:")
-    public void deleteWithParams(String path, String params) throws IOException, URISyntaxException {
-        delete(pathWithParams(path, params));
     }
 
     @When("POST {string} {string}:")
@@ -383,9 +376,17 @@ public class RestfulStep {
     }
 
     private String pathWithParams(String path, String params) {
-        return path + "?" + new JSONObject(evaluator.eval(params)).toMap().entrySet().stream()
-                .flatMap(RestfulStep::getParamString)
-                .collect(joining("&"));
+        RequestCollector collector = new RequestCollector(jFactory);
+        org.testcharm.dal.Evaluator.evaluateObject(params).on(collector);
+        DAL.dal().wrap(collector.headerCollector().build()).toMap().forEach((key, value) -> {
+            if (value instanceof Collection)
+                header(String.valueOf(key), ((Collection<?>) value).stream().map(String::valueOf).collect(toList()));
+            else
+                header(String.valueOf(key), String.valueOf(value));
+
+        });
+        return path + "?" + DAL.dal().wrap(collector.build()).toMap().entrySet().stream()
+                .flatMap(RestfulStep::getParamString).collect(joining("&"));
     }
 
     private void requestAndResponse(String method, String path, Consumer<HttpURLConnection> body) throws IOException, URISyntaxException {

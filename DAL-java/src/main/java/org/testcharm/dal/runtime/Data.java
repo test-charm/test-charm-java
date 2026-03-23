@@ -6,17 +6,14 @@ import org.testcharm.interpreter.InterpreterException;
 import org.testcharm.util.BeanClass;
 import org.testcharm.util.ConvertException;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.testcharm.dal.ast.node.SortGroupNode.NOP_COMPARATOR;
-import static org.testcharm.dal.runtime.ExpressionException.illegalOperation;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.testcharm.dal.ast.node.SortGroupNode.NOP_COMPARATOR;
+import static org.testcharm.dal.runtime.ExpressionException.illegalOperation;
 
 public class Data<T> {
     private final SchemaType schemaType;
@@ -149,6 +146,12 @@ public class Data<T> {
 
     public Optional<CurryingMethod> currying(Object property) {
         return context.currying(value(), property);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        fieldNames().forEach(k -> map.put(String.valueOf(k), property(k).value()));
+        return map;
     }
 
     public class DataList extends DALCollection.Decorated<Object> {
