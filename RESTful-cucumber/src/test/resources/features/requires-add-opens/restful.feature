@@ -1,3 +1,4 @@
+@jfactory
 Feature: RESTful api steps
 
   Background:
@@ -12,7 +13,7 @@ Feature: RESTful api steps
       """
       Then "http://www.a.com" got a "<method>" request on "/index" with body
       """
-      { "text": "Hello world" }
+      {"text":"Hello world"}
       """
       Examples:
         | method |
@@ -25,7 +26,7 @@ Feature: RESTful api steps
       """
       Then "http://www.a.com" got a "<method>" request on "/index" with params "中文参数=中文值&second=value2" and body
       """
-      { "text": "Hello world" }
+      {"text":"Hello world"}
       """
       Examples:
         | method |
@@ -125,7 +126,7 @@ Feature: RESTful api steps
       }
       """
       When <method> "/index":
-      """
+      """ application/json
       {}
       """
       Then got request:
@@ -173,7 +174,7 @@ Feature: RESTful api steps
       Hello world
       """
       Then <method> "/index":
-      """
+      """ application/json
       any body
       """
       Then data should be saved to "/index" with response:

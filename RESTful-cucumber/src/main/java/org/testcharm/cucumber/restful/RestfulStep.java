@@ -48,8 +48,12 @@ public class RestfulStep {
     private Request request = new Request();
     private Response response;
     private HttpURLConnection connection;
-    private Function<Object, String> serializer = RestfulStep::toJson;
+    private Function<Object, String> serializer = body -> {
+        String json = new JSONArray(Collections.singleton(body)).toString();
+        return json.substring(1, json.length() - 1);
+    };
     private JFactory jFactory;
+    private String defautRequestContentType = "dal:application/json";
 
     private static Stream<String> getParamString(Map.Entry<String, Object> entry) {
         if (entry.getValue() instanceof List) {
@@ -94,18 +98,37 @@ public class RestfulStep {
     }
 
     @When("POST {string}:")
-    public void post(String path, DocString content) throws IOException, URISyntaxException {
-        String contentType = content.getContentType();
-        if (Objects.equals(contentType, "application/octet-stream")) {
-            post(path, getBytesOf(content.getContent()), contentType);
-        } else {
-            byte[] bodyBytes = parseBody(evaluator.eval(content.getContent()), content.getContentType());
-            post(path, bodyBytes, content.getContentType());
-        }
+    public void post(String path, DocString content) {
+        requestAndResponse("POST", path, content);
     }
 
-    private byte[] parseBody(String eval, String contentType) {
-        return eval.getBytes(UTF_8);
+    public void requestAndResponse(String method, String path, DocString content) {
+        Sneaky.run(() -> {
+            String contentType = processContentType(content);
+            String bodyContent = evaluator.eval(content.getContent());
+            switch (contentType) {
+                case "dal:application/json":
+                    requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, contentType.substring(4),
+                            serializer.apply(parseBodyAndHeaders(bodyContent)).getBytes(UTF_8)));
+                    break;
+                default:
+                    if (Objects.equals(contentType, "application/octet-stream"))
+                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, contentType, Sneaky.get(() -> getBytesOf(content.getContent()))));
+                    else
+                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, contentType, bodyContent.getBytes(UTF_8)));
+                    break;
+            }
+        });
+    }
+
+    private String processContentType(DocString content) {
+        String contentType = content.getContentType();
+        if (contentType == null || contentType.isEmpty())
+            contentType = request.contentType();
+
+        if (contentType == null || contentType.isEmpty())
+            contentType = defautRequestContentType;
+        return contentType;
     }
 
     public void post(String path, byte[] bytes, String contentType) throws IOException, URISyntaxException {
@@ -122,11 +145,6 @@ public class RestfulStep {
 
     public void post(String path, Object body, String contentType) throws IOException, URISyntaxException {
         post(path, serializer.apply(body), contentType);
-    }
-
-    public static String toJson(Object body) {
-        String json = new JSONArray(Collections.singleton(body)).toString();
-        return json.substring(1, json.length() - 1);
     }
 
     public void post(String path, Object body) throws IOException, URISyntaxException {
@@ -178,12 +196,7 @@ public class RestfulStep {
 
     @When("PUT {string}:")
     public void put(String path, DocString content) throws IOException, URISyntaxException {
-        String contentType = content.getContentType();
-        if (Objects.equals(contentType, "application/octet-stream")) {
-            put(path, getBytesOf(content.getContent()), contentType);
-        } else {
-            put(path, evaluator.eval(content.getContent()), contentType);
-        }
+        requestAndResponse("PUT", path, content);
     }
 
     public void put(String path, byte[] bytes, String contentType) throws IOException, URISyntaxException {
@@ -208,12 +221,7 @@ public class RestfulStep {
 
     @When("PATCH {string}:")
     public void patch(String path, DocString content) throws IOException, URISyntaxException {
-        String contentType = content.getContentType();
-        if (Objects.equals(contentType, "application/octet-stream")) {
-            patch(path, getBytesOf(content.getContent()), contentType);
-        } else {
-            patch(path, evaluator.eval(content.getContent()), contentType);
-        }
+        requestAndResponse("PATCH", path, content);
     }
 
     public void patch(String path, byte[] body, String contentType) throws IOException, URISyntaxException {
@@ -376,8 +384,14 @@ public class RestfulStep {
     }
 
     private String pathWithParams(String path, String params) {
+        Object body = parseBodyAndHeaders(params);
+        return path + "?" + DAL.dal().wrap(body).toMap().entrySet().stream()
+                .flatMap(RestfulStep::getParamString).collect(joining("&"));
+    }
+
+    private Object parseBodyAndHeaders(String content) {
         RequestCollector collector = new RequestCollector(jFactory);
-        org.testcharm.dal.Evaluator.evaluateObject(params).on(collector);
+        org.testcharm.dal.Evaluator.evaluateObject(content).on(collector);
         DAL.dal().wrap(collector.headerCollector().build()).toMap().forEach((key, value) -> {
             if (value instanceof Collection)
                 header(String.valueOf(key), ((Collection<?>) value).stream().map(String::valueOf).collect(toList()));
@@ -385,8 +399,7 @@ public class RestfulStep {
                 header(String.valueOf(key), String.valueOf(value));
 
         });
-        return path + "?" + DAL.dal().wrap(collector.build()).toMap().entrySet().stream()
-                .flatMap(RestfulStep::getParamString).collect(joining("&"));
+        return collector.build();
     }
 
     private void requestAndResponse(String method, String path, Consumer<HttpURLConnection> body) throws IOException, URISyntaxException {
@@ -467,6 +480,10 @@ public class RestfulStep {
             public Map<String, UploadFile> getFiles() {
                 return files;
             }
+        }
+
+        String contentType() {
+            return (String) headers.get("Content-Type");
         }
 
         @SuppressWarnings("unchecked")

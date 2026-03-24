@@ -20,7 +20,7 @@ Feature: Replace
     Given var "pathVariable" value is "replacedPath"
     Given var "bodyVariable" value is "replacedBody"
     When <method> "/${pathVariable}":
-    """
+    """ text/plain
     ${bodyVariable}
     """
     Then "http://www.a.com" got a "<method>" request on "/replacedPath" with body

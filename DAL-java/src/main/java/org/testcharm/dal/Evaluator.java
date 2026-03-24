@@ -24,8 +24,12 @@ public class Evaluator {
         return new Evaluator(expression, Type.SINGLE);
     }
 
-    public static Evaluator evaluateObject(String expressionGroup) {
-        return new Evaluator(expressionGroup, Type.OBJECT);
+    public static Evaluator evaluateObject(String expression) {
+        if (!expression.trim().startsWith(":") && (expression.trim().startsWith("{")
+                || expression.trim().startsWith("[")
+                || expression.trim().startsWith("|")))
+            expression = ":\n" + expression;
+        return new Evaluator(expression, Type.OBJECT);
     }
 
     public static Evaluator evaluateAll(String expressions) {
@@ -51,27 +55,10 @@ public class Evaluator {
     @SuppressWarnings("unchecked")
     public <T> T on(Object input) {
         try {
-            switch (type) {
-                case SINGLE:
-                    return getDAL().evaluate(() -> input, expression, null, constants);
-                case OBJECT:
-                    String allExpression;
-                    if (!expression.trim().startsWith(":")) {
-                        if (expression.trim().startsWith("{")
-                                || expression.trim().startsWith("[")
-                                || expression.trim().startsWith("|")) {
-                            allExpression = ":\n" + expression;
-                        } else
-                            allExpression = ": {\n" + expression + "\n}";
-                    } else {
-                        allExpression = expression;
-                    }
-                    return getDAL().evaluate(() -> input, allExpression, null, constants);
-                case MULTIPLE:
-                    return (T) getDAL().evaluateAll(() -> input, expression, constants);
-                default:
-                    throw new IllegalStateException();
-            }
+            if (type == Type.MULTIPLE)
+                return (T) getDAL().evaluateAll(() -> input, expression, constants);
+            else
+                return getDAL().evaluate(() -> input, expression, null, constants);
         } catch (InterpreterException e) {
             String detailMessage = "\n" + e.show(expression, 0) + "\n\n" + e.getMessage();
             throw new RuntimeException(detailMessage, e) {

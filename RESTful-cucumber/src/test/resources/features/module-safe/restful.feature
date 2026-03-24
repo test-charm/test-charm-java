@@ -251,7 +251,7 @@ Feature: RESTful api steps
       Hello world
       """
       Then <method> "/index":
-      """
+      """ text/plain
       any body
       """
       Then data should be saved to "/index" with response:

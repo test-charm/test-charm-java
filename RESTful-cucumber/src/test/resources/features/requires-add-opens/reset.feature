@@ -14,7 +14,7 @@ Feature: reset RESTful states
 
   Scenario: should no header
     When PATCH "/index":
-    """
+    """ application/json
     {}
     """
     Then got request:
@@ -35,7 +35,7 @@ Feature: reset RESTful states
     Hello world
     """
     When PUT "/index":
-    """
+    """ application/json
     {}
     """
 

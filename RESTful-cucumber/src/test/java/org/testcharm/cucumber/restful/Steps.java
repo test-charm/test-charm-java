@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.SneakyThrows;
@@ -21,6 +22,7 @@ import org.testcharm.cucumber.restful.extensions.PathVariableReplacement;
 import org.testcharm.cucumber.restful.spec.FormBeans;
 import org.testcharm.cucumber.restful.spec.LoginRequests;
 import org.testcharm.jfactory.JFactory;
+import org.testcharm.util.JavaExecutor;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -170,8 +172,9 @@ public class Steps {
     }
 
     @Before
-    public void noReplacement() {
+    public void reset() {
         PathVariableReplacement.reset();
+        JavaExecutor.executor().importDependency("org.testcharm.jfactory.*");
     }
 
     @Given("binary response {int} on GET {string} with file name {string}:")
@@ -241,5 +244,11 @@ public class Steps {
     public void gotARequestOnWithParamsFromDocstring(String url, String method, String path, String paramsExpression) {
         String receivedRequest = mockServer.retrieveRecordedRequests(request().withMethod(method).withPath(path), Format.JSON);
         expect(new ObjectMapper().readValue(receivedRequest, List.class)).should(paramsExpression);
+    }
+
+    @And("use {string} as JFactory")
+    public void useAsJFactory(String var) {
+        JavaExecutor.executor().main().returnExpression(var);
+        restfulStep.setJFactory((JFactory) JavaExecutor.executor().main().evaluate());
     }
 }

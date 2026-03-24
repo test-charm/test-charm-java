@@ -51,11 +51,6 @@ class EvaluatorTest {
     }
 
     @Test
-    void evaluate_object_ignore_verification_opt_and_braces() {
-        assertEquals("hello", evaluateObject("length: 5 toUpperCase: HELLO").on("hello"));
-    }
-
-    @Test
     void evaluateAll_() {
         assertEquals(Arrays.asList(1, 2, 3), evaluateAll("1 2 3").on(null));
     }

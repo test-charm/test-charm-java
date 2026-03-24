@@ -60,7 +60,7 @@ Feature: reset RESTful states
 
   Scenario: should no header
     When POST "/index":
-    """
+    """ application/json
     {}
     """
     Then got request:
@@ -86,7 +86,7 @@ Feature: reset RESTful states
 
   Scenario: should no header
     When PUT "/index":
-    """
+    """ application/json
     {}
     """
     Then got request:
@@ -133,7 +133,7 @@ Feature: reset RESTful states
     Hello world
     """
     When POST "/index":
-    """
+    """ application/json
     {}
     """
 
@@ -149,7 +149,7 @@ Feature: reset RESTful states
     Hello world
     """
     When PUT "/index":
-    """
+    """ application/json
     {}
     """
 

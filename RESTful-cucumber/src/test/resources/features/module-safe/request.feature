@@ -54,7 +54,7 @@ Feature: RESTful new api steps
 
     Scenario Outline: <method> with single value param
       When <method> "/index":
-        """
+        """ application/json
         {
           "中文参数": "中文值",
           "second": "value1"
@@ -159,67 +159,6 @@ Feature: RESTful new api steps
 
   Rule: POST/PUT/PATCH
 
-    Scenario Outline: <method> with body and no params
-      When <method> "/index":
-        """
-        { "text": "Hello world" }
-        """
-      Then "http://www.a.com" got a "<method>" request on "/index" with body
-        """
-        { "text": "Hello world" }
-        """
-      Examples:
-        | method |
-        | POST   |
-        | PUT    |
-        | PATCH  |
-
-    Scenario Outline: <method> with body and params
-      When <method> "/index?中文参数=中文值&second=value2":
-        """
-        { "text": "Hello world" }
-        """
-      Then "http://www.a.com" got a "<method>" request on "/index" with params "中文参数=中文值&second=value2" and body
-        """
-        { "text": "Hello world" }
-        """
-      Examples:
-        | method |
-        | POST   |
-        | PUT    |
-        | PATCH  |
-
-    Scenario Outline: <method> with body and header and default content type is application/json
-      Given header by RESTful api:
-        """
-        {
-          "key1": "value1",
-          "key2": ["value2", "value3"]
-        }
-        """
-      When <method> "/index":
-        """
-        { "text": "Hello world" }
-        """
-      Then got request:
-        """
-        : [{
-          method: '<method>'
-          path: '/index'
-          headers: {
-            ['Content-Type']: ['application/json']
-            key1: ['value1']
-            key2: ['value2', 'value3']
-          }
-        }]
-        """
-      And "http://www.a.com" got a "<method>" request on "/index"
-      Examples:
-        | method |
-        | POST   |
-        | PUT    |
-        | PATCH  |
-
     Scenario Outline: <method> with content type and not set in header
       When <method> "/index":
         """ text/html
@@ -291,7 +230,7 @@ Feature: RESTful new api steps
         }
         """
       When <method> "/index":
-        """
+        """ application/json
         {}
         """
       Then got request:
@@ -305,3 +244,145 @@ Feature: RESTful new api steps
         | POST   |
         | PUT    |
         | PATCH  |
+
+  Rule: POST/PUT/PATCH no content type (dal:application/json)
+
+    Scenario Outline: <method> with body
+      When <method> "/index":
+        """
+        { "text": "Hello world" }
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['application/json']
+          }
+          body.json= {
+            text= 'Hello world'
+          }
+        }]
+        """
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
+    Scenario Outline: <method> with body and params
+      When <method> "/index?中文参数=中文值&second=value2":
+        """
+        { "text": "Hello world" }
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['application/json']
+          }
+          body.json= {
+            text= 'Hello world'
+          }
+          queryStringParameters: {
+           中文参数= [中文值]
+           second= [value2]
+          }
+        }]
+        """
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
+    Scenario Outline: <method> with body and header
+      Given header by RESTful api:
+        """
+        {
+          "key1": "value1",
+          "key2": ["value2", "value3"]
+        }
+        """
+      When <method> "/index":
+        """
+        { "text": "Hello world" }
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['application/json']
+            key1: ['value1']
+            key2: ['value2', 'value3']
+          }
+          body.json= {
+            text= 'Hello world'
+          }
+        }]
+        """
+      And "http://www.a.com" got a "<method>" request on "/index"
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
+    Scenario Outline: with body and spec
+      Given the following declarations:
+        """
+        JFactory jfactory = new JFactory();
+        """
+      And the following class definition:
+        """
+        public class Request {
+          public int intValue;
+          public String strValue1, strValue2;
+
+          public int getIntValue() { return intValue; }
+          public String getStrValue1() { return strValue1; }
+          public String getStrValue2() { return strValue2; }
+        }
+        """
+      And the following class definition:
+        """
+        public class RequestSpec extends Spec<Request> {}
+        """
+      And register as follows:
+        """
+        jfactory.register(RequestSpec.class);
+        """
+      And use "jfactory" as JFactory
+      When <method> "/index":
+        """
+        ::this(RequestSpec): {
+          intValue: 1
+          strValue1: hello
+        }
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['application/json']
+          }
+          body.json= {
+            intValue= 1
+            strValue1= hello
+            strValue2= /^strValue2.*/
+          }
+        }]
+        """
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
