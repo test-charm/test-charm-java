@@ -8,7 +8,14 @@ Feature: RESTful new api steps
 
     Scenario Outline: <method> with no params
       When <method> "/index"
-      Then "http://www.a.com" got a "<method>" request on "/index"
+      Then got request:
+      """
+      : [{
+        method= '<method>'
+        path= '/index'
+        queryStringParameters= null
+      }]
+      """
       Examples:
         | method |
         | GET    |
@@ -16,9 +23,17 @@ Feature: RESTful new api steps
 
     Scenario Outline: <method> with params in url
       When <method> "/index?中文参数=中文值&second=value2"
-      Then "http://www.a.com" got a "<method>" request on "/index" with params
-        | 中文参数 | second |
-        | 中文值  | value2 |
+      Then got request:
+      """
+      : [{
+        method= '<method>'
+        path= '/index'
+        queryStringParameters= {
+          中文参数= [中文值]
+          second= [value2]
+        }
+      }]
+      """
       Examples:
         | method |
         | GET    |
@@ -36,15 +51,14 @@ Feature: RESTful new api steps
       Then got request:
         """
         : [{
-          method: '<method>'
-          path: '/index'
+          method= '<method>'
+          path= '/index'
           headers: {
-            key1: ['value1']
-            key2: ['value2', 'value3']
+            key1= ['value1']
+            key2= ['value2', 'value3']
           }
         }]
         """
-      And "http://www.a.com" got a "<method>" request on "/index"
       Examples:
         | method |
         | GET    |
@@ -60,9 +74,17 @@ Feature: RESTful new api steps
           "second": "value1"
         }
         """
-      Then "http://www.a.com" got a "<method>" request on "/index" with params
-        | 中文参数 | second |
-        | 中文值  | value1 |
+      Then got request:
+        """
+        : [{
+          method= '<method>'
+          path= '/index'
+          queryStringParameters= {
+            中文参数= [中文值]
+            second= [value1]
+          }
+        }]
+        """
       Examples:
         | method |
         | GET    |
@@ -75,9 +97,11 @@ Feature: RESTful new api steps
           "key": ["value1", "value2"]
         }
         """
-      Then "http://www.a.com" got a "<method>" request on "/index" with params from docstring
+      Then got request:
         """
         : [{
+          method= '<method>'
+          path= '/index'
           queryStringParameters.'key[]'= [value1, value2]
         }]
         """
@@ -93,9 +117,16 @@ Feature: RESTful new api steps
           ":url:": "http://www.a.com/index?中文参数=中文值",
         }
         """
-      Then "http://www.a.com" got a "<method>" request on "/index" with params
-        | :url:                           |
-        | http://www.a.com/index?中文参数=中文值 |
+      Then got request:
+        """
+        : [{
+          method= '<method>'
+          path= '/index'
+          queryStringParameters= {
+            ':url:'= ['http://www.a.com/index?中文参数=中文值']
+          }
+        }]
+        """
       Examples:
         | method |
         | GET    |
@@ -120,7 +151,6 @@ Feature: RESTful new api steps
           }
         }]
         """
-      And "http://www.a.com" got a "<method>" request on "/index"
       Examples:
         | method |
         | GET    |
@@ -151,106 +181,17 @@ Feature: RESTful new api steps
           }
         }]
         """
-      And "http://www.a.com" got a "<method>" request on "/index"
       Examples:
         | method |
         | GET    |
         | DELETE |
 
-  Rule: POST/PUT/PATCH
+  Rule: POST/PUT/PATCH no doc type
 
-    Scenario Outline: <method> with content type and not set in header
-      When <method> "/index":
-        """ text/html
-        { "text": "Hello world" }
-        """
-      Then got request:
-        """
-        : [{
-          headers['Content-Type']: ['text/html']
-        }]
-        """
-      Examples:
-        | method |
-        | POST   |
-        | PUT    |
-        | PATCH  |
-
-    Scenario Outline: <method> without content type but set in header already
-      Given header by RESTful api:
-        """
-        {
-          "<header>": "text/html"
-        }
-        """
+    Scenario Outline: guess content type from defautRequestContentType(dal:application/json) when doc type is empty
       When <method> "/index":
         """
-        { "text": "Hello world" }
-        """
-      Then got request:
-        """
-        : [{
-          headers['<header>']: ['text/html']
-        }]
-        """
-      Examples:
-        | method | header       |
-        | POST   | Content-Type |
-        | PUT    | content-type |
-        | PATCH  | content-type |
-
-    Scenario Outline: <method> with content type and set in header
-      Given header by RESTful api:
-        """
-        {
-          "Content-Type": "anyContentType"
-        }
-        """
-      When <method> "/index":
-        """ text/html
-        { "text": "Hello world" }
-        """
-      Then got request:
-        """
-        : [{
-          headers['Content-Type']: ['text/html']
-        }]
-        """
-      Examples:
-        | method |
-        | POST   |
-        | PUT    |
-        | PATCH  |
-
-    Scenario Outline: <method> without content type and set in header
-      Given header by RESTful api:
-        """
-        {
-          "anyHeader": null
-        }
-        """
-      When <method> "/index":
-        """ application/json
-        {}
-        """
-      Then got request:
-        """
-        : [{
-          headers['anyHeader']: null
-        }]
-        """
-      Examples:
-        | method |
-        | POST   |
-        | PUT    |
-        | PATCH  |
-
-  Rule: POST/PUT/PATCH no content type (dal:application/json)
-
-    Scenario Outline: <method> with body
-      When <method> "/index":
-        """
-        { "text": "Hello world" }
+        text: hello
         """
       Then got request:
         """
@@ -261,7 +202,7 @@ Feature: RESTful new api steps
             ['Content-Type']: ['application/json']
           }
           body.json= {
-            text= 'Hello world'
+            text= hello
           }
         }]
         """
@@ -271,10 +212,68 @@ Feature: RESTful new api steps
         | PUT    |
         | PATCH  |
 
+    Scenario Outline: guess content type from header when doc type is empty
+      Given header by RESTful api:
+        """
+        {
+          "Content-Type": "text/plain"
+        }
+        """
+      When <method> "/index":
+        """
+        text: hello
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['text/plain']
+          }
+          body.string= 'text: hello'
+        }]
+        """
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
+    Scenario Outline: <method> doc type overrides header content type
+      Given header by RESTful api:
+        """
+        {
+          "Content-Type": "text/plain"
+        }
+        """
+      When <method> "/index":
+        """ dal:application/json
+        {...}
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['application/json']
+          }
+          body.json= {}
+        }]
+        """
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
+  Rule: POST/PUT/PATCH dal:application/json
+
     Scenario Outline: <method> with body and params
       When <method> "/index?中文参数=中文值&second=value2":
-        """
-        { "text": "Hello world" }
+        """ dal:application/json
+        text: 'Hello world'
         """
       Then got request:
         """
@@ -300,16 +299,15 @@ Feature: RESTful new api steps
         | PATCH  |
 
     Scenario Outline: <method> with body and header
-      Given header by RESTful api:
-        """
-        {
-          "key1": "value1",
-          "key2": ["value2", "value3"]
-        }
-        """
       When <method> "/index":
-        """
-        { "text": "Hello world" }
+        """ dal:application/json
+        {
+          text: 'Hello world',
+          ::headers: {
+            key1: value1
+            key2: [value2 value3]
+          }
+        }
         """
       Then got request:
         """
@@ -326,7 +324,6 @@ Feature: RESTful new api steps
           }
         }]
         """
-      And "http://www.a.com" got a "<method>" request on "/index"
       Examples:
         | method |
         | POST   |
@@ -359,7 +356,7 @@ Feature: RESTful new api steps
         """
       And use "jfactory" as JFactory
       When <method> "/index":
-        """
+        """ dal:application/json
         ::this(RequestSpec): {
           intValue: 1
           strValue1: hello
@@ -385,4 +382,3 @@ Feature: RESTful new api steps
         | POST   |
         | PUT    |
         | PATCH  |
-

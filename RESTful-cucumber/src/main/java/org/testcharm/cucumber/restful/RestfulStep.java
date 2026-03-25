@@ -108,8 +108,8 @@ public class RestfulStep {
             String bodyContent = evaluator.eval(content.getContent());
             switch (contentType) {
                 case "dal:application/json":
-                    requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, contentType.substring(4),
-                            serializer.apply(parseBodyAndHeaders(bodyContent)).getBytes(UTF_8)));
+                    byte[] body = serializer.apply(parseBodyAndHeaders(bodyContent)).getBytes(UTF_8);
+                    requestAndResponse(method, path, connection -> buildRequestBody(connection, contentType.substring(4), body));
                     break;
                 default:
                     if (Objects.equals(contentType, "application/octet-stream"))

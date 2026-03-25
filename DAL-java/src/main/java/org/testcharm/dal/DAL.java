@@ -49,7 +49,7 @@ public class DAL {
 
     public static DAL dal() {
         if (instance.get() == null)
-            instance.set(create("Default"));
+            instance.set(dal("Default"));
         return instance.get();
     }
 
