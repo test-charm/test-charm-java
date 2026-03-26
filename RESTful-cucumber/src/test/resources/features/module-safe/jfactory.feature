@@ -37,7 +37,7 @@ Feature: JFactory Integration
       | PUT    |
 
   Scenario Outline: <method> with body array created by spec
-    When <method> "LoginRequest" "/index":
+    When <method> "LoginRequest[]" "/index":
     """
     [{
       "username": "admin",
@@ -88,7 +88,7 @@ Feature: JFactory Integration
       | PUT    | WrongPassword,LoginRequest |
 
   Scenario Outline: <method> with body array created by trait and spec
-    When <method> "<traitAndSpec>" "/index":
+    When <method> "<traitAndSpec>[]" "/index":
     """
     [{
       "username": "admin"

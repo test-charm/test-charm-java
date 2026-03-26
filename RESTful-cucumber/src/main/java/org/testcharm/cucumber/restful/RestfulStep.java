@@ -25,7 +25,6 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -83,7 +82,7 @@ public class RestfulStep {
 
     @When("GET {string}:")
     public void getWithParams(String path, String params) throws IOException, URISyntaxException {
-        get(pathWithParams(path, params));
+        get(pathWithParams(path, params, null));
     }
 
     @When("DELETE {string}")
@@ -94,21 +93,21 @@ public class RestfulStep {
 
     @When("DELETE {string}:")
     public void deleteWithParams(String path, String params) throws IOException, URISyntaxException {
-        delete(pathWithParams(path, params));
+        delete(pathWithParams(path, params, null));
     }
 
     @When("POST {string}:")
     public void post(String path, DocString content) {
-        requestAndResponse("POST", path, content);
+        requestAndResponse("POST", path, content, null);
     }
 
-    public void requestAndResponse(String method, String path, DocString content) {
+    public void requestAndResponse(String method, String path, DocString content, String[] traitSpec) {
         Sneaky.run(() -> {
             String contentType = processContentType(content);
             String bodyContent = evaluator.eval(content.getContent());
             switch (contentType) {
                 case "dal:application/json":
-                    byte[] body = serializer.apply(parseBodyAndHeaders(bodyContent)).getBytes(UTF_8);
+                    byte[] body = serializer.apply(parseBodyAndHeaders(bodyContent, traitSpec)).getBytes(UTF_8);
                     requestAndResponse(method, path, connection -> buildRequestBody(connection, contentType.substring(4), body));
                     break;
                 default:
@@ -196,7 +195,7 @@ public class RestfulStep {
 
     @When("PUT {string}:")
     public void put(String path, DocString content) throws IOException, URISyntaxException {
-        requestAndResponse("PUT", path, content);
+        requestAndResponse("PUT", path, content, null);
     }
 
     public void put(String path, byte[] bytes, String contentType) throws IOException, URISyntaxException {
@@ -221,7 +220,7 @@ public class RestfulStep {
 
     @When("PATCH {string}:")
     public void patch(String path, DocString content) throws IOException, URISyntaxException {
-        requestAndResponse("PATCH", path, content);
+        requestAndResponse("PATCH", path, content, null);
     }
 
     public void patch(String path, byte[] body, String contentType) throws IOException, URISyntaxException {
@@ -294,57 +293,20 @@ public class RestfulStep {
 
     @When("POST {string} {string}:")
     @Then("POST {string} to {string}:")
-    public void postWithSpec(String spec, String path, String body) {
-        requestWithSpec(spec, path, body, this::silentPost);
-    }
-
-    private void requestWithSpec(String spec, String path, String body, BiConsumer<String, String> method) {
-        Object json = new JSONArray("[" + body + "]").get(0);
-        Map<String, Object>[] maps = Table.create(evaluator.eval(body)).flatSub();
-        String[] delimiters = spec.split("[ ,]");
-        if (json instanceof JSONObject) {
-            method.accept(path, serializer.apply(jFactory.spec(delimiters).properties(maps[0]).create()));
-        } else {
-            method.accept(path, serializer.apply(Arrays.stream(maps)
-                    .map(map -> jFactory.spec(delimiters).properties(map).create())
-                    .collect(toList())));
-        }
-    }
-
-    private void silentPost(String path, String body) {
-        try {
-            post(path, body);
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+    public void postWithSpec(String spec, String path, DocString body) {
+        requestAndResponse("POST", path, body, spec.split("[ ,]"));
     }
 
     @When("PUT {string} {string}:")
     @Then("PUT {string} to {string}:")
-    public void putWithSpec(String spec, String path, String body) {
-        requestWithSpec(spec, path, body, this::silentPut);
-    }
-
-    private void silentPut(String path, String body) {
-        try {
-            put(path, body);
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+    public void putWithSpec(String spec, String path, DocString body) {
+        requestAndResponse("PUT", path, body, spec.split("[ ,]"));
     }
 
     @When("PATCH {string} {string}:")
     @Then("PATCH {string} to {string}:")
-    public void patchWithSpec(String spec, String path, String body) {
-        requestWithSpec(spec, path, body, this::silentPatch);
-    }
-
-    private void silentPatch(String path, String body) {
-        try {
-            patch(path, body);
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+    public void patchWithSpec(String spec, String path, DocString body) {
+        requestAndResponse("PATCH", path, body, spec.split("[ ,]"));
     }
 
     private void appendEntry(HttpStream httpStream, String key, Object value, String boundary) {
@@ -383,14 +345,16 @@ public class RestfulStep {
         }
     }
 
-    private String pathWithParams(String path, String params) {
-        Object body = parseBodyAndHeaders(params);
+    private String pathWithParams(String path, String params, String[] traitSpec) {
+        Object body = parseBodyAndHeaders(params, traitSpec);
         return path + "?" + DAL.dal().wrap(body).toMap().entrySet().stream()
                 .flatMap(RestfulStep::getParamString).collect(joining("&"));
     }
 
-    private Object parseBodyAndHeaders(String content) {
+    private Object parseBodyAndHeaders(String content, String[] traitSpec) {
         RequestCollector collector = new RequestCollector(jFactory);
+        if (traitSpec != null)
+            collector.traitsSpec(traitSpec);
         org.testcharm.dal.Evaluator.evaluateObject(content).on(collector);
         DAL.dal().wrap(collector.headerCollector().build()).toMap().forEach((key, value) -> {
             if (value instanceof Collection)

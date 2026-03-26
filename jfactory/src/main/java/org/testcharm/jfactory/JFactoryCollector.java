@@ -2,6 +2,7 @@ package org.testcharm.jfactory;
 
 import org.testcharm.util.Collector;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -50,7 +51,7 @@ public class JFactoryCollector extends Collector {
 
     public Collector traitsSpec(String[] traitsSpec) {
         isSpecifySpec = true;
-        this.traitsSpec = traitsSpec;
+        this.traitsSpec = Arrays.copyOf(traitsSpec, traitsSpec.length);
         return this;
     }
 

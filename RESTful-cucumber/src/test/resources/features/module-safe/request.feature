@@ -186,7 +186,33 @@ Feature: RESTful new api steps
         | GET    |
         | DELETE |
 
-  Rule: POST/PUT/PATCH no doc type
+  Rule: POST/PUT/PATCH
+
+    Background:
+      Given the following declarations:
+        """
+        JFactory jfactory = new JFactory();
+        """
+      And the following class definition:
+        """
+        public class Request {
+          public int intValue;
+          public String strValue1, strValue2;
+
+          public int getIntValue() { return intValue; }
+          public String getStrValue1() { return strValue1; }
+          public String getStrValue2() { return strValue2; }
+        }
+        """
+      And the following class definition:
+        """
+        public class RequestSpec extends Spec<Request> {}
+        """
+      And register as follows:
+        """
+        jfactory.register(RequestSpec.class);
+        """
+      And use "jfactory" as JFactory
 
     Scenario Outline: guess content type from defautRequestContentType(dal:application/json) when doc type is empty
       When <method> "/index":
@@ -268,7 +294,62 @@ Feature: RESTful new api steps
         | PUT    |
         | PATCH  |
 
+    Scenario Outline: specify spec in step
+      When <method> "RequestSpec" "/index":
+        """ dal:application/json
+        {
+          intValue: 1
+          strValue1: hello
+        }
+        """
+      Then got request:
+        """
+        : [{
+          method: '<method>'
+          path: '/index'
+          headers: {
+            ['Content-Type']: ['application/json']
+          }
+          body.json= {
+            intValue= 1
+            strValue1= hello
+            strValue2= /^strValue2.*/
+          }
+        }]
+        """
+      Examples:
+        | method |
+        | POST   |
+        | PUT    |
+        | PATCH  |
+
   Rule: POST/PUT/PATCH dal:application/json
+
+    Background:
+      Given the following declarations:
+        """
+        JFactory jfactory = new JFactory();
+        """
+      And the following class definition:
+        """
+        public class Request {
+          public int intValue;
+          public String strValue1, strValue2;
+
+          public int getIntValue() { return intValue; }
+          public String getStrValue1() { return strValue1; }
+          public String getStrValue2() { return strValue2; }
+        }
+        """
+      And the following class definition:
+        """
+        public class RequestSpec extends Spec<Request> {}
+        """
+      And register as follows:
+        """
+        jfactory.register(RequestSpec.class);
+        """
+      And use "jfactory" as JFactory
 
     Scenario Outline: <method> with body and params
       When <method> "/index?中文参数=中文值&second=value2":
@@ -331,30 +412,6 @@ Feature: RESTful new api steps
         | PATCH  |
 
     Scenario Outline: with body and spec
-      Given the following declarations:
-        """
-        JFactory jfactory = new JFactory();
-        """
-      And the following class definition:
-        """
-        public class Request {
-          public int intValue;
-          public String strValue1, strValue2;
-
-          public int getIntValue() { return intValue; }
-          public String getStrValue1() { return strValue1; }
-          public String getStrValue2() { return strValue2; }
-        }
-        """
-      And the following class definition:
-        """
-        public class RequestSpec extends Spec<Request> {}
-        """
-      And register as follows:
-        """
-        jfactory.register(RequestSpec.class);
-        """
-      And use "jfactory" as JFactory
       When <method> "/index":
         """ dal:application/json
         ::this(RequestSpec): {
