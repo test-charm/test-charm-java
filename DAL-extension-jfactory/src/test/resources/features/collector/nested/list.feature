@@ -346,6 +346,58 @@ Feature: List
         }
         """
 
+  Rule: Element is List by Element Spec[]
+
+    Background:
+      Given the following bean definition:
+      """
+      public class Product {
+        public String name, color;
+        public int price;
+      }
+      """
+      Given the following spec definition:
+        """
+        public class ProductSpec extends Spec<Product> {
+          @Trait
+          public void red() {
+            property("color").value("red");
+          }
+        }
+        """
+      And register as follows:
+        """
+        jFactory.register(ProductSpec.class);
+        """
+
+    Scenario: Specify Element Spec
+      Given the following declarations:
+        """
+        Collector elementSpecCollector = jFactory.collector("red", "ProductSpec[]");
+        """
+      When "elementSpecCollector" collect with the following properties:
+        """
+        : [{
+          name: p1
+        }{
+          name: p2
+        }]
+        """
+      Then the result should be:
+        """
+        : {
+          ::properties= {
+            '[0].name'= p1
+            '[1].name'= p2
+          }
+          ::build: {
+            ::this= | name | color | price | class.simpleName |
+                    | p1   | red   | 1     | Product          |
+                    | p2   | red   | 2     | Product          |
+          }
+        }
+        """
+
   Rule: Element is a Raw List Map
 
     Scenario: Specify Grand Child Properties

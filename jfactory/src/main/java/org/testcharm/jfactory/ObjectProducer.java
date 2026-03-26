@@ -58,12 +58,6 @@ class ObjectProducer<T> extends Producer<T> {
         listStructures.forEach(listStructure -> listStructure.process(this, jFactory));
     }
 
-    public Producer<?> newElementPopulationProducer(PropertyWriter<T> propertyWriter) {
-        return getFirstPresent(() -> ofNullable(elementPopulationFactory.apply(propertyWriter)),
-                () -> buildPropertyDefaultValueProducer(propertyWriter))
-                .orElseGet(() -> new DefaultTypeValueProducer<>(propertyWriter.getType()));
-    }
-
     //        TODO refactor duplicated call
     @Override
     protected Producer<?> resolveBuilderValueProducer() {
@@ -82,7 +76,8 @@ class ObjectProducer<T> extends Producer<T> {
                         .filter(index -> children.get(index) == null)
                         .map(index -> getType().getPropertyWriter(index))
                         .forEach((PropertyWriter<T> propertyWriter) ->
-                                setChild(propertyWriter.getName(), newElementPopulationProducer(propertyWriter)));
+                                buildPropertyDefaultValueProducer(propertyWriter).ifPresent(p ->
+                                        setChild(propertyWriter.getName(), p)));
             });
         } catch (Exception ignore) {
         }
@@ -178,12 +173,18 @@ class ObjectProducer<T> extends Producer<T> {
 
     @Override
     public Optional<Producer<?>> buildPropertyDefaultValueProducer(PropertyWriter<T> property) {
+        try {
+            Integer.parseInt(property.getName());
+            Producer<?> p = elementPopulationFactory.apply(property);
+            if (p != null)
+                return of(p);
+        } catch (NumberFormatException ig) {
+        }
         if (ignorePropertiesInSpec.contains(property.getName()))
             return empty();
         if (property.getType().isCollection())
             return of(createCollectionProducer(property));
-        else
-            return defaultValueProducer(property);
+        return defaultValueProducer(property);
     }
 
     public Optional<Producer<?>> newDefaultValueProducerForRead(PropertyWriter<T> property) {
