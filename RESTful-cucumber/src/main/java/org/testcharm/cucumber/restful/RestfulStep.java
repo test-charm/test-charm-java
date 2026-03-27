@@ -21,7 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -75,53 +78,93 @@ public class RestfulStep {
     }
 
     @When("GET {string}")
-    public void get(String path) throws IOException, URISyntaxException {
+    public void get(String path) {
         requestAndResponse("GET", path, connection -> {
         });
     }
 
     @When("GET {string}:")
-    public void getWithParams(String path, String params) throws IOException, URISyntaxException {
-        get(pathWithParams(path, params, null));
+    public void getWithParams(String path, String params) {
+        get(pathWithParams(null, path, params));
     }
 
     @When("DELETE {string}")
-    public void delete(String path) throws IOException, URISyntaxException {
+    public void delete(String path) {
         requestAndResponse("DELETE", path, connection -> {
         });
     }
 
     @When("DELETE {string}:")
-    public void deleteWithParams(String path, String params) throws IOException, URISyntaxException {
-        delete(pathWithParams(path, params, null));
+    public void deleteWithParams(String path, String params) {
+        delete(pathWithParams(null, path, params));
     }
 
     @When("POST {string}:")
     public void post(String path, DocString content) {
-        requestAndResponse("POST", path, content, null);
+        requestAndResponse("POST", path, null, content.getContentType(), content.getContent());
     }
 
-    public void requestAndResponse(String method, String path, DocString content, String[] traitSpec) {
+    @When("POST {string} {string}:")
+    @Then("POST {string} to {string}:")
+    public void postWithSpec(String spec, String path, DocString body) {
+        requestAndResponse("POST", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
+    }
+
+    @When("PUT {string}:")
+    public void put(String path, DocString content) {
+        requestAndResponse("PUT", path, null, content.getContentType(), content.getContent());
+    }
+
+    @When("PUT {string} {string}:")
+    @Then("PUT {string} to {string}:")
+    public void putWithSpec(String spec, String path, DocString body) {
+        requestAndResponse("PUT", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
+    }
+
+    @When("PATCH {string}:")
+    public void patch(String path, DocString content) {
+        requestAndResponse("PATCH", path, null, content.getContentType(), content.getContent());
+    }
+
+    @When("PATCH {string} {string}:")
+    @Then("PATCH {string} to {string}:")
+    public void patchWithSpec(String spec, String path, DocString body) {
+        requestAndResponse("PATCH", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
+    }
+
+    private void requestAndResponse(String method, String path, String[] traitSpec, String contentType, String content) {
         Sneaky.run(() -> {
-            String contentType = processContentType(content);
-            String bodyContent = evaluator.eval(content.getContent());
-            switch (contentType) {
+            String parsedContentType = processContentType(contentType);
+            String bodyContent = evaluator.eval(content);
+
+            switch (parsedContentType) {
                 case "dal:application/json":
                     byte[] body = serializer.apply(parseBodyAndHeaders(bodyContent, traitSpec)).getBytes(UTF_8);
-                    requestAndResponse(method, path, connection -> buildRequestBody(connection, contentType.substring(4), body));
+                    requestAndResponse(method, path, connection -> buildRequestBody(connection, parsedContentType.substring(4), body));
                     break;
                 default:
-                    if (Objects.equals(contentType, "application/octet-stream"))
-                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, contentType, Sneaky.get(() -> getBytesOf(content.getContent()))));
+                    if (Objects.equals(parsedContentType, "application/octet-stream"))
+                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, Sneaky.get(() -> getBytesOf(content))));
                     else
-                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, contentType, bodyContent.getBytes(UTF_8)));
+                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, bodyContent.getBytes(UTF_8)));
                     break;
             }
         });
     }
 
-    private String processContentType(DocString content) {
-        String contentType = content.getContentType();
+    private void requestAndResponse(String method, String path, Consumer<HttpURLConnection> body) {
+        Sneaky.run(() -> {
+            URL url = new URL(baseUrl + evaluator.eval(path));
+            URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+            connection = request.applyHeader((HttpURLConnection) new URL(uri.toASCIIString()).openConnection());
+            setRequestMethod(method);
+            body.accept(connection);
+            response = new Response(connection);
+        });
+    }
+
+    private String processContentType(String contentType1) {
+        String contentType = contentType1;
         if (contentType == null || contentType.isEmpty())
             contentType = request.contentType();
 
@@ -130,28 +173,28 @@ public class RestfulStep {
         return contentType;
     }
 
-    public void post(String path, byte[] bytes, String contentType) throws IOException, URISyntaxException {
+    public void post(String path, byte[] bytes, String contentType) {
         requestAndResponse("POST", path, connection -> buildRequestBody(connection, contentType, bytes));
     }
 
-    public void post(String path, String body, String contentType) throws IOException, URISyntaxException {
+    public void post(String path, String body, String contentType) {
         post(path, body.getBytes(UTF_8), contentType);
     }
 
-    public void post(String path, String body) throws IOException, URISyntaxException {
+    public void post(String path, String body) {
         post(path, body, null);
     }
 
-    public void post(String path, Object body, String contentType) throws IOException, URISyntaxException {
+    public void post(String path, Object body, String contentType) {
         post(path, serializer.apply(body), contentType);
     }
 
-    public void post(String path, Object body) throws IOException, URISyntaxException {
+    public void post(String path, Object body) {
         post(path, body, null);
     }
 
     @When("POST form {string}:")
-    public void postForm(String path, String form) throws IOException, URISyntaxException {
+    public void postForm(String path, String form) {
         try {
             postForm(path, new JSONObject(evaluator.eval(form)).toMap());
         } catch (JSONException ig) {
@@ -161,7 +204,7 @@ public class RestfulStep {
         }
     }
 
-    public void postForm(String path, Map<String, ?> params) throws IOException, URISyntaxException {
+    public void postForm(String path, Map<String, ?> params) {
         requestAndResponse("POST", path, sneakyRun(connection -> {
             connection.setDoOutput(true);
             String boundary = UUID.randomUUID().toString();
@@ -175,7 +218,7 @@ public class RestfulStep {
     @When("POST form {string} {string}:")
     @Then("POST form {string} to {string}:")
     @SuppressWarnings("unchecked")
-    public void postForm(String spec, String path, String form) throws IOException, URISyntaxException {
+    public void postForm(String spec, String path, String form) {
         Map<String, Object>[] maps = Table.create(evaluator.eval(form)).flatSub();
         String[] delimiters = spec.split("[ ,]");
         Object formObject = jFactory.spec(delimiters).properties(maps[0]).create();
@@ -193,53 +236,43 @@ public class RestfulStep {
         }});
     }
 
-    @When("PUT {string}:")
-    public void put(String path, DocString content) throws IOException, URISyntaxException {
-        requestAndResponse("PUT", path, content, null);
-    }
-
-    public void put(String path, byte[] bytes, String contentType) throws IOException, URISyntaxException {
+    public void put(String path, byte[] bytes, String contentType) {
         requestAndResponse("PUT", path, connection -> buildRequestBody(connection, contentType, bytes));
     }
 
-    public void put(String path, String body, String contentType) throws IOException, URISyntaxException {
+    public void put(String path, String body, String contentType) {
         put(path, body.getBytes(UTF_8), contentType);
     }
 
-    public void put(String path, String body) throws IOException, URISyntaxException {
+    public void put(String path, String body) {
         put(path, body, null);
     }
 
-    public void put(String path, Object body, String contentType) throws IOException, URISyntaxException {
+    public void put(String path, Object body, String contentType) {
         put(path, serializer.apply(body), contentType);
     }
 
-    public void put(String path, Object body) throws IOException, URISyntaxException {
+    public void put(String path, Object body) {
         put(path, body, null);
     }
 
-    @When("PATCH {string}:")
-    public void patch(String path, DocString content) throws IOException, URISyntaxException {
-        requestAndResponse("PATCH", path, content, null);
-    }
-
-    public void patch(String path, byte[] body, String contentType) throws IOException, URISyntaxException {
+    public void patch(String path, byte[] body, String contentType) {
         requestAndResponse("PATCH", path, connection -> buildRequestBody(connection, contentType, body));
     }
 
-    public void patch(String path, String body, String contentType) throws IOException, URISyntaxException {
+    public void patch(String path, String body, String contentType) {
         patch(path, body.getBytes(UTF_8), contentType);
     }
 
-    public void patch(String path, String body) throws IOException, URISyntaxException {
+    public void patch(String path, String body) {
         patch(path, body, null);
     }
 
-    public void patch(String path, Object body, String contentType) throws IOException, URISyntaxException {
+    public void patch(String path, Object body, String contentType) {
         patch(path, serializer.apply(body), contentType);
     }
 
-    public void patch(String path, Object object) throws IOException, URISyntaxException {
+    public void patch(String path, Object object) {
         patch(path, object, null);
     }
 
@@ -270,7 +303,7 @@ public class RestfulStep {
     }
 
     @Then("data should be saved to {string} with response:")
-    public void resourceShouldBe(String path, String expression) throws IOException, URISyntaxException {
+    public void resourceShouldBe(String path, String expression) {
         responseShouldBe(expression);
         getAndResponseShouldBe(path, expression);
     }
@@ -280,33 +313,15 @@ public class RestfulStep {
     }
 
     @Then("{string} should response:")
-    public void getAndResponseShouldBe(String path, String expression) throws IOException, URISyntaxException {
+    public void getAndResponseShouldBe(String path, String expression) {
         get(path);
         responseShouldBe(expression);
     }
 
     @Then("DELETE {string} should response:")
-    public void deleteAndResponseShouldBe(String path, String expression) throws IOException, URISyntaxException {
+    public void deleteAndResponseShouldBe(String path, String expression) {
         delete(path);
         responseShouldBe(expression);
-    }
-
-    @When("POST {string} {string}:")
-    @Then("POST {string} to {string}:")
-    public void postWithSpec(String spec, String path, DocString body) {
-        requestAndResponse("POST", path, body, spec.split("[ ,]"));
-    }
-
-    @When("PUT {string} {string}:")
-    @Then("PUT {string} to {string}:")
-    public void putWithSpec(String spec, String path, DocString body) {
-        requestAndResponse("PUT", path, body, spec.split("[ ,]"));
-    }
-
-    @When("PATCH {string} {string}:")
-    @Then("PATCH {string} to {string}:")
-    public void patchWithSpec(String spec, String path, DocString body) {
-        requestAndResponse("PATCH", path, body, spec.split("[ ,]"));
     }
 
     private void appendEntry(HttpStream httpStream, String key, Object value, String boundary) {
@@ -345,7 +360,7 @@ public class RestfulStep {
         }
     }
 
-    private String pathWithParams(String path, String params, String[] traitSpec) {
+    private String pathWithParams(String[] traitSpec, String path, String params) {
         Object body = parseBodyAndHeaders(params, traitSpec);
         return path + "?" + DAL.dal().wrap(body).toMap().entrySet().stream()
                 .flatMap(RestfulStep::getParamString).collect(joining("&"));
@@ -366,16 +381,7 @@ public class RestfulStep {
         return collector.build();
     }
 
-    private void requestAndResponse(String method, String path, Consumer<HttpURLConnection> body) throws IOException, URISyntaxException {
-        URL url = new URL(baseUrl + evaluator.eval(path));
-        URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-        connection = request.applyHeader((HttpURLConnection) new URL(uri.toASCIIString()).openConnection());
-        setRequestMethod(method);
-        body.accept(connection);
-        response = new Response(connection);
-    }
-
-    private void setRequestMethod(String method) throws ProtocolException {
+    private void setRequestMethod(String method) {
         if (method.equals("PATCH")) {
             try {
                 Field field = getField(connection.getClass(), "method");
@@ -384,9 +390,8 @@ public class RestfulStep {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Failed to set method " + method + " to " + connection, e);
             }
-        } else {
-            connection.setRequestMethod(method);
-        }
+        } else
+            Sneaky.run(() -> connection.setRequestMethod(method));
     }
 
     private Field getField(Class<?> clazz, String fieldName) {
