@@ -56,6 +56,16 @@ public class RestfulStep {
     };
     private JFactory jFactory;
     private String defautRequestContentType = "dal:application/json";
+    private Map<String, ObjectBodyWriter> objectBodyWriters = new LinkedHashMap<String, ObjectBodyWriter>() {{
+        put("application/json", new ObjectBodyWriter() {
+            @Override
+            public void write(String[] traitSpec, String bodyContent, HttpURLConnection connection) {
+                byte[] body = serializer.apply(parseBodyAndHeaders(bodyContent, traitSpec)).getBytes(UTF_8);
+                request.applyHeader(connection);
+                buildRequestBody(connection, "application/json", body);
+            }
+        });
+    }};
 
     private static Stream<String> getParamString(Map.Entry<String, Object> entry) {
         if (entry.getValue() instanceof List) {
@@ -101,53 +111,59 @@ public class RestfulStep {
 
     @When("POST {string}:")
     public void post(String path, DocString content) {
-        requestAndResponse("POST", path, null, content.getContentType(), content.getContent());
+        requestBodyAndResponse("POST", path, null, content.getContentType(), content.getContent());
     }
 
     @When("POST {string} {string}:")
     @Then("POST {string} to {string}:")
     public void postWithSpec(String spec, String path, DocString body) {
-        requestAndResponse("POST", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
+        requestBodyAndResponse("POST", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
     }
 
     @When("PUT {string}:")
     public void put(String path, DocString content) {
-        requestAndResponse("PUT", path, null, content.getContentType(), content.getContent());
+        requestBodyAndResponse("PUT", path, null, content.getContentType(), content.getContent());
     }
 
     @When("PUT {string} {string}:")
     @Then("PUT {string} to {string}:")
     public void putWithSpec(String spec, String path, DocString body) {
-        requestAndResponse("PUT", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
+        requestBodyAndResponse("PUT", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
     }
 
     @When("PATCH {string}:")
     public void patch(String path, DocString content) {
-        requestAndResponse("PATCH", path, null, content.getContentType(), content.getContent());
+        requestBodyAndResponse("PATCH", path, null, content.getContentType(), content.getContent());
     }
 
     @When("PATCH {string} {string}:")
     @Then("PATCH {string} to {string}:")
     public void patchWithSpec(String spec, String path, DocString body) {
-        requestAndResponse("PATCH", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
+        requestBodyAndResponse("PATCH", path, spec.split("[ ,]"), body.getContentType(), body.getContent());
     }
 
-    private void requestAndResponse(String method, String path, String[] traitSpec, String contentType, String content) {
+    private void requestBodyAndResponse(String method, String path, String[] traitSpec, String contentType, String content) {
         Sneaky.run(() -> {
-            String parsedContentType = processContentType(contentType);
+            String parsedContentType = processContentType(contentType, traitSpec);
             String bodyContent = evaluator.eval(content);
-
-            switch (parsedContentType) {
-                case "dal:application/json":
-                    byte[] body = serializer.apply(parseBodyAndHeaders(bodyContent, traitSpec)).getBytes(UTF_8);
-                    requestAndResponse(method, path, connection -> buildRequestBody(connection, parsedContentType.substring(4), body));
-                    break;
-                default:
-                    if (Objects.equals(parsedContentType, "application/octet-stream"))
-                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, Sneaky.get(() -> getBytesOf(content))));
-                    else
-                        requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, bodyContent.getBytes(UTF_8)));
-                    break;
+            if (traitSpec != null) {
+                if (objectBodyWriters.containsKey(parsedContentType)) {
+                    requestAndResponse(method, path, connection -> objectBodyWriters.get(parsedContentType).write(traitSpec, bodyContent, connection));
+                } else if (Objects.equals(parsedContentType, "application/octet-stream"))
+                    requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, Sneaky.get(() -> getBytesOf(content))));
+                else
+                    requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, bodyContent.getBytes(UTF_8)));
+            } else {
+                if (parsedContentType.startsWith("dal:")) {
+                    if (objectBodyWriters.containsKey(parsedContentType.substring(4))) {
+                        requestAndResponse(method, path, connection -> objectBodyWriters.get(parsedContentType.substring(4)).write(traitSpec, bodyContent, connection));
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                } else if (Objects.equals(parsedContentType, "application/octet-stream"))
+                    requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, Sneaky.get(() -> getBytesOf(content))));
+                else
+                    requestAndResponse(method, path, connection1 -> buildRequestBody(connection1, parsedContentType, bodyContent.getBytes(UTF_8)));
             }
         });
     }
@@ -163,13 +179,15 @@ public class RestfulStep {
         });
     }
 
-    private String processContentType(String contentType1) {
+    private String processContentType(String contentType1, String[] traitSpec) {
         String contentType = contentType1;
         if (contentType == null || contentType.isEmpty())
             contentType = request.contentType();
 
         if (contentType == null || contentType.isEmpty())
             contentType = defautRequestContentType;
+        if (traitSpec != null)
+            contentType = contentType.replaceFirst("dal:", "");
         return contentType;
     }
 
