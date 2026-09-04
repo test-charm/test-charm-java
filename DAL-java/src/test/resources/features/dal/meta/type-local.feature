@@ -1,4 +1,4 @@
-Feature: commons
+Feature: type local
 
   Scenario: support type local meta property
     Given the following java class:

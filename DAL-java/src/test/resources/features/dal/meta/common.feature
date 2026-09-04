@@ -42,3 +42,19 @@ Feature: commons
     data::size[]
               ^
     """
+
+  Scenario: null value meta property
+    Given the following java class:
+    """
+    public class Bean {
+      public Object value = null;
+    }
+    """
+    And register DAL:
+    """
+    dal.getRuntimeContextBuilder().registerMetaProperty("metaForNull", meta-> "hello");
+    """
+    Then the following verification for the instance of java class "Bean" should pass:
+    """
+    value::metaForNull= hello
+    """

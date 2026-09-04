@@ -8,10 +8,7 @@ import org.testcharm.dal.runtime.checker.CheckerSet;
 import org.testcharm.dal.runtime.inspector.Dumper;
 import org.testcharm.dal.runtime.inspector.DumperFactory;
 import org.testcharm.dal.runtime.schema.Expect;
-import org.testcharm.dal.type.ExtensionName;
-import org.testcharm.dal.type.InputCode;
-import org.testcharm.dal.type.Schema;
-import org.testcharm.dal.type.SkipDump;
+import org.testcharm.dal.type.*;
 import org.testcharm.interpreter.RuntimeContext;
 import org.testcharm.interpreter.SyntaxException;
 import org.testcharm.util.*;
@@ -31,8 +28,7 @@ import static java.lang.reflect.Modifier.STATIC;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.of;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static org.testcharm.dal.runtime.DALException.buildUserRuntimeException;
 import static org.testcharm.dal.runtime.ExpressionException.illegalOp2;
 import static org.testcharm.dal.runtime.ExpressionException.illegalOperation;
@@ -463,17 +459,24 @@ public class RuntimeContextBuilder {
         }
 
         private Optional<RuntimeHandler<MetaData<?>>> fetchLocalMetaFunction(MetaData<?> metaData) {
-            return Stream.concat(metaFunctionsByType(metaData).map(e -> {
-                        metaData.addCallType(e.getKey());
-                        return e.getValue().get(metaData.name());
-                    }), metaFunctionPatternsByType(metaData).map(e -> {
-                        metaData.addCallType(e.getKey());
-                        return e.getValue().entrySet()
-                                .stream().filter(entry -> entry.getKey().matcher(metaData.name().toString()).matches())
-                                .map(Map.Entry::getValue)
-                                .findFirst().orElse(null);
-                    })).filter(Objects::nonNull)
-                    .findFirst();
+            return
+                    Stream.concat(
+                            metaFunctionsIyType(metaData).map(e -> {
+                                metaData.addCallType(e.getKey());
+                                return e.getValue().get(metaData.name());
+                            }),
+                            Stream.concat(
+                                    metaFunctionsByType(metaData).map(e -> {
+                                        metaData.addCallType(e.getKey());
+                                        return e.getValue().get(metaData.name());
+                                    }), metaFunctionPatternsByType(metaData).map(e -> {
+                                        metaData.addCallType(e.getKey());
+                                        return e.getValue().entrySet()
+                                                .stream().filter(entry -> entry.getKey().matcher(metaData.name().toString()).matches())
+                                                .map(Map.Entry::getValue)
+                                                .findFirst().orElse(null);
+                                    }))
+                    ).filter(Objects::nonNull).findFirst();
         }
 
         public Optional<RuntimeHandler<MetaData<?>>> fetchSuperMetaFunction(MetaData<?> metaData) {
@@ -483,6 +486,29 @@ public class RuntimeContextBuilder {
                         metaData.addCallType(e.getKey());
                         return e.getValue().get(metaData.name());
                     }).filter(Objects::nonNull).findFirst();
+        }
+
+        private final Map<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>> typeMetaFunctions = new HashMap<>();
+
+        private Stream<Map.Entry<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>>> metaFunctionsIyType(MetaData<?> metaData) {
+            Object instance;
+            try {
+                instance = metaData.data().value();
+            } catch (Exception ignore) {
+                return Stream.of();
+            }
+            if (instance == null)
+                return Stream.of();
+
+            Class<?> type = instance.getClass();
+            return new HashMap<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>>() {{
+                put(type, typeMetaFunctions.computeIfAbsent(type, DALRuntimeContext.this::metaFunctionsInType));
+            }}.entrySet().stream();
+        }
+
+        private Map<Object, RuntimeHandler<MetaData<?>>> metaFunctionsInType(Class<?> type) {
+            return stream(type.getMethods()).filter(method -> method.getAnnotation(MetaProperty.class) != null)
+                    .collect(toMap(Method::getName, method -> metaData -> Sneaky.get(() -> method.invoke(metaData.data().value()))));
         }
 
         private Stream<Map.Entry<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>>> metaFunctionsByType(MetaData<?> metaData) {
