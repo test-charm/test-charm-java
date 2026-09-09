@@ -73,6 +73,13 @@ public class Types implements Extension {
                 .registerMetaProperty(SoloList.class, "single",
                         (RuntimeDataHandler<MetaData<SoloList>>) metaData ->
                                 adaptiveListOf(Sneaky.cast(metaData.data()), d -> d.map(SoloList::single), ExpressionException::illegalOp2))
+
+                .registerPropertyAccessor(DataCallable.class, new PropertyAccessor<DataCallable<Object, ?>>() {
+                    @Override
+                    public Data<?> getData(Data<DataCallable<Object, ?>> data, Object property) {
+                        return data.value().apply(property);
+                    }
+                })
         ;
 
         verifySingle(builder.checkerSetForEqualing());

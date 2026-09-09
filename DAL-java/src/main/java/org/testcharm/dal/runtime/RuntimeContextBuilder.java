@@ -17,10 +17,10 @@ import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.function.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -28,7 +28,9 @@ import static java.lang.reflect.Modifier.STATIC;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.of;
+import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.*;
+import static java.util.stream.Stream.concat;
 import static org.testcharm.dal.runtime.DALException.buildUserRuntimeException;
 import static org.testcharm.dal.runtime.ExpressionException.illegalOp2;
 import static org.testcharm.dal.runtime.ExpressionException.illegalOperation;
@@ -180,7 +182,7 @@ public class RuntimeContextBuilder {
                                 .filter(method -> method.getName().equals(methodName)),
                         staticMethodsToCurrying(type, methodName, Object::equals),
                         staticMethodsToCurrying(type, methodName, Class::isAssignableFrom))
-                .flatMap(Function.identity()).collect(Collectors.toCollection(LinkedHashSet::new));
+                .flatMap(Function.identity()).collect(toCollection(LinkedHashSet::new));
     }
 
     private Stream<Method> staticMethodsToCurrying(Class<?> type, Object property,
@@ -259,7 +261,7 @@ public class RuntimeContextBuilder {
     }
 
     public <T> RuntimeContextBuilder registerMetaPropertyPattern(Class<T> type, String name, RuntimeHandler<MetaData<T>> function) {
-        localMetaPropertyPatterns.computeIfAbsent(type, k -> new LinkedHashMap<>()).put(Pattern.compile(name), cast(function));
+        localMetaPropertyPatterns.computeIfAbsent(type, k -> new LinkedHashMap<>()).put(compile(name), cast(function));
         return this;
     }
 
@@ -459,24 +461,21 @@ public class RuntimeContextBuilder {
         }
 
         private Optional<RuntimeHandler<MetaData<?>>> fetchLocalMetaFunction(MetaData<?> metaData) {
-            return
-                    Stream.concat(
-                            metaFunctionsIyType(metaData).map(e -> {
+            return concat(concat(metasFromMetaAnnotation(type -> metaFunctionsInType(type, typeMetaFunctions, s -> s), metaData),
+                            metaFunctionsByType(metaData))
+                            .map(e -> {
                                 metaData.addCallType(e.getKey());
                                 return e.getValue().get(metaData.name());
                             }),
-                            Stream.concat(
-                                    metaFunctionsByType(metaData).map(e -> {
-                                        metaData.addCallType(e.getKey());
-                                        return e.getValue().get(metaData.name());
-                                    }), metaFunctionPatternsByType(metaData).map(e -> {
-                                        metaData.addCallType(e.getKey());
-                                        return e.getValue().entrySet()
-                                                .stream().filter(entry -> entry.getKey().matcher(metaData.name().toString()).matches())
-                                                .map(Map.Entry::getValue)
-                                                .findFirst().orElse(null);
-                                    }))
-                    ).filter(Objects::nonNull).findFirst();
+                    concat(metasFromMetaAnnotation(type -> metaFunctionsInType(type, typeMetaFunctionPatterns, Pattern::compile), metaData)
+                            , metaFunctionPatternsByType(metaData))
+                            .map(e -> {
+                                metaData.addCallType(e.getKey());
+                                return e.getValue().entrySet()
+                                        .stream().filter(entry -> entry.getKey().matcher(metaData.name().toString()).matches())
+                                        .map(Map.Entry::getValue)
+                                        .findFirst().orElse(null);
+                            })).filter(Objects::nonNull).findFirst();
         }
 
         public Optional<RuntimeHandler<MetaData<?>>> fetchSuperMetaFunction(MetaData<?> metaData) {
@@ -489,8 +488,10 @@ public class RuntimeContextBuilder {
         }
 
         private final Map<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>> typeMetaFunctions = new HashMap<>();
+        private final Map<Class<?>, Map<Pattern, RuntimeHandler<MetaData<?>>>> typeMetaFunctionPatterns = new HashMap<>();
 
-        private Stream<Map.Entry<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>>> metaFunctionsIyType(MetaData<?> metaData) {
+        private <T> Stream<Map.Entry<Class<?>, Map<T, RuntimeHandler<MetaData<?>>>>> metasFromMetaAnnotation(
+                Function<Class<?>, Map<T, RuntimeHandler<MetaData<?>>>> metaFinder, MetaData<?> metaData) {
             Object instance;
             try {
                 instance = metaData.data().value();
@@ -501,14 +502,71 @@ public class RuntimeContextBuilder {
                 return Stream.of();
 
             Class<?> type = instance.getClass();
-            return new HashMap<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>>() {{
-                put(type, typeMetaFunctions.computeIfAbsent(type, DALRuntimeContext.this::metaFunctionsInType));
+            return new HashMap<Class<?>, Map<T, RuntimeHandler<MetaData<?>>>>() {{
+                put(type, metaFinder.apply(type));
             }}.entrySet().stream();
         }
 
-        private Map<Object, RuntimeHandler<MetaData<?>>> metaFunctionsInType(Class<?> type) {
-            return stream(type.getMethods()).filter(method -> method.getAnnotation(MetaProperty.class) != null)
-                    .collect(toMap(Method::getName, method -> metaData -> Sneaky.get(() -> method.invoke(metaData.data().value()))));
+        private <T> Map<T, RuntimeHandler<MetaData<?>>> metaFunctionsInType(Class<?> type, Map<Class<?>,
+                Map<T, RuntimeHandler<MetaData<?>>>> cache, Function<String, T> keyMapper) {
+            return cache.computeIfAbsent(type, t -> {
+                Map<T, RuntimeHandler<MetaData<?>>> result = new HashMap<>();
+                for (Method method : type.getMethods()) {
+                    if (method.getAnnotation(MetaProperty.class) != null) {
+                        T key = keyMapper.apply(resolveAnnotationMetaName(method));
+                        if (result.containsKey(key))
+                            throw new IllegalStateException(format("Duplicate meta property `%s` in %s", key, type.getName()));
+                        result.put(key, buildMetaDataRuntimeHandler(method));
+                    }
+                }
+                return result;
+            });
+        }
+
+        private RuntimeHandler<MetaData<?>> buildMetaDataRuntimeHandler(Method method) {
+            List<Object> args = new ArrayList<>();
+            if (method.getReturnType().equals(Data.class))
+                return (RuntimeDataHandler<MetaData<?>>) metaData -> {
+                    LinkedList<Class<?>> parameterTypes = resolveParameterTypes(method, metaData, args);
+                    if (parameterTypes.isEmpty())
+                        return (Data<?>) Sneaky.get(() -> method.invoke(metaData.data().value(), args.toArray()));
+                    return (Data<?>) invokeReturnData(method, metaData, parameterTypes, args);
+                };
+            return metaData -> invoke(method, metaData, resolveParameterTypes(method, metaData, args), args);
+        }
+
+        private LinkedList<Class<?>> resolveParameterTypes(Method method, MetaData<?> metaData, List<Object> args) {
+            LinkedList<Class<?>> parameterTypes;
+            if (method.getParameterCount() > 0 && method.getParameters()[0].getType().equals(MetaData.class)) {
+                args.add(metaData);
+                parameterTypes = stream(method.getParameters()).skip(1).map(Parameter::getType).collect(toCollection(LinkedList::new));
+            } else
+                parameterTypes = stream(method.getParameters()).map(Parameter::getType).collect(toCollection(LinkedList::new));
+            return parameterTypes;
+        }
+
+        private Object invoke(Method method, MetaData<?> metaData, LinkedList<Class<?>> parameterTypes, List<Object> args) {
+            if (parameterTypes.isEmpty())
+                return Sneaky.get(() -> method.invoke(metaData.data().value(), args.toArray()));
+            return (Callable<Object, Object>) arg -> {
+                args.add(converter.convert(parameterTypes.removeFirst(), arg));
+                return invoke(method, metaData, parameterTypes, args);
+            };
+        }
+
+        @SuppressWarnings("unchecked")
+        private Data<Object> invokeReturnData(Method method, MetaData<?> metaData, LinkedList<Class<?>> parameterTypes, List<Object> args) {
+            if (parameterTypes.isEmpty())
+                return (Data<Object>) Sneaky.get(() -> method.invoke(metaData.data().value(), args.toArray()));
+            return data((DataCallable<Object, Object>) arg -> {
+                args.add(converter.convert(parameterTypes.removeFirst(), arg));
+                return invokeReturnData(method, metaData, parameterTypes, args);
+            });
+        }
+
+        private String resolveAnnotationMetaName(Method method) {
+            String specifiedName = method.getAnnotation(MetaProperty.class).value().trim();
+            return specifiedName.isEmpty() ? method.getName() : specifiedName;
         }
 
         private Stream<Map.Entry<Class<?>, Map<Object, RuntimeHandler<MetaData<?>>>>> metaFunctionsByType(MetaData<?> metaData) {
