@@ -326,3 +326,40 @@ Feature: meta annotation
         """
         ::meta['9']= 9
         """
+
+    Scenario: missing args
+      Given the following java class:
+        """
+        public class Bean {
+          @org.testcharm.dal.type.MetaProperty
+          public String meta(String message1, String message2) {
+            return message1 + "-" + message2;
+          }
+        }
+        """
+      When use a instance of java class "Bean" to evaluate:
+        """
+        ::meta.hello= hello
+        """
+      Then failed with the message:
+        """
+        Missing required argument
+        """
+      And got the following notation:
+        """
+        ::meta.hello= hello
+                      ^
+        """
+      When use a instance of java class "Bean" to evaluate:
+        """
+        ::meta.hello: hello
+        """
+      Then failed with the message:
+        """
+        Missing required argument
+        """
+      And got the following notation:
+        """
+        ::meta.hello: hello
+                      ^
+        """

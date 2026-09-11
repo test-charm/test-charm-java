@@ -9,8 +9,6 @@ public abstract class ExpressionException extends java.lang.RuntimeException {
     public static <T> T opt1(Supplier<T> supplier) {
         try {
             return supplier.get();
-//        } catch (InterpreterException e) {
-//            throw e;
         } catch (Exception e) {
             throw exception(expression -> new DALException(expression.left().getOperandPosition(), e));
         }
@@ -19,8 +17,6 @@ public abstract class ExpressionException extends java.lang.RuntimeException {
     public static <T> T opt2(Supplier<T> supplier) {
         try {
             return supplier.get();
-//        } catch (InterpreterException e) {
-//            throw e;
         } catch (Exception e) {
             throw exception(expression -> new DALException(expression.right().getOperandPosition(), e));
         }

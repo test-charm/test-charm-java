@@ -1,12 +1,11 @@
 package org.testcharm.dal.extensions;
 
 import org.testcharm.dal.DAL;
+import org.testcharm.dal.ast.node.DALExpression;
 import org.testcharm.dal.ast.opt.DALOperator;
-import org.testcharm.dal.runtime.AbstractOperation;
-import org.testcharm.dal.runtime.Data;
-import org.testcharm.dal.runtime.ExpectationFactory;
-import org.testcharm.dal.runtime.Extension;
+import org.testcharm.dal.runtime.*;
 import org.testcharm.dal.runtime.RuntimeContextBuilder.DALRuntimeContext;
+import org.testcharm.interpreter.SyntaxException;
 import org.testcharm.util.NumberType;
 import org.testcharm.util.function.TriFunction;
 
@@ -29,6 +28,43 @@ public class Operators implements Extension {
 
         assertEqual(dal);
         assertMatch(dal);
+
+        disableCallable(dal);
+    }
+
+    private void disableCallable(DAL dal) {
+        dal.getRuntimeContextBuilder().registerOperator(MATCH, new Operation<Object, Object>() {
+            @Override
+            public boolean match(Data<?> v1, DALOperator operator, Data<?> v2, DALRuntimeContext context) {
+                return v1.instanceOf(Callable.class);
+            }
+
+            @Override
+            public Data<?> operate(Data<Object> v1, DALOperator operator, Data<Object> v2, DALRuntimeContext context) {
+                throw new ExpressionException() {
+                    @Override
+                    protected RuntimeException thrower(DALExpression expression) {
+                        return new SyntaxException("Missing required argument", expression.right().getPositionBegin());
+                    }
+                };
+            }
+        });
+        dal.getRuntimeContextBuilder().registerOperator(EQUAL, new Operation<Object, Object>() {
+            @Override
+            public boolean match(Data<?> v1, DALOperator operator, Data<?> v2, DALRuntimeContext context) {
+                return v1.instanceOf(Callable.class);
+            }
+
+            @Override
+            public Data<?> operate(Data<Object> v1, DALOperator operator, Data<Object> v2, DALRuntimeContext context) {
+                throw new ExpressionException() {
+                    @Override
+                    protected RuntimeException thrower(DALExpression expression) {
+                        return new SyntaxException("Missing required argument", expression.right().getPositionBegin());
+                    }
+                };
+            }
+        });
     }
 
     private void assertMatch(DAL dal) {
