@@ -286,6 +286,10 @@ Feature: ```string```
       Then failed with the message:
       """
       Invalid text formatter `not-exist`, all supported formatters are:
+        NL:
+          use system new line as new line
+              Accept: java.lang.String
+              Return: java.lang.String
         LF:
           use \n as new line
               Accept: java.lang.String
@@ -423,6 +427,21 @@ Feature: ```string```
            a \
            b
            ```
+      """
+
+    Scenario: os new line
+      Given the following java class:
+      """
+      public class Data {
+        public String value = "a" + System.lineSeparator() + "b";
+      }
+      """
+      Then the following verification for the instance of java class "Data" should pass:
+      """
+      value= ``` NL
+             a
+             b
+             ```
       """
 
   Rule: map text block

@@ -71,6 +71,7 @@ public class RuntimeContextBuilder {
     private final Features features = new Features();
     private Consumer<Data<?>> returnHook = x -> {
     };
+    private TextFormatter<?, ?> defaultTextFormatter = TextFormatter.DEFAULT;
 
     public RuntimeContextBuilder() {
         setMaxDumpingObjectSize(255);
@@ -309,6 +310,10 @@ public class RuntimeContextBuilder {
 
     public Features features() {
         return features;
+    }
+
+    public void setDefaultTextFormatter(TextFormatter<?, ?> defaultTextFormatter) {
+        this.defaultTextFormatter = defaultTextFormatter;
     }
 
     public class DALRuntimeContext implements RuntimeContext {
@@ -684,5 +689,10 @@ public class RuntimeContextBuilder {
         public Data<?> constants() {
             return data(constants);
         }
+
+        public TextFormatter<?, ?> getDefaultTextFormatter() {
+            return defaultTextFormatter;
+        }
+
     }
 }

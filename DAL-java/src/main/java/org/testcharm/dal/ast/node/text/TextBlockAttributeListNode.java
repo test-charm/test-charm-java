@@ -8,8 +8,8 @@ import org.testcharm.dal.runtime.TextFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.testcharm.dal.runtime.DALException.locateError;
 import static java.lang.String.format;
+import static org.testcharm.dal.runtime.DALException.locateError;
 
 public class TextBlockAttributeListNode extends DALNode {
     final List<DALNode> attributes;
@@ -21,7 +21,7 @@ public class TextBlockAttributeListNode extends DALNode {
     @SuppressWarnings("unchecked")
     public <T> TextFormatter<String, T> getFormatter(RuntimeContextBuilder.DALRuntimeContext context) {
         Class<?> accept = String.class;
-        TextFormatter textFormatter = TextFormatter.DEFAULT;
+        TextFormatter textFormatter = context.getDefaultTextFormatter();
         for (DALNode attribute : attributes) {
             TextBlockAttributeNode attributeNode = (TextBlockAttributeNode) attribute;
             TextFormatter eachFormatter = attributeNode.extractTextFormatter(context);

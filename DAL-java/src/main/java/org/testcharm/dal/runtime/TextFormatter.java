@@ -16,7 +16,7 @@ public abstract class TextFormatter<F, T> {
             return text;
         }
     };
-    public static final TextFormatter<String, String> DEFAULT_NEW_LINE = new TextFormatter<String, String>() {
+    public static final TextFormatter<String, String> LF_NL = new TextFormatter<String, String>() {
         @Override
         public String description() {
             return "use \\n as new line";
@@ -27,7 +27,29 @@ public abstract class TextFormatter<F, T> {
             return attribute.newLine("\n");
         }
     };
-    public static final TextFormatter<String, String> DEFAULT_END_OF_LINE = new TextFormatter<String, String>() {
+    public static final TextFormatter<String, String> CR_NL = new TextFormatter<String, String>() {
+        @Override
+        public String description() {
+            return "use \\r as new line";
+        }
+
+        @Override
+        protected TextAttribute attribute(TextAttribute attribute) {
+            return attribute.newLine("\r");
+        }
+    };
+    public static final TextFormatter<String, String> CRLF_NL = new TextFormatter<String, String>() {
+        @Override
+        public String description() {
+            return "use \\r\\n as new line";
+        }
+
+        @Override
+        protected TextAttribute attribute(TextAttribute attribute) {
+            return attribute.newLine("\r\n");
+        }
+    };
+    public static final TextFormatter<String, String> LT_EOL = new TextFormatter<String, String>() {
         @Override
         public String description() {
             return "use < as end of line character";
@@ -38,7 +60,7 @@ public abstract class TextFormatter<F, T> {
             return attribute.endOfLine("<");
         }
     };
-    public static final TextFormatter<String, String> DEFAULT_CONTINUE_CHAR = new TextFormatter<String, String>() {
+    public static final TextFormatter<String, String> BSL_CONT = new TextFormatter<String, String>() {
         @Override
         public String description() {
             return "use \\ as line continuation character";
@@ -49,8 +71,30 @@ public abstract class TextFormatter<F, T> {
             return attribute.continuation("\\");
         }
     };
-    public static final TextFormatter<String, String> DEFAULT = BASE_FORMATTER.merge(DEFAULT_NEW_LINE)
-            .merge(DEFAULT_END_OF_LINE).merge(DEFAULT_CONTINUE_CHAR);
+    public static final TextFormatter<String, String> RET_EOL = new TextFormatter<String, String>() {
+        @Override
+        public String description() {
+            return "use ⏎ as end of line character";
+        }
+
+        @Override
+        protected TextAttribute attribute(TextAttribute attribute) {
+            return attribute.endOfLine("⏎");
+        }
+    };
+    public static final TextFormatter<String, String> NL = new TextFormatter<String, String>() {
+        @Override
+        public String description() {
+            return "use system new line as new line";
+        }
+
+        @Override
+        protected TextAttribute attribute(TextAttribute attribute) {
+            return attribute.newLine(System.lineSeparator());
+        }
+    };
+    public static final TextFormatter<String, String> DEFAULT = BASE_FORMATTER.merge(LF_NL)
+            .merge(LT_EOL).merge(BSL_CONT);
 
     @SuppressWarnings("unchecked")
     protected T format(F content, TextAttribute attribute, DALRuntimeContext context) {
