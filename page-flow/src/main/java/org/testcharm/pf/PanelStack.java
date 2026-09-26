@@ -1,6 +1,7 @@
 package org.testcharm.pf;
 
 //TODO need test
+@Deprecated
 public class PanelStack<P extends Panel<? extends Element<?, ?, ?>>> {
     protected P current = null;
 

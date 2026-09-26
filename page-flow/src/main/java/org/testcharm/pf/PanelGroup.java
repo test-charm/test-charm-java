@@ -3,6 +3,7 @@ package org.testcharm.pf;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class PanelGroup<P extends Panel<? extends Element<?, ?, ?>>> {
     protected List<P> opened = new ArrayList<>();
 

@@ -1,5 +1,6 @@
 package org.testcharm.pf;
 
+@Deprecated
 public interface Target<P> {
     void navigateTo();
 
