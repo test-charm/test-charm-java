@@ -1,6 +1,6 @@
 package org.testcharm.pf;
 
-public interface WebElement<T extends WebElement<T, E, P>, E, P extends PageFlow> extends Element<T, E, P> {
+public interface WebElement<E extends WebElement<E, RE, PF>, RE, PF extends PageFlow> extends Element<E, RE, PF> {
 
     String[] EMPTY_STRING_ARRAY = new String[0];
 
@@ -34,5 +34,5 @@ public interface WebElement<T extends WebElement<T, E, P>, E, P extends PageFlow
         return Element.super.value();
     }
 
-    T download();
+    E download();
 }

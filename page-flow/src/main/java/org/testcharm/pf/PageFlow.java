@@ -11,4 +11,6 @@ public interface PageFlow {
     JFactory jFactory();
 
     Map<String, Object> objects();
+
+    PageFactory pageFactory();
 }

@@ -8,22 +8,22 @@ import org.testcharm.util.Sneaky;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LocatorElements<T extends Element<T, ?, ?>> implements Elements<T> {
-    private final T element;
+public class LocatorElements<E extends Element<E, ?, ?>> implements Elements<E> {
+    private final E element;
     private final By locator;
 
-    public LocatorElements(By locator, T element) {
+    public LocatorElements(By locator, E element) {
         this.locator = locator;
         this.element = element;
     }
 
     @Override
-    public DALCollection<T> list() {
+    public DALCollection<E> list() {
         Element.logger.info("Selector: " + locateInfo(IndentBuffer.create()));
         List<?> elements = element.findElements(locator);
         Element.logger.info(String.format("Found %d elements", elements.size()));
         return new CollectionDALCollection<>(elements.stream().map(element1 -> {
-            T child = element.newChildren(Sneaky.cast(element1));
+            E child = element.newChildren(Sneaky.cast(element1));
             child.parent(element);
             child.setLocator(locator);
             return child;

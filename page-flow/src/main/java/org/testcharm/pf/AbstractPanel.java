@@ -1,15 +1,15 @@
 package org.testcharm.pf;
 
 //TODO need test
-public class AbstractPanel<T extends Element<T, ?, ?>> implements Panel<T> {
-    private final T element;
+public class AbstractPanel<E extends Element<E, ?, ?>> implements Panel<E> {
+    private final E element;
 
-    public AbstractPanel(T element) {
+    public AbstractPanel(E element) {
         this.element = element;
     }
 
     @Override
-    public T element() {
+    public E element() {
         return element;
     }
 

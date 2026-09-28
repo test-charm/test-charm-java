@@ -12,15 +12,15 @@ import java.util.List;
 
 import static org.testcharm.dal.Assertions.expect;
 
-public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
+public interface Element<E extends Element<E, RE, PF>, RE, PF extends PageFlow> {
     Logger logger = LoggerFactory.getLogger(Element.class);
 
     @SuppressWarnings("unchecked")
-    default T newChildren(E element) {
-        return (T) BeanClass.create(getClass()).newInstance(pageFlow(), element);
+    default E newChildren(RE element) {
+        return (E) BeanClass.create(getClass()).newInstance(pageFlow(), element);
     }
 
-    List<E> findElements(By by);
+    List<RE> findElements(By by);
 
     default int defaultTimeout() {
         return 8888;
@@ -28,12 +28,12 @@ public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
 
     int timeout();
 
-    T patience(String time);
+    E patience(String time);
 
     @SuppressWarnings("unchecked")
     default List<By> locators() {
         return new ArrayList<By>() {{
-            for (T p = (T) Element.this; p != null; p = p.parent())
+            for (E p = (E) Element.this; p != null; p = p.parent())
                 if (p.getLocator() != null)
                     add(0, p.getLocator());
         }};
@@ -43,13 +43,13 @@ public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
 
     String text();
 
-    T click();
+    E click();
 
-    T typeIn(String value);
+    E typeIn(String value);
 
-    T clear();
+    E clear();
 
-    default T fillIn(Object value) {
+    default E fillIn(Object value) {
         return clear().typeIn(String.valueOf(value));
     }
 
@@ -73,11 +73,11 @@ public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
 
     By getLocator();
 
-    T setLocator(By locator);
+    E setLocator(By locator);
 
-    T parent();
+    E parent();
 
-    T parent(T parent);
+    E parent(E parent);
 
     default Object value() {
         throw new UnsupportedOperationException("Not support operation");
@@ -86,31 +86,31 @@ public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
     byte[] screenshot();
 
     @SuppressWarnings("unchecked")
-    default Elements<T> find(By locator) {
-        return new LocatorElements<>(locator, (T) this);
+    default Elements<E> find(By locator) {
+        return new LocatorElements<>(locator, (E) this);
     }
 
-    default Elements<T> css(String css) {
+    default Elements<E> css(String css) {
         return find(By.css(css));
     }
 
-    default Elements<T> caption(String text) {
+    default Elements<E> caption(String text) {
         return find(By.caption(text));
     }
 
-    default Elements<T> xpath(String xpath) {
+    default Elements<E> xpath(String xpath) {
         return find(By.xpath(xpath));
     }
 
-    default Elements<T> placeholder(String placeholder) {
+    default Elements<E> placeholder(String placeholder) {
         return find(By.placeholder(placeholder));
     }
 
     String getDom();
 
-    P pageFlow();
+    PF pageFlow();
 
-    E raw();
+    RE raw();
 
     boolean isEnabled();
 
@@ -130,15 +130,15 @@ public interface Element<T extends Element<T, E, P>, E, P extends PageFlow> {
         return Evaluator.evaluateAll(expressions).by(pageFlow().dal()).constants(constants).on(this);
     }
 
-    default Elements<T> locate(String expression) {
+    default Elements<E> locate(String expression) {
         return locate(expression, null);
     }
 
     @SuppressWarnings("unchecked")
-    default Elements<T> locate(String expression, Object constants) {
+    default Elements<E> locate(String expression, Object constants) {
         Object elements = Accessors.get(expression).by(pageFlow().dal()).constants(constants).from(this);
         if (elements instanceof Elements)
-            return (Elements<T>) elements;
+            return (Elements<E>) elements;
         throw new IllegalStateException("Locate should return type Elements, but got: " + elements);
     }
 

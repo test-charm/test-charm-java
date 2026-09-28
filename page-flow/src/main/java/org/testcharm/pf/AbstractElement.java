@@ -2,26 +2,26 @@ package org.testcharm.pf;
 
 import org.testcharm.dal.extensions.basic.TimeUtil;
 
-public abstract class AbstractElement<T extends Element<T, E, P>, E, P extends PageFlow> implements Element<T, E, P> {
+public abstract class AbstractElement<E extends Element<E, RE, PF>, RE, PF extends PageFlow> implements Element<E, RE, PF> {
     private By locator;
-    private T parent;
+    private E parent;
     private int timeout = -1;
 
-    private final E element;
-    private final P pageFlow;
+    private final RE element;
+    private final PF pageFlow;
 
-    protected AbstractElement(P pageFlow, E e) {
+    protected AbstractElement(PF pageFlow, RE e) {
         element = e;
         this.pageFlow = pageFlow;
     }
 
     @Override
-    public P pageFlow() {
+    public PF pageFlow() {
         return pageFlow;
     }
 
     @Override
-    public E raw() {
+    public RE raw() {
         return element;
     }
 
@@ -32,24 +32,24 @@ public abstract class AbstractElement<T extends Element<T, E, P>, E, P extends P
 
     @SuppressWarnings("unchecked")
     @Override
-    public T setLocator(By locator) {
+    public E setLocator(By locator) {
         this.locator = locator;
-        return (T) this;
+        return (E) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public T patience(String time) {
-        T duplicated = duplicate();
-        ((AbstractElement<T, E, P>) duplicated).timeout = TimeUtil.parseTime(time);
+    public E patience(String time) {
+        E duplicated = duplicate();
+        ((AbstractElement<E, RE, PF>) duplicated).timeout = TimeUtil.parseTime(time);
         return duplicated;
     }
 
     @SuppressWarnings("unchecked")
-    protected T duplicate() {
-        T duplicated = newChildren(element);
-        ((AbstractElement<T, E, P>) duplicated).timeout = timeout;
-        ((AbstractElement<T, E, P>) duplicated).locator = locator;
+    protected E duplicate() {
+        E duplicated = newChildren(element);
+        ((AbstractElement<E, RE, PF>) duplicated).timeout = timeout;
+        ((AbstractElement<E, RE, PF>) duplicated).locator = locator;
         return duplicated;
     }
 
@@ -61,15 +61,15 @@ public abstract class AbstractElement<T extends Element<T, E, P>, E, P extends P
     }
 
     @Override
-    public T parent() {
+    public E parent() {
         return parent;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public T parent(T parent) {
+    public E parent(E parent) {
         this.parent = parent;
-        return (T) this;
+        return (E) this;
     }
 
     @Override

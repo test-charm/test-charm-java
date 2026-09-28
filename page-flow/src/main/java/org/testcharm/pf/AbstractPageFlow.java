@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AbstractPageFlow implements PageFlow {
-    private static AbstractPageFlow instance;
     private final DAL dal;
     private final JFactory jFactory;
     private final Map<String, Object> objects = new HashMap<>();
+    private final PageFactory pageFactory = new PageFactory();
 
     AbstractPageFlow(Builder<?, ?> builder) {
         dal = builder.dal;
@@ -30,6 +30,11 @@ public class AbstractPageFlow implements PageFlow {
     @Override
     public Map<String, Object> objects() {
         return objects;
+    }
+
+    @Override
+    public PageFactory pageFactory() {
+        return pageFactory;
     }
 
     abstract static class Builder<B extends Builder<B, P>, P extends PageFlow> {
