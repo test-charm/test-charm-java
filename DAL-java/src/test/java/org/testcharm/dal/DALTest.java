@@ -1,12 +1,12 @@
 package org.testcharm.dal;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.testcharm.dal.extensions.DALExtension;
 import org.testcharm.dal.runtime.inspector.DumperFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DALTest {
     public static String staticMethod(String str) {
@@ -83,5 +83,25 @@ public class DALTest {
 
         assertEquals("*skipped*",
                 dal.getRuntimeContextBuilder().build(new SkipType()).getThis().dump());
+    }
+
+    @Nested
+    class TestBoolean {
+        DAL dal = new DAL("for test").extend();
+
+        @Test
+        void passed_should_return_true() {
+            assertTrue(dal.test("a", "= 'a'"));
+        }
+
+        @Test
+        void failed_should_return_false() {
+            assertFalse(dal.test("a", "= 'b'"));
+        }
+
+        @Test
+        void syntax_error_should_be_raised() {
+
+        }
     }
 }

@@ -142,4 +142,15 @@ public class DAL {
     public Data<?> wrap(Object object) {
         return getRuntimeContextBuilder().build(object).getThis();
     }
+
+    public boolean test(Object input, String expression) {
+        try {
+            evaluate(input, expression);
+            return true;
+        } catch (SyntaxException e) {
+            throw new RuntimeException("\n" + e.show(expression, 0) + "\n\n" + e.getMessage());
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

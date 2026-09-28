@@ -10,7 +10,7 @@ public class AbstractPageFlow implements PageFlow {
     private final DAL dal;
     private final JFactory jFactory;
     private final Map<String, Object> objects = new HashMap<>();
-    private final PageFactory pageFactory = new PageFactory();
+    private final PageFactory pageFactory = new PageFactory(this);
 
     AbstractPageFlow(Builder<?, ?> builder) {
         dal = builder.dal;

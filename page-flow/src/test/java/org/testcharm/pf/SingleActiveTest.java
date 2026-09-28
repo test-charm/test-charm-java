@@ -112,5 +112,36 @@ class SingleActiveTest {
             assertTrue(launch2 == anotherPage);
             verify(sameLauncher).open(indicator);
         }
+
+
+        @Test
+        void create_page_instance_by_page_factory() {
+            Page<?> pageByFactory = mock(Page.class);
+
+            pageFlow.pageFactory().register("id= [root]", (e, indicator) -> {
+                assertTrue(element == e);
+                return pageByFactory;
+            });
+
+            Page<?> launch = singleActive.launch(root("root"), Launcher.launcher(() -> {
+            }, () -> element, (e, ind) -> page));
+
+            assertTrue(launch == pageByFactory);
+        }
+
+        @Test
+        void miss_matched() {
+            Page<?> pageByFactory = mock(Page.class);
+
+            pageFlow.pageFactory().register("id= [admin]", (e, indicator) -> {
+                assertTrue(element == e);
+                return pageByFactory;
+            });
+
+            Page<?> launch = singleActive.launch(root("root"), Launcher.launcher(() -> {
+            }, () -> element, (e, ind) -> page));
+
+            assertTrue(launch == page);
+        }
     }
 }

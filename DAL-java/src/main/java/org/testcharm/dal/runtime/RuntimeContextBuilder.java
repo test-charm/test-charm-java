@@ -42,6 +42,7 @@ import static org.testcharm.util.Sneaky.cast;
 import static org.testcharm.util.Sneaky.sneakyThrow;
 
 public class RuntimeContextBuilder {
+    public static final LinkedList<Operation<?, ?>> EMPTY_LINKED_LIST = new LinkedList<>();
     private final ClassKeyMap<PropertyAccessor<?>> propertyAccessors = new ClassKeyMap<>();
     private final ClassKeyMap<DALCollectionFactory<Object, Object>> dALCollectionFactories = new ClassKeyMap<>();
     private final ClassKeyMap<Function<Object, Object>> objectImplicitMapper = new ClassKeyMap<>();
@@ -650,7 +651,7 @@ public class RuntimeContextBuilder {
 
         @SuppressWarnings("unchecked")
         public Data<?> calculate(Data<?> v1, DALOperator opt, Data<?> v2) {
-            for (Operation operation : operations.get(opt.type()))
+            for (Operation operation : operations.getOrDefault(opt.type(), EMPTY_LINKED_LIST))
                 if (operation.match(v1, opt, v2, this))
                     return operation.operate(v1, opt, v2, this);
             throw illegalOperation(format("No operation `%s` between '%s' and '%s'", opt.type(),
