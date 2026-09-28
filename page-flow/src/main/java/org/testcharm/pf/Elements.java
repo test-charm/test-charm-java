@@ -13,29 +13,30 @@ import java.util.function.Predicate;
 
 import static java.lang.System.identityHashCode;
 
-public interface Elements<T extends Element<T, ?, ?>> extends SoloList<T> {
+public interface Elements<E extends Element<E, ?, ?>> extends SoloList<E> {
 
-    static <T extends Element<T, ?, ?>> Elements<T> concat(Elements<T> elements1, Elements<T> elements2) {
-        return new GroupElements<>(elements1, elements2);
+    @SafeVarargs
+    static <T extends Element<T, ?, ?>> Elements<T> concat(Elements<T> elements1, Elements<T>... elementsList) {
+        return new GroupElements<>(elements1, elementsList);
     }
 
-    default Elements<T> filter(Predicate<T> predicate) {
+    default Elements<E> filter(Predicate<E> predicate) {
         return filter(predicate, "source code");
     }
 
-    default Elements<T> filter(Predicate<T> predicate, String name) {
-        return new Elements<T>() {
+    default Elements<E> filter(Predicate<E> predicate, String name) {
+        return new Elements<E>() {
             @Override
             public int timeout() {
                 return Elements.this.timeout();
             }
 
             @Override
-            public DALCollection<T> list() {
+            public DALCollection<E> list() {
                 String objectId = Integer.toHexString(identityHashCode(this)).toUpperCase();
                 Element.logger.info(String.format("Filtering by %s(@%s)", name, objectId));
-                DALCollection<T> list = Elements.this.list();
-                DALCollection<T> filtered = list.filter(predicate);
+                DALCollection<E> list = Elements.this.list();
+                DALCollection<E> filtered = list.filter(predicate);
                 Element.logger.info(String.format("Filtered from %d to %d elements by %s(@%s)", list.size(),
                         filtered.size(), name, objectId));
                 return filtered;
@@ -51,12 +52,12 @@ public interface Elements<T extends Element<T, ?, ?>> extends SoloList<T> {
         };
     }
 
-    default Elements<T> visible() {
+    default Elements<E> visible() {
         return filter(e -> e.isVisible(), "visible");
     }
 
     @Override
-    default T single() {
+    default E single() {
         try {
             Element.logger.info(String.format("Locating... (%dms)", timeout()));
             return new Retryer(timeout(), 100).get(SoloList.super::single);
@@ -76,9 +77,11 @@ public interface Elements<T extends Element<T, ?, ?>> extends SoloList<T> {
     class GroupElements<T extends Element<T, ?, ?>> implements Elements<T> {
         private final List<Elements<T>> subElements = new ArrayList<>();
 
-        public GroupElements(Elements<T> elements1, Elements<T> elements2) {
+        @SafeVarargs
+        public GroupElements(Elements<T> elements1, Elements<T>... elementsList) {
             addElements(elements1);
-            addElements(elements2);
+            for (Elements<T> each : elementsList)
+                addElements(each);
         }
 
         private void addElements(Elements<T> sub) {
