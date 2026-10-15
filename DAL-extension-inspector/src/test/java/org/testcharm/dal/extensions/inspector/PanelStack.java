@@ -1,4 +1,7 @@
-package org.testcharm.pf;
+package org.testcharm.dal.extensions.inspector;
+
+import org.testcharm.pf.Element;
+import org.testcharm.pf.Panel;
 
 //TODO need test
 @Deprecated

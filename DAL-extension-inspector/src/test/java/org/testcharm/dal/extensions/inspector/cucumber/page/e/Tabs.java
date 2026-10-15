@@ -1,9 +1,9 @@
 package org.testcharm.dal.extensions.inspector.cucumber.page.e;
 
+import org.testcharm.dal.extensions.inspector.PanelStack;
+import org.testcharm.dal.extensions.inspector.Target;
 import org.testcharm.pf.AbstractPanel;
 import org.testcharm.pf.Element;
-import org.testcharm.pf.PanelStack;
-import org.testcharm.pf.Target;
 import org.testcharm.util.BeanClass;
 
 import static java.lang.String.format;

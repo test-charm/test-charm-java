@@ -1,4 +1,4 @@
-package org.testcharm.pf;
+package org.testcharm.dal.extensions.inspector;
 
 @Deprecated
 public interface Target<P> {

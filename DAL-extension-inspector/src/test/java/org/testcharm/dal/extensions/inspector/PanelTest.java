@@ -1,9 +1,13 @@
-package org.testcharm.pf;
+package org.testcharm.dal.extensions.inspector;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.testcharm.dal.DAL;
+import org.testcharm.pf.Element;
+import org.testcharm.pf.Elements;
+import org.testcharm.pf.PageFlow;
+import org.testcharm.pf.Panel;
 import org.testcharm.util.Sneaky;
 
 import java.util.HashMap;

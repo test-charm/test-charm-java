@@ -1,6 +1,7 @@
-package org.testcharm.pf;
+package org.testcharm.dal.extensions.inspector;
 
 import org.junit.jupiter.api.Test;
+import org.testcharm.pf.Panel;
 import org.testcharm.util.Sneaky;
 
 import static org.assertj.core.api.Assertions.assertThat;
