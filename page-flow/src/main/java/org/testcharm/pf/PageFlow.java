@@ -8,6 +8,8 @@ import java.util.Map;
 public interface PageFlow {
     DAL dal();
 
+    DAL dalPredicate();
+
     JFactory jFactory();
 
     Map<String, Object> objects();

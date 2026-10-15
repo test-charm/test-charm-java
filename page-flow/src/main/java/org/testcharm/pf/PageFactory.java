@@ -23,7 +23,7 @@ public class PageFactory {
     }
 
     public <E extends Element<E, ?, ?>> PageFactory register(String daLExpression, BiFunction<E, Indicator, Page<?>> constructor) {
-        return register(indicator -> pageFlow.dal().test(indicator, daLExpression), constructor);
+        return register(indicator -> pageFlow.dalPredicate().test(indicator, daLExpression), constructor);
     }
 
     public <E extends Element<E, ?, ?>> Optional<Page<?>> create(E element, Indicator indicator) {
