@@ -367,6 +367,63 @@ Feature: define link
       <<bean1.value, bean2.value, value>>= foo
       """
 
+    Scenario: bug - child producer is null
+      Given the following bean class:
+      """
+      public class Orders {
+        public Order order1, order2;
+      }
+      """
+      Given the following bean class:
+      """
+      public class Order {
+        public OrderLine line;
+      }
+      """
+      Given the following bean class:
+      """
+      public class OrderLine {
+        public Product product;
+      }
+      """
+      Given the following bean class:
+      """
+      public class Product {
+        public String name;
+      }
+      """
+      And register:
+      """
+      jFactory.type(Order.class)
+        .property("line.product.name", "name1")
+        .create();
+      """
+      And register:
+      """
+      jFactory.type(Order.class)
+        .property("line.product.name", "name2")
+        .create();
+      """
+      And register:
+      """
+      jFactory.factory(Orders.class).spec(spec -> spec
+          .link("order1.line.product.name", "order2.line.product.name"));
+      """
+      When build:
+      """
+      jFactory.type(Orders.class)
+        .property("order1.line.product.name", "name1")
+        .property("order2.line.product.name", "name2")
+        .create();
+      """
+      Then the result should:
+      """
+      : {
+        order1.line.product.name= name1
+        order2.line.product.name= name2
+      }
+      """
+
   Rule: link priority
 
     Scenario: use property value in link and keep readonly value

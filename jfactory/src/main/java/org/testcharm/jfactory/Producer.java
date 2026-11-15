@@ -65,8 +65,7 @@ abstract class Producer<T> {
 
     public void changeDescendant(PropertyChain property, BiFunction<Producer<?>, String, Producer<?>> producerFactory) {
         String tail = property.tail();
-        property.removeTail().access(this, Producer::childForUpdate, Optional::ofNullable).ifPresent(lastObjectProducer ->
-                lastObjectProducer.changeChild(tail, producerFactory.apply(lastObjectProducer, tail)));
+        descendantForUpdate(property.removeTail()).changeChild(tail, producerFactory.apply(descendantForUpdate(property.removeTail()), tail));
     }
 
     public BeanClass<?> getPropertyWriterType(String property) {
